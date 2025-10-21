@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <!-- Link to your existing sidebar styles -->
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <!-- Link to the updated settings styles below -->
+    <link rel="stylesheet" href="../../styles/settings.css">
+</head>
+<body>
+    <div class="layout" id="layout">
+        <!-- Sidebar placeholder. The sidebar.js will populate this. -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main content area where the settings page will be displayed -->
+        <main class="main-section">
+            <div class="content-area">
+                <div class="settings-container">
+
+                    <!-- ========================================================== -->
+                    <!-- VIEW 1: MAIN SETTINGS PAGE                                 -->
+                    <!-- ========================================================== -->
+                    <div id="settings-view">
+                        <div class="profile-header-main">
+                            <img id="settings-avatar-img" src="" alt="Admin Avatar" class="avatar-main" />
+                            <div class="profile-text-container">
+                                <h1 id="settings-name" class="user-name">Loading...</h1>
+                                <p id="settings-email" class="user-email">Loading...</p>
+                            </div>
+                        </div>
+
+                        <div class="settings-content">
+                            <div class="settings-group">
+                                <h2 class="settings-group-title">GENERAL</h2>
+                                <div class="settings-group-card">
+                                    <a href="#" id="edit-profile-btn" class="settings-item">
+                                        <div class="settings-item-icon"><i class="ph-fill ph-user-circle"></i></div>
+                                        <span class="settings-item-label">Edit Profile</span>
+                                        <i class="ph ph-caret-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <h2 class="settings-group-title">HELP & SUPPORT</h2>
+                                <div class="settings-group-card">
+                                    <a href="guide.html" class="settings-item">
+                                        <div class="settings-item-icon"><i class="ph-fill ph-book-open"></i></div>
+                                        <span class="settings-item-label">Guide</span>
+                                        <i class="ph ph-caret-right"></i>
+                                    </a>
+                                    <div class="separator"></div>
+                                    <a href="about.html" class="settings-item">
+                                        <div class="settings-item-icon"><i class="ph-fill ph-info"></i></div>
+                                        <span class="settings-item-label">About App</span>
+                                        <i class="ph ph-caret-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div id="system-settings-group" class="settings-group hidden">
+                                <h2 class="settings-group-title">SYSTEM</h2>
+                                <div class="settings-group-card">
+                                    <a href="user-management.html" class="settings-item">
+                                        <div class="settings-item-icon"><i class="ph-fill ph-users"></i></div>
+                                        <span class="settings-item-label">User Management</span>
+                                        <i class="ph ph-caret-right"></i>
+                                    </a>
+                                    <div class="separator"></div>
+                                    <a href="systemconfig.html" class="settings-item">
+                                        <div class="settings-item-icon"><i class="ph-fill ph-gear-six"></i></div>
+                                        <span class="settings-item-label">System Configuration</span>
+                                        <i class="ph ph-caret-right"></i>
+                                    </a>
+                                    <div class="separator"></div>
+                                    <a href="activity-log.html" class="settings-item">
+                                        <div class="settings-item-icon"><i class="ph-fill ph-file-text"></i></div>
+                                        <span class="settings-item-label">Activity Log</span>
+                                        <i class="ph ph-caret-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <a href="#" id="logout-btn-main" class="logout-button">
+                                <i class="ph-fill ph-sign-out"></i>
+                                <span class="logout-button-text">Logout</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================== -->
+                    <!-- VIEW 2: EDIT PROFILE PAGE                                  -->
+                    <!-- ========================================================== -->
+                    <div id="edit-profile-view" class="hidden">
+                        <a href="#" id="back-to-settings-btn" class="back-button">
+                            <i class="ph ph-arrow-left"></i>
+                            <span>Back to Settings</span>
+                        </a>
+                        <div class="profile-header-card">
+                            <div class="avatar-edit-container">
+                                <img id="edit-avatar-img" src="" class="avatar-edit" alt="Profile Avatar" />
+                                <button id="change-photo-btn" class="camera-button" title="Change Photo">
+                                    <i class="ph-fill ph-camera"></i>
+                                </button>
+                                <div id="upload-overlay" class="upload-overlay hidden"><div class="spinner"></div></div>
+                            </div>
+                            <h1 id="edit-name" class="display-name">Loading...</h1>
+                            <p id="edit-email" class="email">Loading...</p>
+                        </div>
+                        <div class="settings-content">
+                            <div class="card">
+                                <h2 class="card-title">ACCOUNT DETAILS</h2>
+                                <form id="profile-form">
+                                    <div class="input-group">
+                                        <i class="ph ph-user"></i>
+                                        <input type="text" id="full-name" name="displayName" required placeholder="Enter your display name">
+                                    </div>
+                                    <button type="submit" id="save-changes-btn" class="button-primary">Save Changes</button>
+                                </form>
+                            </div>
+                            <div class="card">
+                                <h2 class="card-title">SECURITY & ACTIONS</h2>
+                                <a href="inbox.html" class="settings-item-card"><i class="ph-fill ph-inbox" style="color: #3498db;"></i><span class="settings-item-label">Inbox</span><i class="ph ph-caret-right"></i></a>
+                                <div class="separator-card"></div>
+                                <a href="changepassword.html" class="settings-item-card"><i class="ph-fill ph-lock-key" style="color: #f39c12;"></i><span class="settings-item-label">Change Password</span><i class="ph ph-caret-right"></i></a>
+                                <div class="separator-card"></div>
+                                <a href="#" id="logout-btn-profile" class="settings-item-card destructive"><i class="ph-fill ph-sign-out"></i><span class="settings-item-label">Logout</span><i class="ph ph-caret-right"></i></a>
+                            </div>
+                        </div>
+                        <input type="file" id="photo-upload-input" accept="image/*" class="hidden">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Your script for the sidebar -->
+    <script src="../../scripts/sidebar.js"></script>
+    <!-- Your script for the settings functionality -->
+    <script src="../../scripts/settings.js"></script>
+</body>
+</html>

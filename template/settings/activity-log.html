@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Log</title>
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <!-- Main Stylesheets -->
+    <link rel="stylesheet" href="../../styles/activity-log.css">
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+</head>
+<body data-page="settings"> <!-- Keeps the 'Settings' link active -->
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div>
+        <!-- MAIN CONTENT -->
+        <main class="main-section">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="back-btn" title="Go Back">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <h1>Activity Log</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile">
+                        <img src="https://i.pravatar.cc/40?img=1" class="avatar-img" alt="Admin Avatar"/>
+                        <div class="profile-info">
+                            <p class="name">Admin</p>
+                            <p class="fullname">Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- ACTIVITY LOG CONTAINER -->
+            <div class="log-container">
+                <header class="log-header">
+                    <h2>System Activity Log</h2>
+                    <p>Detailed log of actions taken by administrators on user accounts.</p>
+                </header>
+                
+                <ul class="timeline" id="timeline-list">
+                    <!-- Initial state is handled by JS -->
+                    <li class="loading-placeholder">Loading activity logs...</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+    <!-- Scripts -->
+    <script src="../../scripts/sidebar.js"></script>
+    <script src="../../scripts/activity-log.js"></script>
+</body>
+</html>

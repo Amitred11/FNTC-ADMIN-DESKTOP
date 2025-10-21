@@ -1,0 +1,359 @@
+/* styles/system-config.css */
+
+:root {
+    /* Color Palette */
+    --primary-color: #007BFF; /* A professional and vibrant blue */
+    --primary-hover: #0056b3;
+    --primary-disabled: #a0c7ff;
+    --primary-light-bg: #e6f2ff;
+
+    --text-primary: #1D2D3E;
+    --text-secondary: #5A6A7B;
+    --border-color: #DDE2E7;
+    --input-bg: #FFFFFF;
+    --card-bg: #FFFFFF;
+    --page-bg: #0A3D62;
+    --text-light:#FFFFFF; 
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+    /* Toast Colors */
+    --toast-success-bg: #28a745;
+    --toast-error-bg: #dc3545;
+    --toast-text-color: #FFFFFF;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    margin: 0;
+    overflow: hidden;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: 100vh;
+}
+
+.main-section {
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 40px;
+    color: var(--text-light);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-left h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.back-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-info .name {
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0;
+}
+
+.profile-info .fullname {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+
+/* Apply page background color to the main content area */
+.main-section {
+    background-color: var(--page-bg);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Main card container for the form */
+.config-card {
+    background-color: var(--card-bg);
+    color: var(--text-light);
+    margin: 32px;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.system-config-form {
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+/* General info box at the top */
+.info-box.top-info {
+    background-color: var(--primary-light-bg);
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--primary-color);
+    border-left-width: 5px;
+}
+.info-box.top-info .ph-fill {
+    font-size: 1.5rem;
+    color: var(--text-light);
+}
+.info-box.top-info p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Styling for each major section */
+.config-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.config-section:last-of-type {
+    margin-bottom: 1.5rem;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Header within each section */
+.config-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+.config-header .ph-fill {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Smaller info boxes inside sections */
+.info-box {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    background-color: var(--text-light);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+}
+.info-box .ph-fill {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+.info-box p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Container for label + input */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+}
+.form-group input::placeholder {
+    color: #98A2B3;
+}
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+}
+
+/* Wrapper for password input and toggle icon */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.password-input-wrapper input {
+    padding-right: 48px; /* Make space for the icon */
+}
+.password-toggle-icon {
+    position: absolute;
+    right: 16px;
+    font-size: 1.25rem;
+    color: #98A2B3;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.password-toggle-icon:hover {
+    color: var(--text-primary);
+}
+
+/* Footer with the save button */
+.form-footer {
+    text-align: right;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+.btn.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+.btn.btn-primary:disabled {
+    background-color: var(--primary-disabled);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* --- Toast Notification System --- */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    color: var(--toast-text-color);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 0;
+    animation: slideIn 0.3s forwards, fadeOut 0.5s 4.5s forwards;
+}
+.toast.success {
+    background-color: var(--toast-success-bg);
+}
+.toast.error {
+    background-color: var(--toast-error-bg);
+}
+.toast-icon {
+    font-size: 1.4rem;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}

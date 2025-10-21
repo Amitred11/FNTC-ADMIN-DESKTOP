@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Documentation</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+
+    <!-- Shared Stylesheets -->
+    <link rel="stylesheet" href="../../styles/dashboard.css"> <!-- Main styles for variables, etc. -->
+    <link rel="stylesheet" href="../../styles/sidebar.css">   <!-- Your shared sidebar styles -->
+    
+    <!-- Page-Specific Stylesheet -->
+    <link rel="stylesheet" href="../../styles/guide.css">
+</head>
+<body>
+
+    <div class="layout">
+        <!-- The sidebar will be loaded here by sidebar.js -->
+        <div id="sidebar-container"></div>
+
+        <!-- MAIN DOCUMENT CONTENT -->
+        <main class="main-content">
+            <div class="container">
+                <button class="back-btn" title="Go Back" onclick="history.back()">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+
+                <h1 class="mainTitle">App Documentation</h1>
+                <p class="mainSubtitle">A guide to managing the FiBear Network system.</p>
+
+                <div class="doc-section">
+                    <h2>Understanding User Roles</h2>
+                    <p>This admin panel has three distinct user roles, each with specific permissions. The tabs and features you see are based on your assigned role.</p>
+                    <h3 class="sub-header">Super Admin</h3>
+                    <ul>
+                        <li>Has full system oversight. Can manage users, subscriptions, billing, job orders, tickets, and system configuration.</li>
+                    </ul>
+                    <h3 class="sub-header">Collector</h3>
+                    <ul>
+                        <li>Focused on financial tasks. Can view the dashboard and manage the <span class="highlight">Billing</span> section to track payments and view invoices.</li>
+                    </ul>
+                    <h3 class="sub-header">Field Agent</h3>
+                    <ul>
+                        <li>Responsible for on-site tasks. Can view their assigned <span class="highlight">Job Orders</span> and handle related <span class="highlight">Support Tickets</span>.</li>
+                    </ul>
+                </div>
+
+                <div class="doc-section">
+                    <h2>Dashboard Overview</h2>
+                    <p>The Dashboard provides a real-time snapshot of system health. Key metrics include total subscribers, pending payments, and open tickets. The statistics you see may be tailored to your role.</p>
+                </div>
+
+                <div class="doc-section">
+                    <h2>Core Workflow: Managing a New Subscriber</h2>
+                    <p>The "Action Inbox" (or <span class="highlight">Pending</span> tab) is the central hub for pending tasks. This workflow is primarily managed by users with the <span class="highlight">Super Admin</span> role.</p>
+                    <h3 class="sub-header">Step 1: Approve Verification</h3>
+                    <ul>
+                        <li>An application in <span class="highlight">Pending Application</span> status appears. Review the user's details and click "Approve" to create the initial bill and a job order.</li>
+                    </ul>
+                    <h3 class="sub-header">Step 2: Installation</h3>
+                    <p>A field agent is assigned the job order. No action is required from the admin until the installation is complete.</p>
+                    <h3 class="sub-header">Step 3: Activate Subscription</h3>
+                    <ul>
+                        <li>Once the field agent confirms installation is complete, find the user in the <span class="highlight">Pending Installation</span> section and click "Activate" to start their billing cycle.</li>
+                    </ul>
+                </div>
+
+                <div class="doc-section">
+                    <h2>Ticket Management</h2>
+                    <p>This section is for formal support requests and is available to both <span class="highlight">Super Admins</span> and <span class="highlight">Field Agents</span> to coordinate on technical issues.</p>
+                    <ul>
+                        <li>You can send <span class="highlight">one comprehensive reply</span> per ticket. This reply can be edited or deleted.</li>
+                        <li>Update the ticket's status (<span class="highlight">In Progress</span>, <span class="highlight">Resolved</span>) to keep the user informed.</li>
+                    </ul>
+                </div>
+
+                <div class="doc-section">
+                    <h2>Live Chat</h2>
+                    <p>Live Chat provides real-time assistance. An <span class="highlight">unread dot</span> indicates new user messages. This feature is exclusive to <span class="highlight">Super Admins</span>.</p>
+                    <ul>
+                        <li>After the conversation, you must <span class="highlight">close the chat</span> to archive it.</li>
+                    </ul>
+                </div>
+                
+                <div class="doc-section">
+                    <h2>User Management</h2>
+                    <p>The "User Management" screen is a full directory of every user. This is an exclusive feature for the <span class="highlight">Super Admin</span> role.</p>
+                    <ul>
+                        <li>Search for users by name or email.</li>
+                        <li>Tap any user to see their detailed profile, including all associated subscriptions, bills, and tickets.</li>
+                    </ul>
+                </div>
+
+                <div class="doc-section">
+                    <h2>Activity Log</h2>
+                    <p>The Activity Log provides a chronological timeline of all significant system events, useful for auditing. Access is limited to <span class="highlight">Super Admins</span>.</p>
+                </div>
+
+                <div class="doc-section">
+                    <h2>System Configuration</h2>
+                    <p>This screen allows <span class="highlight">Super Admins</span> to manage dynamic API keys for services like SendGrid (emails) and Xendit (payments).</p>
+                </div>
+
+                <div class="doc-section">
+                    <h2>Getting Help</h2>
+                    <p>If you encounter issues or have questions not covered in this guide, please use the "Contact Support" option in the Settings tab.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- This script dynamically loads your sidebar component -->
+   <script src="../../scripts/sidebar.js"></script>
+</body>
+</html>

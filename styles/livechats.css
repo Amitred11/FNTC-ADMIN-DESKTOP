@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-main: #F4F7FC;
+    --bg-header: #0A3D62;
+    --bg-content: #FFFFFF;
+    --primary: #2979FF;
+    --primary-light: #E3F2FD;
+    --secondary: #6c757d;
+    --text-dark: #333333;
+    --text-light: #FFFFFF;
+    --text-muted: #888888;
+    --border-color: #E0E0E0;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --danger: #D32F2F;
+    --status-active: #388E3C;
+    --user-message-bg: #F1F3F5;
+    --admin-message-bg: #E3F2FD;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: 'Poppins', sans-serif; background-color: var(--bg-main); color: var(--text-dark); overflow: hidden; height: 100vh; }
+.layout { display: grid; grid-template-columns: 260px 1fr; height: 100vh; }
+
+/* --- HEADER --- */
+.main-section { display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+.header { background-color: var(--bg-header); display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; color: var(--text-light); }
+.header-left h1 { font-size: 28px; font-weight: 600; margin: 0; }
+.header-left p { font-size: 14px; opacity: 0.8; margin-top: 4px; }
+.header-right { display: flex; align-items: center; gap: 24px; }
+.notification { font-size: 24px; cursor: pointer; }
+.profile { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-info .name { font-weight: 600; font-size: 14px; margin: 0; }
+.profile-info .fullname { font-size: 12px; opacity: 0.8; margin: 0; }
+
+/* --- LIVE CHAT SECTION --- */
+.livechats-section {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+    padding: 32px;
+    height: calc(100vh - 100px); /* Full height minus header */
+}
+
+/* Left Panel: Active Chats List */
+.active-chats {
+    background: var(--bg-content);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.active-chats h2 { font-size: 18px; margin-bottom: 16px; color: var(--text-dark); }
+#chat-list-container { overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+
+.chat-card {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+.chat-card.active, .chat-card:hover { background-color: #F8F9FA; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+.chat-card header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.chat-card h3 { font-size: 15px; font-weight: 600; margin: 0; }
+.chat-card time { font-size: 12px; color: var(--text-muted); }
+.chat-card p { font-size: 13px; color: #555; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-card footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.chat-card-actions button { background: none; border: none; font-size: 12px; color: var(--secondary); cursor: pointer; padding: 4px; }
+.msg-count { background-color: var(--danger); color: white; min-width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; }
+
+/* Right Panel: Chat Window */
+.chat-window {
+    background-color: var(--bg-content);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.chat-placeholder { display: flex; justify-content: center; align-items: center; height: 100%; color: var(--text-muted); text-align: center; }
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.chat-header-info h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.chat-header-info .status { color: var(--status-active); font-size: 13px; font-weight: 500; }
+.chat-header-actions { display: flex; gap: 8px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; height: 36px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; border: 1px solid transparent; }
+.btn.primary { background: var(--primary); color: white; }
+.btn.secondary { background: transparent; color: var(--secondary); border-color: var(--border-color); }
+
+.chat-body {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.message { display: flex; flex-direction: column; max-width: 75%; }
+.message p { padding: 10px 14px; border-radius: 12px; line-height: 1.5; }
+.message time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.message.user { align-self: flex-start; }
+.message.user p { background-color: var(--user-message-bg); }
+.message.user time { text-align: left; }
+.message.admin { align-self: flex-end; }
+.message.admin p { background-color: var(--admin-message-bg); }
+.message.admin time { text-align: right; }
+
+.chat-footer {
+    display: flex;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    gap: 12px;
+}
+#chat-input { flex: 1; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; resize: none; }
+#send-reply-btn { height: 44px; }
+.active-chats h2 {
+    margin-bottom: 8px; /* Adjusted margin */
+}
+
+#search-chat-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 16px; /* Space between search and list */
+    font-family: 'Poppins', sans-serif;
+}
+
+#search-chat-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(41, 121, 255, 0.2);
+}
+
+.chat-card.hidden {
+    display: none;
+}

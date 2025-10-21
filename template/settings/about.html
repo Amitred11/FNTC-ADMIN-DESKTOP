@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <!-- Main Stylesheets -->
+    <link rel="stylesheet" href="../../styles/about.css">
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+</head>
+<body data-page="settings"> <!-- This helps keep 'Settings' active in the sidebar -->
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div>
+        <!-- MAIN CONTENT -->
+        <main class="main-section">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="back-btn" title="Go Back" onclick="history.back()">>
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <h1>About</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile">
+                        <img src="https://i.pravatar.cc/40?img=1" class="avatar-img" alt="Admin Avatar"/>
+                        <div class="profile-info">
+                            <p class="name">Admin</p>
+                            <p class="fullname">Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENT WRAPPER -->
+            <div class="content-wrapper">
+                <!-- About Section -->
+                <section class="info-section">
+                    <header class="section-header">
+                        <i class="ph-fill ph-info"></i>
+                        <h2>About FiBear Network Technologies Corp.</h2>
+                    </header>
+                    <p>
+                        FiBear Network Technologies Corp. (FNTC) is an IT Company formally established on June 06, 2022 by a group of fifteen talented and skilled entrepreneurs. The company aims to provide fast, affordable, and reliable internet services across the country.
+                    </p>
+                    <blockquote>
+                        "During the pandemic lockdowns, President & CEO Prince Seath E. Danalo realized the growing demand for reliable and affordable internet, especially in areas where supply was scarce."
+                    </blockquote>
+                    <p>
+                        Having seen this as a business opportunity, he collaborated with 14 professionals in various IT fields to form FiBear Network Technologies Corp.
+                    </p>
+                </section>
+
+                <!-- Mission Section -->
+                <section class="info-section">
+                    <header class="section-header">
+                        <i class="ph-fill ph-rocket-launch"></i>
+                        <h2>Our Mission</h2>
+                    </header>
+                    <p>
+                        To provide high-speed, affordable, and reliable internet connectivity to every Filipino household and business, empowering communities through innovative digital solutions and exceptional customer service.
+                    </p>
+                </section>
+
+                <!-- Vision Section -->
+                <section class="info-section">
+                    <header class="section-header">
+                        <i class="ph-fill ph-eye"></i>
+                        <h2>Our Vision</h2>
+                    </header>
+                    <p>
+                        To be the country's most trusted and leading internet service provider, bridging digital gaps and fostering progress through technology-driven connectivity.
+                    </p>
+                </section>
+
+                <footer class="about-footer">
+                    <p>© 2025 FiBear Network Technologies Corp. | Version 4.5.06</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="../../scripts/sidebar.js"></script>
+</body>
+</html>

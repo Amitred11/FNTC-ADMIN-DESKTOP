@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox</title>
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <!-- Main Stylesheets -->
+    <link rel="stylesheet" href="../../styles/dashboard.css">
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/inbox.css">
+</head>
+<body>
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div>
+        <!-- MAIN CONTENT -->
+        <main class="main-section">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="back-btn" title="Go Back" onclick="history.back()">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <h1>Inbox</h1>
+                    <p>View and manage your system notifications.</p>
+                </div>
+                <div class="header-right">
+                    <i class="ph-fill ph-bell notification" title="Notifications"></i>
+                    <div class="profile">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="avatar-img" alt="Admin Avatar"/>
+                        <div class="profile-info">
+                            <p class="name">Admin</p>
+                            <p class="fullname">Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- INBOX CARD -->
+            <div class="card inbox-layout">
+                <div class="inbox-header">
+                    <h2>Admin Inbox</h2>
+                    <button class="btn btn-secondary"><i class="ph ph-arrow-clockwise"></i> Refresh</button>
+                </div>
+                <div class="inbox-body">
+                    <!-- Message List (will be populated by JS) -->
+                    <aside class="message-list">
+                        <p class="no-data">Loading messages...</p>
+                    </aside>
+                    <!-- Message View (will be populated by JS) -->
+                    <section class="message-view">
+                        <p class="no-data">Select a message to read.</p>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../scripts/sidebar.js"></script>
+    <script src="../../scripts/inbox.js"></script>
+</body>
+</html>

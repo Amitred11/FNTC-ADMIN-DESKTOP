@@ -1,0 +1,47 @@
+<!-- components/sidebar.html -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <!-- Use a root-relative path for the logo -->
+        <img src="/assets/logo.png" alt="Logo" class="logo" />
+        <button class="hamburger-btn" id="hamburger">
+            <i class="ph ph-list"></i>
+        </button>
+    </div>
+
+    <!-- MAIN MENU: All links are now root-relative -->
+    <nav class="menu-section">
+        <h4 class="sidebar-text">MAIN MENU</h4>
+        <a href="/template/main/dashboard.html" class="sidebar-btn" data-page="dashboard">
+            <i class="icon ph ph-squares-four"></i><span class="fontbt">Dashboard</span>
+        </a>
+        <a href="/template/main/subscription.html" class="sidebar-btn" data-page="subscriptions">
+            <i class="icon ph ph-newspaper"></i><span class="fontbt">Subscriptions</span>
+        </a>
+        <a href="/template/main/billing.html" class="sidebar-btn" data-page="billing">
+            <i class="icon ph ph-invoice"></i><span class="fontbt">Billing</span>
+        </a>
+        <a href="/template/main/joborder.html" class="sidebar-btn" data-page="joborder">
+            <i class="icon ph ph-users-three"></i><span class="fontbt">Job Order</span>
+        </a>
+    </nav>
+
+    <hr class="divider" />
+
+    <!-- GENERAL: All links are now root-relative -->
+    <nav class="menu-section">
+        <h4 class="sidebar-text">GENERAL</h4>
+        <a href="/template/support/support.html" class="sidebar-btn" data-page="support">
+            <i class="icon ph ph-ticket"></i><span class="fontbt">Support</span>
+        </a>
+        <a href="/template/support/livechats.html" class="sidebar-btn" data-page="livechats">
+            <i class="icon ph ph-chat-circle-dots"></i><span class="fontbt">Live Chats</span>
+        </a>
+        <a href="/template/settings/settings.html" class="sidebar-btn" data-page="settings">
+            <i class="icon ph ph-gear"></i><span class="fontbt">Settings</span>
+        </a>
+    </nav>
+
+    <a href="#" class="logout">
+        <i class="icon ph ph-sign-out"></i><span class="fontbt">Log Out</span>
+    </a>
+</aside>

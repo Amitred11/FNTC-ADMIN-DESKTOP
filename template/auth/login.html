@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiBear Admin Login - Refactored</title>
+    <!-- Link to your new CSS file -->
+    <link href="../../styles/login.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<div class="login-container">
+
+  <!-- Wave Background -->
+  <div id="wave-container">
+    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+      <defs>
+        <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"/>
+      </defs>
+      <g class="parallax">
+        <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7)"/>
+        <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)"/>
+        <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)"/>
+        <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay"></div>
+
+    <!-- Login Form Wrapper -->
+    <div class="form-wrapper">
+        <div class="login-form-container">
+
+            <div class="form-header">
+                <img src="../../assets/logo.png" alt="FiBear Logo" class="logo">
+                <h2 class="title">Admin Panel Login</h2>
+                <p class="subtitle">Welcome back, please sign in to continue.</p>
+            </div>
+
+            <form id="login-form">
+                <!-- Email Input -->
+                <div class="input-group">
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+                </div>
+
+                <!-- Password Input -->
+                <div class="input-group password-group">
+                    <label for="password">Password</label>
+                    <input id="password" class="input-field" name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+                    <button type="button" id="toggle-password" class="password-toggle">
+                        <i id="eye-icon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="options">
+                    <div class="remember-me">
+                        <input id="remember-me" name="remember-me" type="checkbox">
+                        <label for="remember-me">Remember me</label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="input-group">
+                    <button type="submit" id="submit-btn" class="submit-btn">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="error-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h3 class="modal-title">Login Failed</h3>
+        <p id="error-message" class="modal-body"></p>
+        <button id="close-modal-btn" class="modal-close-btn">
+            Try Again
+        </button>
+    </div>
+</div>
+
+<!-- This script handles the form submission and API call (no changes needed) -->
+<script src="../../scripts/login.js"></script>
+
+<script>
+    // Password visibility toggle logic (no changes needed)
+    const togglePassword = document.querySelector('#toggle-password');
+    const password = document.querySelector('#password');
+    const eyeIcon = document.querySelector('#eye-icon');
+
+    togglePassword.addEventListener('click', function () {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+</script>
+
+</body>
+</html>

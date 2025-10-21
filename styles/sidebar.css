@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-main: #0A3D62;
+    --bg-card: #FFFFFF;
+    --bg-sidebar: #FFFFFF; /* Sidebar background color */
+    --text-light: #FFFFFF;
+    --text-dark: #333333;
+    --text-muted: #888888;
+    --text-sidebar-link: #6c757d;
+    --border-color: #F0F0F0;
+    --accent-blue: #3C8CE7;
+    --accent-red: #E53935;
+    --status-completed: #C8E6C9;
+    --status-completed-text: #2E7D32;
+    --status-pending: #FFF9C4;
+    --status-pending-text: #FBC02D;
+    --status-disconnected: #FFCDD2;
+    --status-disconnected-text: #C62828;
+}
+
+.sidebar {
+    background-color: var(--bg-sidebar);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    height: 100vh;
+    transition: width 0.3s ease-in-out;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.logo {
+    max-width: 150px;
+    height: auto;
+    transition: opacity 0.3s ease; /* Smooth fade for the logo */
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+}
+
+.menu-section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-sidebar-link);
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.sidebar-btn:hover {
+    background-color: #e9ecef;
+    color: var(--text-dark);
+}
+
+.sidebar-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-light);
+}
+
+.sidebar-btn .icon {
+    font-size: 1.2rem;
+    min-width: 24px; /* Ensure icon alignment is consistent */
+}
+
+/* Hide text when sidebar is collapsed */
+.sidebar-btn .fontbt {
+    transition: opacity 0.2s ease;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 1rem 0;
+}
+
+/* Logout button (bottom of sidebar) */
+.logout {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #E53935; /* red text */
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+/* Icon styling */
+.logout .icon {
+    font-size: 1.3rem;
+}
+
+/* Hover + Active State */
+.logout:hover {
+    background-color: #E53935; /* red background */
+    color: #fff;               /* white text */
+    box-shadow: 0 3px 8px rgba(229, 57, 53, 0.4);
+    transform: translateY(-2px);
+}
+
+.logout:active {
+    transform: scale(0.98);
+}
+
+/* --- STYLES FOR COLLAPSED STATE --- */
+
+.sidebar-collapsed .sidebar {
+    width: 90px; /* Shrink the sidebar */
+    align-items: center; /* Center the icons */
+}
+
+.sidebar-collapsed .sidebar-header {
+    justify-content: center; /* Center hamburger when collapsed */
+}
+
+.sidebar-collapsed .logo,
+.sidebar-collapsed .sidebar-text,
+.sidebar-collapsed .fontbt {
+    opacity: 0; /* Hide text and logo */
+    pointer-events: none; /* Make them unclickable */
+    width: 0;
+    overflow: hidden;
+}
+
+.sidebar-collapsed .sidebar-btn {
+    justify-content: center; /* Center the icon inside the button */
+}

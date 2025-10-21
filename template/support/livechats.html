@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat Center</title>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <link rel="stylesheet" href="../../styles/livechats.css">
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+</head>
+<body>
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div> <!-- Sidebar placeholder -->
+
+        <!-- MAIN SECTION -->
+        <main class="main-section">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Live Chat Center</h1>
+                    <p>Engage directly with customers, provide instant help, and ensure every inquiry gets the attention it deserves.</p>
+                </div>
+                <div class="header-right">
+                    <i class="ph-fill ph-bell notification"></i>
+                    <div class="profile">
+                        <figure class="avatar">
+                             <img src="https://i.pravatar.cc/40?img=1" alt="Admin Avatar">
+                        </figure>
+                        <div class="profile-info">
+                            <p class="name">Admin</p>
+                            <p class="fullname">Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+             <!-- LIVE CHATS SECTION -->
+            <section class="livechats-section">
+                <!-- Left Panel: List of active chats -->
+                <aside id="active-chats-list" class="active-chats">
+                    <h2>Active Live Chats</h2>
+                    <input type="search" id="search-chat-input" placeholder="Search by username...">
+                    <div id="chat-list-container">
+                        <!-- Chat cards will be dynamically inserted here -->
+                    </div>
+                </aside>
+
+                <!-- Right Panel: The selected chat window -->
+                <section id="chat-window" class="chat-window">
+                    <!-- This will be populated when a chat is selected -->
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../scripts/livechats.js"></script>
+    <script src="../../scripts/sidebar.js"></script> 
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>Support Tickets</title>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <link rel="stylesheet" href="../../styles/support.css">
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+</head>
+<body>
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div>
+
+        <!-- MAIN SECTION -->
+        <main class="main-section">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Support Tickets</h1>
+                    <p>Monitor real-time support activity and ensure every customer query gets the attention it deserves.</p>
+                </div>
+                <div class="header-right">
+                    <i class="ph-fill ph-bell notification"></i>
+                    <div class="profile">
+                        <figure class="avatar">
+                             <img src="https://i.pravatar.cc/40?img=1" alt="Admin Avatar">
+                        </figure>
+                        <div class="profile-info">
+                            <p class="name">Admin</p>
+                            <p class="fullname">Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW 1: TICKET LIST (Visible by default) -->
+            <section id="tickets-view" class="tickets-section">
+                <header class="tickets-header">
+                    <div class="search-container">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="search" id="ticket-search" placeholder="Search by ticket # or customer..." />
+                    </div>
+                    <nav class="ticket-tabs">
+                        <!-- "All" is now the first and active tab -->
+                        <button class="tab active" data-tab-filter="All">All</button>
+                        <button class="tab" data-tab-filter="Open">Open</button>
+                        <button class="tab" data-tab-filter="In Progress">In Progress</button>
+                        <button class="tab" data-tab-filter="Resolved">Resolved</button>
+                        <button class="tab" data-tab-filter="Closed">Closed</button>
+                    </nav>
+                </header>
+                <div id="ticket-list-container" class="ticket-list-grid">
+                    <!-- Ticket cards will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- VIEW 2: TICKET DETAIL (Hidden by default) -->
+            <section id="ticket-detail-view" class="tickets-section hidden">
+                <header class="detail-header">
+                    <button id="back-to-list-btn" class="back-btn">
+                        <i class="ph ph-arrow-left"></i>
+                        <span id="detail-ticket-id-header">Ticket #...</span>
+                    </button>
+                </header>
+                <div class="detail-grid">
+                    <!-- Left Column: Ticket Info & Replies -->
+                    <div class="detail-main">
+                        <div class="detail-card">
+                            <h3 id="detail-ticket-title"></h3>
+                            <p id="detail-ticket-description"></p>
+                            <div class="evidence">
+                                <label>Attached Evidence:</label>
+                                <div id="detail-ticket-evidence">
+                                    <!-- Evidence button will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Conversation History</h4>
+                            <div id="detail-replies-container">
+                                <!-- Replies will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Actions -->
+                    <div class="detail-sidebar">
+                        <div class="detail-card">
+                            <h4>Actions</h4>
+                            <div class="action-form">
+                                <label for="status-select">Update Ticket Status</label>
+                                <select id="status-select" class="status-dropdown">
+                                    <option value="Open">Open</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                                <button id="update-status-btn" class="btn secondary full-width"><i class="ph ph-arrows-clockwise"></i> Update Status</button>
+                            </div>
+                            <!-- Added ID here -->
+                            <hr class="divider" id="reply-divider" />
+                            <!-- Added ID here for the single-reply logic to work -->
+                            <div class="action-form" id="reply-action-form">
+                                <label for="reply-textarea">Send New Reply</label>
+                                <textarea id="reply-textarea" placeholder="Type your reply..."></textarea>
+                                <button id="send-reply-btn" class="btn primary full-width"><i class="ph ph-paper-plane-tilt"></i> Send Reply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="edit-reply-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Edit Reply</h3>
+            <textarea id="edit-reply-textarea"></textarea>
+            <div class="modal-actions">
+                <button id="cancel-edit-btn" class="btn secondary">Cancel</button>
+                <button id="save-edit-btn" class="btn primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../scripts/support.js"></script>
+    <script src="../../scripts/sidebar.js"></script>
+</body>
+</html>

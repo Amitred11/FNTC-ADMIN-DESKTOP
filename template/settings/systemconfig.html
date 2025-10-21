@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Configuration</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <!-- Main Stylesheets -->
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/system-config.css">
+</head>
+<body data-page="settings">
+
+    <!-- Container for Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div>
+        <!-- MAIN CONTENT -->
+        <main class="main-section">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="back-btn" title="Go Back">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <h1>System Configuration</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile">
+                        <img src="https://i.pravatar.cc/40?img=1" class="avatar-img" alt="Admin Avatar"/>
+                        <div class="profile-info">
+                            <p class="name">Admin</p>
+                            <p class="fullname">Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- SYSTEM CONFIG FORM CARD -->
+            <div class="config-card">
+                <form class="system-config-form" id="system-config-form">
+                    
+                    <!-- General Info -->
+                    <div class="info-box top-info">
+                        <i class="ph-fill ph-info"></i>
+                        <p>Configure third-party service integrations. For security, your Cloudinary API key should be set in the server's `.env` file.</p>
+                    </div>
+
+                    <!-- Email Settings -->
+                    <section class="config-section">
+                        <header class="config-header">
+                            <i class="ph-fill ph-envelope-simple"></i>
+                            <h2 class="section-title">Email Settings</h2>
+                        </header>
+                        <div class="info-box">
+                            <i class="ph-fill ph-info"></i>
+                            <p>Controls the sender name and address for all transactional emails (e.g., OTPs, notifications).</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="from-name">Email From Name</label>
+                            <input type="text" id="from-name" name="fromName" placeholder="FiBear Network Technologies">
+                        </div>
+                        <div class="form-group">
+                            <label for="from-address">Email From Address</label>
+                            <input type="email" id="from-address" name="fromAddress" placeholder="noreply@fibear.com">
+                        </div>
+                    </section>
+
+                    <!-- API Keys -->
+                    <section class="config-section">
+                        <header class="config-header">
+                            <i class="ph-fill ph-key"></i>
+                            <h2 class="section-title">API Keys</h2>
+                        </header>
+                        <div class="form-group">
+                             <div class="info-box">
+                                <i class="ph-fill ph-info"></i>
+                                <p>Find this in your SendGrid account under <strong>Settings > API Keys</strong>. Create a key with Full Access permissions.</p>
+                            </div>
+                            <label for="sendgrid-key">SendGrid API Key</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="sendgrid-key" name="sendgridKey" placeholder="Value is hidden for security">
+                                <i class="ph ph-eye password-toggle-icon" title="Toggle visibility"></i>
+                            </div>
+                        </div>
+                         <div class="form-group">
+                             <div class="info-box">
+                                <i class="ph-fill ph-info"></i>
+                                <p>Find this in your Xendit Dashboard under <strong>Settings > API Keys</strong>. Generate a secret key with Write permissions for Money-in and Money-Out.</p>
+                            </div>
+                            <label for="xendit-key">Xendit API Key</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="xendit-key" name="xenditKey" placeholder="Value is hidden for security">
+                                <i class="ph ph-eye password-toggle-icon" title="Toggle visibility"></i>
+                            </div>
+                        </div>
+                    </section>
+
+                     <!-- Xendit Configuration -->
+                    <section class="config-section">
+                        <header class="config-header">
+                            <i class="ph-fill ph-lightning"></i>
+                            <h2 class="section-title">Xendit Configuration</h2>
+                        </header>
+                         <div class="form-group">
+                             <div class="info-box">
+                                <i class="ph-fill ph-info"></i>
+                                <p>Set this in your Xendit Dashboard under <strong>Webhooks</strong>. This token verifies that incoming requests are from Xendit.</p>
+                            </div>
+                            <label for="xendit-token">Xendit Callback Token</label>
+                             <div class="password-input-wrapper">
+                                <input type="password" id="xendit-token" name="xenditToken" placeholder="Value is hidden for security">
+                                <i class="ph ph-eye password-toggle-icon" title="Toggle visibility"></i>
+                            </div>
+                        </div>
+                         <div class="form-group">
+                             <div class="info-box">
+                                <i class="ph-fill ph-info"></i>
+                                <p>Enter a flat amount (PHP) to add to each online payment to cover processing fees. Set to 0 to disable.</p>
+                            </div>
+                            <label for="xendit-fee">Xendit Transaction Fee [PHP]</label>
+                            <input type="number" id="xendit-fee" name="xenditFee" placeholder="0.00" step="0.01">
+                        </div>
+                    </section>
+
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary">Save Configuration</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="../../scripts/sidebar.js"></script>
+    <script src="../../scripts/system-config.js"></script> 
+</body>
+</html>

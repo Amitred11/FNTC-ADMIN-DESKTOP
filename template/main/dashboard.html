@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Admin Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <link rel="stylesheet" href="../../styles/dashboard.css">
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+</head>
+<body>
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div>
+
+        <main class="main-section">
+            <header class="header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                    <p>Here’s a quick overview of Active subscriptions.</p>
+                </div>
+                <div class="header-right">
+                    <button class="header-action-btn" id="broadcast-btn" title="Send a Broadcast">
+                        <span class="ph-fill ph-broadcast"></span>
+                    </button>
+                    <div class="notification-wrapper">
+                        <button id="notification-bell" class="header-action-btn" title="View Notifications">
+                            <span class="ph ph-bell"></span>
+                        </button>
+                        <span id="notification-badge" class="notification-badge hidden">0</span>
+                    </div>
+                    <div class="profile">
+                        <img src="../assets/profile-pic.jpg" alt="Admin" class="avatar-img"/>
+                        <div class="profile-info">
+                            <p class="name">Admin</p>
+                            <p class="fullname">Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD BODY (Unchanged) -->
+            <section class="dashboard-body">
+                <div class="top-row">
+                    <section class="stats-cards-container">
+                        <article class="stat-card"><a href="subscription.html"><span class="card-icon ph ph-users-three"></span> <div class="card-content-split"><div class="stat-item"><h3>Total Subscribers</h3><p id="total-subscribers">0</p></div><div class="stat-item"><h3>New This Month</h3><p id="new-subscribers">+0</p></div></div></a></article>
+                        <article class="stat-card"><a href="billing.html"><span class="card-icon ph ph-warning-circle"></span><div class="card-content"><h3>Pending Payment</h3><p id="overdue-payments" class="overdue-value">0</p></div></a></article>
+                        <article class="stat-card"><a href="support.html"><span class="card-icon ph ph-ticket"></span> <div class="card-content"><h3>Open Tickets</h3><p id="open-tickets">0</p></div></a></article>
+                        <article class="stat-card"><a href="../settings/user-management.html"><span class="card-icon ph ph-users"></span><div class="card-content"><h3>Total Users</h3><p id="total-users">0</p></div></a></article>
+                    </section>
+                    <section class="chart-container">
+                        <header class="chart-header"><h2 class="chart-title">Monthly subscription by Plan</h2><span class="chart-icon ph ph-chart-bar"></span></header>
+                        <div class="chart-body" id="bar-chart-body"><p class="chart-placeholder">Bar chart data will load here.</p></div>
+                    </section>
+                </div>
+                <div class="bottom-row">
+                    <article class="overdue-notice-card">
+                        <header class="card-header"><h3>Subscriber Status</h3></header>
+                        <ul class="notice-list" id="subscriber-list"><li class="notice-item-placeholder">No Data yet..</li></ul>
+                    </article>
+                    <article class="donut-card">
+                        <header class="card-header"><h2>SUBSCRIPTION DISTRIBUTION</h2></header>
+                        <figure class="donut-chart" id="donut-chart-figure"><p class="chart-placeholder">Donut chart data will load here.</p></figure>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODALS & OVERLAYS -->
+    <div id="modal-overlay" class="modal-overlay hidden"></div>
+
+    <!-- NOTIFICATION MODAL (Heavily Revised) -->
+    <div id="notification-modal" class="fullscreen-modal hidden">
+        <header class="modal-header">
+            <button class="back-btn" id="close-notification-modal-btn"><span class="ph ph-arrow-left"></span></button>
+            <h1>Notifications</h1>
+        </header>
+        <main class="modal-body">
+            <!-- New Selection Action Header -->
+            <div id="notification-action-header" class="notification-action-header hidden">
+                <div class="selection-info">
+                    <input type="checkbox" id="select-all-notifications-checkbox" class="form-checkbox">
+                    <label for="select-all-notifications-checkbox" id="selection-count-label">0 selected</label>
+                </div>
+                <button id="delete-selected-btn" class="action-btn danger" title="Delete Selected">
+                    <span class="ph ph-trash"></span> Delete
+                </button>
+            </div>
+            <ul id="notification-list" class="notification-list-fullscreen">
+                <li class="notification-item-placeholder">Loading notifications...</li>
+            </ul>
+        </main>
+        <footer class="modal-footer">
+            <button id="mark-all-read-btn" class="action-btn">Mark all as read</button>
+        </footer>
+    </div>
+
+    <!-- BROADCAST MODAL (Revised for functionality) -->
+    <div id="broadcast-modal" class="fullscreen-modal hidden">
+        <header class="modal-header">
+            <button class="back-btn" id="close-broadcast-modal-btn"><span class="ph ph-arrow-left"></span></button>
+            <h1>Broadcast</h1>
+        </header>
+        <main class="modal-body has-form">
+            <section class="form-section">
+                <h2>1. Choose Recipients</h2>
+                <div class="recipient-toggle" id="recipient-toggle">
+                    <button class="toggle-btn active" data-type="all">All Subscribers</button>
+                    <button class="toggle-btn" data-type="specific">Specific Users</button>
+                </div>
+                <div class="user-selection-area hidden" id="user-selection-area">
+                    <div class="selected-users-list" id="selected-users-list">
+                         <p class="placeholder-text"><span class="ph-fill ph-info"></span> No users selected</p>
+                    </div>
+                    <button class="select-users-btn" id="select-users-btn"><span class="ph-fill ph-user-plus"></span> Select Users</button>
+                </div>
+            </section>
+            <section class="form-section">
+                <h2>2. Compose Message</h2>
+                <input type="text" id="broadcast-title" class="form-input" placeholder="Notification Title">
+                <textarea id="broadcast-message" class="form-textarea" placeholder="Enter your message here...."></textarea>
+            </section>
+        </main>
+        <footer class="modal-footer">
+            <button id="send-broadcast-btn" class="action-btn primary">Send Broadcast</button>
+        </footer>
+    </div>
+
+    <!-- NEW: User Selection Modal -->
+    <div id="user-selection-modal" class="modal-dialog hidden">
+        <div class="modal-dialog-content">
+            <header class="modal-dialog-header">
+                <h2>Select Users</h2>
+                <button id="close-user-select-modal-btn" class="close-btn ph ph-x"></button>
+            </header>
+            <div class="modal-dialog-body">
+                <input type="search" id="user-search-input" class="form-input" placeholder="Search by name or email...">
+                <ul class="user-select-list" id="user-select-list">
+                    <!-- Users will be populated by JS -->
+                </ul>
+            </div>
+            <footer class="modal-dialog-footer">
+                <button id="cancel-user-select-btn" class="action-btn">Cancel</button>
+                <button id="confirm-user-select-btn" class="action-btn primary">Confirm Selection</button>
+            </footer>
+        </div>
+    </div>
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="../../scripts/common.js"></script>
+    <script src="../../scripts/renderer.js"></script>
+    <script src="../../scripts/sidebar.js"></script>
+ 
+</body>
+</html>
