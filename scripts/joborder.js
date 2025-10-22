@@ -307,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateStats();
             renderTable();
         } catch (error) {
-            // *** FIX: Corrected typo in this line from <tr<td to <tr><td ***
             tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 3rem; color: red;">${error.message}</td></tr>`;
             console.error("Initialization failed:", error);
         }

@@ -6,7 +6,7 @@ const FormData = require('form-data');
 const { Readable } = require('stream');
 
 // --- Global Variables ---
-const API_BASE_URL = 'http://192.168.100.12:5000/api/admin';
+const API_BASE_URL = 'https://nodefibear.onrender.com/api/admin';
 let mainWindow;
 let store;
 
@@ -158,14 +158,36 @@ ipcMain.handle('auth:login', async (event, credentials) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
-    const data = await response.json();
-    return { ok: response.ok, status: response.status, data };
+    const responseText = await response.text();
+
+    // If the response was not successful (e.g., status 404, 500, 502)
+    if (!response.ok) {
+        console.error('❌ Login failed. Server returned a non-JSON response. Status:', response.status);
+        // Log the HTML content to see the actual error from the server
+        console.error('Server Response Body:', responseText); 
+        
+        // Return a structured error
+        return { 
+            ok: false, 
+            status: response.status, 
+            message: 'Server returned an error page instead of JSON. Check the main process logs.' 
+        };
+    }
+
+    try {
+        const data = JSON.parse(responseText); // Parse the text we already fetched
+        return { ok: true, status: response.status, data };
+    } catch (jsonError) {
+        console.error('❌ Failed to parse JSON response from server:', jsonError);
+        return { ok: false, status: 500, message: 'Server sent an invalid JSON response.' };
+    }
+
   } catch (error) {
-    console.error('❌ Login request failed:', error.message);
+    // This catch block handles network errors (e.g., server is unreachable)
+    console.error('❌ Login request failed due to a network or connection error:', error.message);
     return { ok: false, status: 500, message: 'Failed to connect to the server.' };
   }
 });
-
 ipcMain.handle('tokens:save', (event, { accessToken, refreshToken, rememberMe }) => {
     if (!store) return { ok: false, message: 'Store not initialized.' };
     try {
