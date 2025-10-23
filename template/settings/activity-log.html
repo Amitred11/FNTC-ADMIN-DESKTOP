@@ -8,32 +8,22 @@
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
     <!-- Main Stylesheets -->
-    <link rel="stylesheet" href="../../styles/activity-log.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/settings/activity-log.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
 </head>
 <body data-page="settings"> <!-- Keeps the 'Settings' link active -->
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
         <!-- MAIN CONTENT -->
         <main class="main-section">
-            <!-- HEADER -->
-            <header class="header">
-                <div class="header-left">
-                    <button class="back-btn" title="Go Back">
-                        <i class="ph ph-arrow-left"></i>
-                    </button>
-                    <h1>Activity Log</h1>
-                </div>
-                <div class="header-right">
-                    <div class="profile">
-                        <img src="https://i.pravatar.cc/40?img=1" class="avatar-img" alt="Admin Avatar"/>
-                        <div class="profile-info">
-                            <p class="name">Admin</p>
-                            <p class="fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div class="page-header">
+                <h1>Activity Logs</h1>
+                <p class="page-subtitle">Manage and adjust system settings for users, connections, and preferences.</p>
+            </div>
+            <a href="#" id="back-to-settings-btn" class="back-button" onclick="history.back()">
+                <i class="ph ph-arrow-left"></i>
+                <span>Back to Settings</span>
+            </a>
             
             <!-- ACTIVITY LOG CONTAINER -->
             <div class="log-container">
@@ -50,7 +40,7 @@
         </main>
     </div>
     <!-- Scripts -->
-    <script src="../../scripts/sidebar.js"></script>
-    <script src="../../scripts/activity-log.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/settings/activity-log.js"></script>
 </body>
 </html>

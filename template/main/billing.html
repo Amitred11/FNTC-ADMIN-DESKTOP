@@ -8,32 +8,17 @@
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="../../styles/billing.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/alert-component-styles.css">
+    <link rel="stylesheet" href="../../styles/main/billing.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
 <body>
     <div class="layout">
-        <!-- Sidebar will be loaded here -->
         <div id="sidebar-container"></div>
 
         <main class="main-content">
-            <!-- HEADER -->
-            <header class="header">
-                <div class="header__left">
-                    <h1 class="header__title">Billing & Invoices</h1>
-                    <p class="header__subtitle">Manage billing cycles, generate, and send invoices.</p>
-                </div>
-                <div class="header__right">
-                    <i class="ph-fill ph-bell header__notification"></i>
-                    <div class="profile">
-                        <img src="../assets/profile-pic.jpg" class="profile__avatar" alt="Admin Avatar"/>
-                        <div class="profile__info">
-                            <p class="profile__name">Admin</p>
-                            <p class="profile__fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div id="header-container"></div>
 
             <!-- MAIN BILLING SECTION -->
             <section class="billing-section">
@@ -47,7 +32,6 @@
                     </button>
                 </div>
 
-                <!-- TABS -->
                 <nav class="tabs" id="tabs">
                     <button class="tabs__item tabs__item--active" data-tab="all">All</button>
                     <button class="tabs__item" data-tab="pending_verification">Pending</button>
@@ -59,7 +43,6 @@
                     <button class="tabs__item" data-tab="voided">Voided</button>
                 </nav>
 
-                <!-- BILLING TABLE -->
                 <div class="billing-table-container">
                     <table class="billing-table">
                         <thead>
@@ -91,7 +74,6 @@
                 <button class="modal__close" data-modal-close>&times;</button>
             </div>
             <form class="form" id="billForm" novalidate>
-                <!-- Customer Information Section (Left Column) -->
                 <div class="form-section form-section--left">
                     <div id="customer-section-create">
                         <h3 class="form-section__title">Customer Information</h3>
@@ -104,8 +86,6 @@
                                 <label for="userTypeNew">New Customer</label>
                             </div>
                         </div>
-                        
-                        <!-- Existing User Search & Selection -->
                         <div id="existingUser-group">
                             <div class="form-group">
                                 <label for="userSearch">Select a Customer</label>
@@ -117,20 +97,11 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- New User Fields -->
                         <div id="newUser-group" style="display: none;">
-                            <div class="form-group">
-                                <label for="fullName">Full Name</label>
-                                <input type="text" id="fullName" name="fullName" placeholder="e.g., John Doe">
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" placeholder="e.g., john.doe@example.com">
-                            </div>
+                            <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" name="fullName" placeholder="e.g., John Doe"></div>
+                            <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="e.g., john.doe@example.com"></div>
                         </div>
                     </div>
-                    <!-- Static display for edit mode -->
                     <div id="customer-section-edit" style="display: none;">
                          <h3 class="form-section__title">Customer Information</h3>
                          <div class="form-group">
@@ -139,36 +110,17 @@
                          </div>
                     </div>
                 </div>
-
-                <!-- Billing Details Section (Right Column) -->
                 <div class="form-section form-section--right">
                     <h3 class="form-section__title">Bill Details</h3>
-                    <div class="form-group">
-                        <label for="dueDate">Due Date</label>
-                        <input type="date" id="dueDate" name="dueDate" required>
-                    </div>
-
+                    <div class="form-group"><label for="dueDate">Due Date</label><input type="date" id="dueDate" name="dueDate" required></div>
                     <div class="form-group">
                         <label>Line Items</label>
-                        <div class="line-items-header">
-                            <span>Description</span>
-                            <span>Amount</span>
-                        </div>
+                        <div class="line-items-header"><span>Description</span><span>Amount</span></div>
                         <div id="lineItemsContainer"></div>
-                        <button type="button" class="btn btn--secondary btn--small" id="addItemBtn">
-                            <i class="ph ph-plus"></i> Add Item
-                        </button>
+                        <button type="button" class="btn btn--secondary btn--small" id="addItemBtn"><i class="ph ph-plus"></i> Add Item</button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="notes">Notes (Optional)</label>
-                        <textarea id="notes" name="notes" placeholder="Add any internal notes..."></textarea>
-                    </div>
-
-                    <div class="total-amount">
-                        <h4>Total Amount</h4>
-                        <p id="totalAmountDisplay">$0.00</p>
-                    </div>
+                    <div class="form-group"><label for="notes">Notes (Optional)</label><textarea id="notes" name="notes" placeholder="Add any internal notes..."></textarea></div>
+                    <div class="total-amount"><h4>Total Amount</h4><p id="totalAmountDisplay">$0.00</p></div>
                 </div>
             </form>
              <div class="modal__actions">
@@ -181,39 +133,25 @@
     <!-- Record Partial Payment Modal -->
     <div class="modal" id="recordPartialModal">
         <div class="modal__content">
-            <div class="modal__header">
-                 <h2 class="modal__title">Record Partial Payment</h2>
-                 <button class="modal__close" data-modal-close>&times;</button>
-            </div>
-            <form class="form" id="partialPaymentForm" style="display: block; padding: 1.5rem;">
+            <div class="modal__header"><h2 class="modal__title">Record Partial Payment</h2><button class="modal__close" data-modal-close>&times;</button></div>
+            <form class="form" id="partialPaymentForm">
                 <input type="hidden" id="partialBillId" name="billId">
-                <div class="form-group">
-                    <label for="amountPaid">Amount Paid</label>
-                    <input type="number" id="amountPaid" name="amountPaid" step="0.01" placeholder="Enter exact amount paid..." required>
-                </div>
-                <div class="form-group">
-                    <label for="paymentNotes">Notes (Optional)</label>
-                    <textarea id="paymentNotes" name="notes" placeholder="e.g., Reference or Receipt #"></textarea>
-                </div>
-                 <div class="modal__actions" style="border: none; padding: 1rem 0 0 0;">
-                    <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
-                    <button type="submit" class="btn btn--primary">Submit Payment</button>
-                </div>
+                <div class="form-group"><label for="amountPaid">Amount Paid</label><input type="number" id="amountPaid" name="amountPaid" step="0.01" placeholder="Enter exact amount paid..." required></div>
+                <div class="form-group"><label for="paymentNotes">Notes (Optional)</label><textarea id="paymentNotes" name="notes" placeholder="e.g., Reference or Receipt #"></textarea></div>
             </form>
+             <div class="modal__actions">
+                <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
+                <button type="submit" class="btn btn--primary" form="partialPaymentForm">Submit Payment</button>
+            </div>
         </div>
     </div>
 
     <!-- Billing Details Modal -->
-    <div class="modal" id="billingDetailsModal">
-        <div class="modal__content modal__content--large">
-             <div id="billingDetailsContent"></div>
-        </div>
-    </div>
+    <div class="modal" id="billingDetailsModal"><div class="modal__content modal__content--large" id="billingDetailsContent"></div></div>
     
     <!-- Invoice/Receipt Modals -->
     <div class="modal" id="invoiceDetailModal">
         <div class="modal__content modal__content--document">
-            <button class="modal__close" data-modal-close>&times;</button>
             <div id="invoiceContent"></div>
             <div class="modal__actions">
                 <button type="button" class="btn btn--secondary" data-modal-close>Close</button>
@@ -223,7 +161,6 @@
     </div>
     <div class="modal" id="receiptDetailModal">
         <div class="modal__content modal__content--document">
-             <button class="modal__close" data-modal-close>&times;</button>
             <div id="receiptContent"></div>
              <div class="modal__actions">
                 <button type="button" class="btn btn--secondary" data-modal-close>Close</button>
@@ -232,11 +169,25 @@
         </div>
     </div>
 
-    <!-- Modal Overlay -->
     <div class="modal-overlay"></div>
 
-    <!-- SCRIPTS -->
-    <script src="../../scripts/billing.js"></script>
-    <script src="../../scripts/sidebar.js"></script>
+    <div id="app-alert-container">
+        <div id="app-alert-overlay" class="app-alert-overlay"></div>
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true">
+            <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
+            <h2 id="app-alert-title" class="app-alert-title"></h2>
+            <p id="app-alert-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+            </div>
+        </div>
+        <div id="app-alert-toast-container"></div>
+    </div>
+    
+    <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/components/header.js"></script>
+    <script src="../../scripts/main/billing.js"></script>
 </body>
 </html>

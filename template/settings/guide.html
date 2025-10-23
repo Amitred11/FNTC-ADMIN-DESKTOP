@@ -12,29 +12,30 @@
     
     <!-- Phosphor Icons -->
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 
     <!-- Shared Stylesheets -->
-    <link rel="stylesheet" href="../../styles/dashboard.css"> <!-- Main styles for variables, etc. -->
-    <link rel="stylesheet" href="../../styles/sidebar.css">   <!-- Your shared sidebar styles -->
+    <link rel="stylesheet" href="../../styles/main/dashboard.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
     
     <!-- Page-Specific Stylesheet -->
-    <link rel="stylesheet" href="../../styles/guide.css">
+    <link rel="stylesheet" href="../../styles/settings/guide.css">
 </head>
 <body>
 
     <div class="layout">
         <!-- The sidebar will be loaded here by sidebar.js -->
         <div id="sidebar-container"></div>
-
+        
         <!-- MAIN DOCUMENT CONTENT -->
         <main class="main-content">
+            <a href="settings.html" class="back-button">
+                <i class="ph ph-arrow-left"></i>
+                <span>Back to Settings</span>
+            </a>
             <div class="container">
-                <button class="back-btn" title="Go Back" onclick="history.back()">
-                    <i class="ph ph-arrow-left"></i>
-                </button>
-
                 <h1 class="mainTitle">App Documentation</h1>
-                <p class="mainSubtitle">A guide to managing the FiBear Network system.</p>
+                <p class="mainSubtitle">A comprehensive guide to managing the FiBear Network system.</p>
 
                 <div class="doc-section">
                     <h2>Understanding User Roles</h2>
@@ -117,7 +118,6 @@
         </main>
     </div>
 
-    <!-- This script dynamically loads your sidebar component -->
-   <script src="../../scripts/sidebar.js"></script>
+   <script src="../../scripts/components/sidebar.js"></script>
 </body>
 </html>

@@ -6,36 +6,27 @@
     <title>User Management</title>
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-    <link rel="stylesheet" href="../../styles/user-management.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/settings/user-management.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
 <body data-page="settings">
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
         <main class="main-section">
-            <header class="header">
-                <div class="header-left">
-                    <button class="back-btn" title="Go Back"><i class="ph ph-arrow-left"></i></button>
-                    <h1>User Management</h1>
-                </div>
-                <div class="header-right">
-                    <div class="profile">
-                        <img src="https://i.pravatar.cc/40?img=1" class="avatar-img" alt="Admin"/>
-                        <div class="profile-info">
-                            <p class="name">Admin</p>
-                            <p class="fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            
+            <!-- Header will be loaded here by JavaScript -->
+            <div id="header-container"></div>
+            <a href="#" id="back-to-settings-btn" class="back-button" onclick="history.back()">
+                <i class="ph ph-arrow-left"></i>
+                <span>Back to Settings</span>
+            </a>
             <div class="management-container">
                 <!-- Left Panel: User List -->
                 <aside class="user-list-panel">
-                    <h3>User Lists</h3>
+                    <h3>All Users</h3>
                     <div class="search-box">
                         <i class="ph ph-magnifying-glass"></i>
-                        <input type="search" placeholder="Search by Name or Email">
+                        <input type="search" id="user-search-input" placeholder="Search by name or email...">
                     </div>
                     <ul class="user-list">
                         <!-- User items will be dynamically loaded here -->
@@ -45,12 +36,17 @@
                 <!-- Right Panel: User Details -->
                 <section class="user-details-panel">
                     <!-- User details will be dynamically loaded here -->
-                    <p class="no-data">Select a user to see their details.</p>
+                    <div class="no-data">
+                        <i class="ph-fill ph-user-circle"></i>
+                        <p>Select a user to see their details.</p>
+                    </div>
                 </section>
             </div>
         </main>
     </div>
-    <script src="../../scripts/sidebar.js"></script>
-    <script src="../../scripts/user-management.js"></script>
+    <script src="../../scripts/components/app-alert.js"></script> <!-- Assuming you use alerts -->
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/components/header.js"></script>
+    <script src="../../scripts/settings/user-management.js"></script>
 </body>
 </html>

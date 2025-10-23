@@ -6,40 +6,19 @@
     <title>Modern Admin Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-    <link rel="stylesheet" href="../../styles/dashboard.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/main/dashboard.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
+    <link rel="stylesheet" href="../../styles/components/alert-component-styles.css">
 </head>
-<body>
+<body class="is-loading">
+
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
 
         <main class="main-section">
-            <header class="header">
-                <div class="header-left">
-                    <h1>Dashboard</h1>
-                    <p>Here’s a quick overview of Active subscriptions.</p>
-                </div>
-                <div class="header-right">
-                    <button class="header-action-btn" id="broadcast-btn" title="Send a Broadcast">
-                        <span class="ph-fill ph-broadcast"></span>
-                    </button>
-                    <div class="notification-wrapper">
-                        <button id="notification-bell" class="header-action-btn" title="View Notifications">
-                            <span class="ph ph-bell"></span>
-                        </button>
-                        <span id="notification-badge" class="notification-badge hidden">0</span>
-                    </div>
-                    <div class="profile">
-                        <img src="../assets/profile-pic.jpg" alt="Admin" class="avatar-img"/>
-                        <div class="profile-info">
-                            <p class="name">Admin</p>
-                            <p class="fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div id="header-container"></div>
 
-            <!-- DASHBOARD BODY (Unchanged) -->
             <section class="dashboard-body">
                 <div class="top-row">
                     <section class="stats-cards-container">
@@ -67,91 +46,26 @@
         </main>
     </div>
 
-    <!-- MODALS & OVERLAYS -->
-    <div id="modal-overlay" class="modal-overlay hidden"></div>
-
-    <!-- NOTIFICATION MODAL (Heavily Revised) -->
-    <div id="notification-modal" class="fullscreen-modal hidden">
-        <header class="modal-header">
-            <button class="back-btn" id="close-notification-modal-btn"><span class="ph ph-arrow-left"></span></button>
-            <h1>Notifications</h1>
-        </header>
-        <main class="modal-body">
-            <!-- New Selection Action Header -->
-            <div id="notification-action-header" class="notification-action-header hidden">
-                <div class="selection-info">
-                    <input type="checkbox" id="select-all-notifications-checkbox" class="form-checkbox">
-                    <label for="select-all-notifications-checkbox" id="selection-count-label">0 selected</label>
-                </div>
-                <button id="delete-selected-btn" class="action-btn danger" title="Delete Selected">
-                    <span class="ph ph-trash"></span> Delete
-                </button>
+    <div id="app-alert-container">
+        <div id="app-alert-overlay" class="app-alert-overlay"></div>
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true">
+            <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
+            <h2 id="app-alert-title" class="app-alert-title"></h2>
+            <p id="app-alert-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
             </div>
-            <ul id="notification-list" class="notification-list-fullscreen">
-                <li class="notification-item-placeholder">Loading notifications...</li>
-            </ul>
-        </main>
-        <footer class="modal-footer">
-            <button id="mark-all-read-btn" class="action-btn">Mark all as read</button>
-        </footer>
-    </div>
-
-    <!-- BROADCAST MODAL (Revised for functionality) -->
-    <div id="broadcast-modal" class="fullscreen-modal hidden">
-        <header class="modal-header">
-            <button class="back-btn" id="close-broadcast-modal-btn"><span class="ph ph-arrow-left"></span></button>
-            <h1>Broadcast</h1>
-        </header>
-        <main class="modal-body has-form">
-            <section class="form-section">
-                <h2>1. Choose Recipients</h2>
-                <div class="recipient-toggle" id="recipient-toggle">
-                    <button class="toggle-btn active" data-type="all">All Subscribers</button>
-                    <button class="toggle-btn" data-type="specific">Specific Users</button>
-                </div>
-                <div class="user-selection-area hidden" id="user-selection-area">
-                    <div class="selected-users-list" id="selected-users-list">
-                         <p class="placeholder-text"><span class="ph-fill ph-info"></span> No users selected</p>
-                    </div>
-                    <button class="select-users-btn" id="select-users-btn"><span class="ph-fill ph-user-plus"></span> Select Users</button>
-                </div>
-            </section>
-            <section class="form-section">
-                <h2>2. Compose Message</h2>
-                <input type="text" id="broadcast-title" class="form-input" placeholder="Notification Title">
-                <textarea id="broadcast-message" class="form-textarea" placeholder="Enter your message here...."></textarea>
-            </section>
-        </main>
-        <footer class="modal-footer">
-            <button id="send-broadcast-btn" class="action-btn primary">Send Broadcast</button>
-        </footer>
-    </div>
-
-    <!-- NEW: User Selection Modal -->
-    <div id="user-selection-modal" class="modal-dialog hidden">
-        <div class="modal-dialog-content">
-            <header class="modal-dialog-header">
-                <h2>Select Users</h2>
-                <button id="close-user-select-modal-btn" class="close-btn ph ph-x"></button>
-            </header>
-            <div class="modal-dialog-body">
-                <input type="search" id="user-search-input" class="form-input" placeholder="Search by name or email...">
-                <ul class="user-select-list" id="user-select-list">
-                    <!-- Users will be populated by JS -->
-                </ul>
-            </div>
-            <footer class="modal-dialog-footer">
-                <button id="cancel-user-select-btn" class="action-btn">Cancel</button>
-                <button id="confirm-user-select-btn" class="action-btn primary">Confirm Selection</button>
-            </footer>
         </div>
+        <div id="app-alert-toast-container"></div>
     </div>
-    <div id="toast-container" class="toast-container"></div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="../../scripts/common.js"></script>
-    <script src="../../scripts/renderer.js"></script>
-    <script src="../../scripts/sidebar.js"></script>
- 
+    <script src="../../scripts/components/common.js"></script>
+    <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/main/renderer.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/components/header.js"></script>
 </body>
 </html>

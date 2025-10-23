@@ -2,48 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale-1.0">
-    <title>Support Tickets</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Center</title>
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-    <link rel="stylesheet" href="../../styles/support.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/alert-component-styles.css">
+    <link rel="stylesheet" href="../../styles/support/support.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
 <body>
     <div class="layout" id="layout">
+        <!-- Sidebar placeholder -->
         <div id="sidebar-container"></div>
 
-        <!-- MAIN SECTION -->
         <main class="main-section">
-            <!-- HEADER -->
-            <header class="header">
-                <div class="header-left">
-                    <h1>Support Tickets</h1>
-                    <p>Monitor real-time support activity and ensure every customer query gets the attention it deserves.</p>
-                </div>
-                <div class="header-right">
-                    <i class="ph-fill ph-bell notification"></i>
-                    <div class="profile">
-                        <figure class="avatar">
-                             <img src="https://i.pravatar.cc/40?img=1" alt="Admin Avatar">
-                        </figure>
-                        <div class="profile-info">
-                            <p class="name">Admin</p>
-                            <p class="fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <!-- Header placeholder -->
+            <div id="header-container"></div>
 
-            <!-- VIEW 1: TICKET LIST (Visible by default) -->
-            <section id="tickets-view" class="tickets-section">
+            <!-- VIEW 1: TICKET LIST -->
+            <section id="tickets-view" class="tickets-section" aria-labelledby="tickets-view-heading">
                 <header class="tickets-header">
+                    <h1 id="tickets-view-heading" class="hidden">All Tickets</h1>
                     <div class="search-container">
                         <i class="ph ph-magnifying-glass"></i>
-                        <input type="search" id="ticket-search" placeholder="Search by ticket # or customer..." />
+                        <input type="search" id="ticket-search" placeholder="Search by ID, subject, or customer..." aria-label="Search tickets"/>
                     </div>
-                    <nav class="ticket-tabs">
-                        <!-- "All" is now the first and active tab -->
+                    <nav class="ticket-tabs" aria-label="Ticket filters">
                         <button class="tab active" data-tab-filter="All">All</button>
                         <button class="tab" data-tab-filter="Open">Open</button>
                         <button class="tab" data-tab-filter="In Progress">In Progress</button>
@@ -52,80 +37,117 @@
                     </nav>
                 </header>
                 <div id="ticket-list-container" class="ticket-list-grid">
-                    <!-- Ticket cards will be dynamically inserted here -->
+                    <!-- Ticket cards are dynamically inserted here -->
                 </div>
             </section>
 
-            <!-- VIEW 2: TICKET DETAIL (Hidden by default) -->
-            <section id="ticket-detail-view" class="tickets-section hidden">
-                <header class="detail-header">
-                    <button id="back-to-list-btn" class="back-btn">
-                        <i class="ph ph-arrow-left"></i>
-                        <span id="detail-ticket-id-header">Ticket #...</span>
-                    </button>
-                </header>
-                <div class="detail-grid">
-                    <!-- Left Column: Ticket Info & Replies -->
-                    <div class="detail-main">
-                        <div class="detail-card">
-                            <h3 id="detail-ticket-title"></h3>
-                            <p id="detail-ticket-description"></p>
-                            <div class="evidence">
-                                <label>Attached Evidence:</label>
-                                <div id="detail-ticket-evidence">
-                                    <!-- Evidence button will be inserted here -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="detail-card">
-                            <h4>Conversation History</h4>
-                            <div id="detail-replies-container">
-                                <!-- Replies will be dynamically inserted here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column: Actions -->
-                    <div class="detail-sidebar">
-                        <div class="detail-card">
-                            <h4>Actions</h4>
-                            <div class="action-form">
-                                <label for="status-select">Update Ticket Status</label>
-                                <select id="status-select" class="status-dropdown">
-                                    <option value="Open">Open</option>
-                                    <option value="In Progress">In Progress</option>
-                                    <option value="Resolved">Resolved</option>
-                                    <option value="Closed">Closed</option>
-                                </select>
-                                <button id="update-status-btn" class="btn secondary full-width"><i class="ph ph-arrows-clockwise"></i> Update Status</button>
-                            </div>
-                            <!-- Added ID here -->
-                            <hr class="divider" id="reply-divider" />
-                            <!-- Added ID here for the single-reply logic to work -->
-                            <div class="action-form" id="reply-action-form">
-                                <label for="reply-textarea">Send New Reply</label>
-                                <textarea id="reply-textarea" placeholder="Type your reply..."></textarea>
-                                <button id="send-reply-btn" class="btn primary full-width"><i class="ph ph-paper-plane-tilt"></i> Send Reply</button>
-                            </div>
-                        </div>
-                    </div>
+            <!-- VIEW 2: TICKET DETAIL -->
+<section id="ticket-detail-view" class="tickets-section hidden" aria-labelledby="detail-ticket-subject">
+    <header class="detail-header">
+        <button id="back-to-list-btn" title="Back to list" aria-label="Back to ticket list"><i class="ph ph-arrow-left"></i></button>
+        <div>
+            <h2 id="detail-ticket-subject"></h2>
+            <span id="detail-ticket-id"></span>
+        </div>
+    </header>
+    <div class="detail-grid">
+        <!-- Main Content Column -->
+        <div class="detail-main">
+            <article class="detail-card" aria-labelledby="inquiry-heading">
+                <h4 id="inquiry-heading">Initial Inquiry</h4>
+                <p id="detail-ticket-description"></p>
+            </article>
+            <article class="detail-card" aria-labelledby="conversation-heading">
+                <h4 id="conversation-heading">Conversation History</h4>
+                <div id="detail-replies-container">
+                    <!-- Replies are dynamically inserted here -->
                 </div>
-            </section>
+            </article>
+            <div class="detail-card" id="reply-action-form">
+                <h4>Send New Reply</h4>
+                <form class="action-form" onsubmit="return false;">
+                    <textarea id="reply-textarea" placeholder="Type your reply here..." aria-label="New reply message"></textarea>
+                    <button id="send-reply-btn" type="button" class="btn primary"><i class="ph ph-paper-plane-tilt"></i> Send Reply</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Unified Sidebar Column -->
+        <aside class="detail-sidebar">
+            <div class="detail-card">
+                <h4>Ticket Actions</h4>
+                <div class="action-form">
+                    <label for="status-select">Ticket Status</label>
+                    <select id="status-select" class="status-dropdown">
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                    <button id="update-status-btn" type="button" class="btn secondary full-width"><i class="ph ph-arrows-clockwise"></i> Update Status</button>
+                </div>
+            </div>
+            <div class="detail-card">
+                <h4>Ticket Details</h4>
+                <dl class="info-grid">
+                    <div class="info-item">
+                        <dt class="label">Customer</dt>
+                        <dd class="value" id="detail-customer-name"></dd>
+                    </div>
+                    <div class="info-item">
+                        <dt class="label">Email</dt>
+                        <dd class="value" id="detail-customer-email"></dd>
+                    </div>
+                    <div class="info-item">
+                        <dt class="label">Created On</dt>
+                        <dd class="value" id="detail-created-date"></dd>
+                    </div>
+                    <div class="info-item">
+                        <dt class="label">Attached Evidence</dt>
+                        <dd id="detail-ticket-evidence"></dd>
+                    </div>
+                </dl>
+            </div>
+        </aside>
+    </div>
+</section>
         </main>
     </div>
 
-    <div id="edit-reply-modal" class="modal-overlay hidden">
+    <!-- Edit Reply Modal -->
+    <div id="edit-reply-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-reply-heading">
         <div class="modal-content">
-            <h3>Edit Reply</h3>
-            <textarea id="edit-reply-textarea"></textarea>
+            <h3 id="edit-reply-heading">Edit Reply</h3>
+            <textarea id="edit-reply-textarea" aria-label="Edit reply message"></textarea>
             <div class="modal-actions">
-                <button id="cancel-edit-btn" class="btn secondary">Cancel</button>
-                <button id="save-edit-btn" class="btn primary">Save Changes</button>
+                <button id="cancel-edit-btn" type="button" class="btn secondary">Cancel</button>
+                <button id="save-edit-btn" type="button" class="btn primary">Save Changes</button>
             </div>
         </div>
     </div>
+    <div id="evidence-modal" class="evidence-overlay hidden">
+        <span id="evidence-modal-close" class="close-btn">&times;</span>
+        <img id="evidence-modal-image" src="" alt="Attached Evidence" />
+    </div>
 
-    <script src="../../scripts/support.js"></script>
-    <script src="../../scripts/sidebar.js"></script>
+    <div id="app-alert-container">
+        <div id="app-alert-overlay" class="app-alert-overlay"></div>
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true">
+            <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
+            <h2 id="app-alert-title" class="app-alert-title"></h2>
+            <p id="app-alert-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+            </div>
+        </div>
+        <div id="app-alert-toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/support/support.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/components/header.js"></script>
 </body>
 </html>

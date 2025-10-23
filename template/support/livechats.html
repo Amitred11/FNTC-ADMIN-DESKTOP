@@ -6,41 +6,24 @@
     <title>Live Chat Center</title>
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-    <link rel="stylesheet" href="../../styles/livechats.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/support/livechats.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
 </head>
 <body>
     <div class="layout" id="layout">
-        <div id="sidebar-container"></div> <!-- Sidebar placeholder -->
+        <div id="sidebar-container"></div>
 
         <!-- MAIN SECTION -->
         <main class="main-section">
-            <!-- HEADER -->
-            <header class="header">
-                <div class="header-left">
-                    <h1>Live Chat Center</h1>
-                    <p>Engage directly with customers, provide instant help, and ensure every inquiry gets the attention it deserves.</p>
-                </div>
-                <div class="header-right">
-                    <i class="ph-fill ph-bell notification"></i>
-                    <div class="profile">
-                        <figure class="avatar">
-                             <img src="https://i.pravatar.cc/40?img=1" alt="Admin Avatar">
-                        </figure>
-                        <div class="profile-info">
-                            <p class="name">Admin</p>
-                            <p class="fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div id="header-container"></div>
 
              <!-- LIVE CHATS SECTION -->
-            <section class="livechats-section">
+            <section class="livechats-section" id="livechats-grid">
                 <!-- Left Panel: List of active chats -->
                 <aside id="active-chats-list" class="active-chats">
-                    <h2>Active Live Chats</h2>
-                    <input type="search" id="search-chat-input" placeholder="Search by username...">
+                    <h2>Active Chats</h2>
+                    <input type="search" id="search-chat-input" placeholder="Search by name...">
                     <div id="chat-list-container">
                         <!-- Chat cards will be dynamically inserted here -->
                     </div>
@@ -53,8 +36,23 @@
             </section>
         </main>
     </div>
+    <div id="app-alert-container">
+        <div id="app-alert-overlay" class="app-alert-overlay"></div>
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true">
+            <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
+            <h2 id="app-alert-title" class="app-alert-title"></h2>
+            <p id="app-alert-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+            </div>
+        </div>
+        <div id="app-alert-toast-container"></div>
+    </div>
 
-    <script src="../../scripts/livechats.js"></script>
-    <script src="../../scripts/sidebar.js"></script> 
+    <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/support/livechats.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script> 
+    <script src="../../scripts/components/header.js"></script> 
 </body>
 </html>

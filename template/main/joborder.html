@@ -6,8 +6,10 @@
     <title>Job Orders Management</title>
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-    <link rel="stylesheet" href="../../styles/joborder.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/alert-component-styles.css">
+    <link rel="stylesheet" href="../../styles/main/joborder.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
 <body>
     <div class="layout" id="layout">
@@ -15,25 +17,7 @@
 
         <!-- MAIN SECTION -->
         <main class="main-section">
-            <!-- HEADER -->
-            <header class="header">
-                <div class="header-left">
-                    <h1>Job Orders Management</h1>
-                    <p>Overview of all service requests and current assignments.</p>
-                </div>
-                <div class="header-right">
-                    <i class="ph-fill ph-bell notification"></i>
-                    <div class="profile">
-                        <div class="avatar">
-                           <img src="https://i.pravatar.cc/40?img=1" alt="Admin Avatar">
-                        </div>
-                        <div class="profile-info">
-                            <p class="name">Admin</p>
-                            <p class="fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div id="header-container"></div>
 
             <!-- Job Orders Content -->
             <section class="joborders-section" aria-labelledby="joborders-title">
@@ -147,7 +131,7 @@
                     <select name="type" required>
                         <option value="" disabled selected>Select job type...</option>
                         <option value="Installation">Installation</option>
-                        <option value="Repair">Repaire</option>
+                        <option value="Repair">Repair</option>
                         <option value="Maintenance">Maintenance</option>
                         <option value="Upgrade">Upgrade</option>
                         <option value="Downgrade">Downgrade</option>
@@ -159,8 +143,8 @@
                 <fieldset class="full customer-fieldset">
                     <legend>Customer</legend>
                     <div class="customer-type-toggle">
-                        <label><input type="radio" name="customerType" value="subscriber" checked> Subscriber</label>
-                        <label><input type="radio" name="customerType" value="walk-in"> Walk-in</label>
+                        <label><input type="radio" name="customerType" value="subscriber" checked>Subscriber</label>
+                        <label><input type="radio" name="customerType" value="walk-in">Walk-in</label>
                     </div>
                     <div id="subscriber-select-container">
                         <label for="subscriber-select" class="sr-only">Select Subscriber</label>
@@ -228,7 +212,6 @@
                 </div>
                 <div>
                     <p><strong>Customer:</strong> <span id="detail_customer"></span></p>
-                    <!-- *** UPDATED: Added a wrapper for optional contact details *** -->
                     <p id="detail_customer_contact_wrapper" style="display: none;">
                         <strong>Contact:</strong> <span id="detail_customer_contact"></span>
                     </p>
@@ -269,9 +252,40 @@
             </footer>
         </form>
     </dialog>
+   <div id="app-alert-container">
+    <!-- Overlay for the original Confirmation Modal -->
+    <div id="app-alert-overlay" class="app-alert-overlay"></div>
 
-    <script src="../../scripts/joborder.js"></script>
-    <script src="../../scripts/renderer.js"></script> 
-    <script src="../../scripts/sidebar.js"></script>
+    <!-- ORIGINAL Confirmation Modal Box (this remains for other alerts) -->
+    <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="app-alert-title" aria-describedby="app-alert-message">
+        <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
+        <h2 id="app-alert-title" class="app-alert-title"></h2>
+        <p id="app-alert-message" class="app-alert-message"></p>
+        <div class="app-alert-buttons">
+            <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
+            <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+        </div>
+    </div>
+
+    <dialog id="app-alert-dialog-box" class="dialog app-alert-box" role="alertdialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
+        <div id="app-alert-dialog-icon-wrapper" class="app-alert-icon-wrapper">
+            <i id="app-alert-dialog-icon" class="ph-fill"></i>
+        </div>
+        <h2 id="app-alert-dialog-title" class="app-alert-title"></h2>
+        <p id="app-alert-dialog-message" class="app-alert-message"></p>
+        <div class="app-alert-buttons">
+            <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel" value="cancel"></button>
+            <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm" value="default"></button>
+        </div>
+    </dialog>
+
+    <!-- Container for Toast Notifications -->
+    <div id="app-alert-toast-container"></div>
+</div>
+
+    <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/main/joborder.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/components/header.js"></script>
 </body>
 </html>

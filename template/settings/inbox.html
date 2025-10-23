@@ -8,35 +8,21 @@
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
     <!-- Main Stylesheets -->
-    <link rel="stylesheet" href="../../styles/dashboard.css">
-    <link rel="stylesheet" href="../../styles/sidebar.css">
-    <link rel="stylesheet" href="../../styles/inbox.css">
+    <link rel="stylesheet" href="../../styles/main/dashboard.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
+    <link rel="stylesheet" href="../../styles/settings/inbox.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
 <body>
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
         <!-- MAIN CONTENT -->
         <main class="main-section">
-            <!-- HEADER -->
-            <header class="header">
-                <div class="header-left">
-                    <button class="back-btn" title="Go Back" onclick="history.back()">
-                        <i class="ph ph-arrow-left"></i>
-                    </button>
-                    <h1>Inbox</h1>
-                    <p>View and manage your system notifications.</p>
-                </div>
-                <div class="header-right">
-                    <i class="ph-fill ph-bell notification" title="Notifications"></i>
-                    <div class="profile">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="avatar-img" alt="Admin Avatar"/>
-                        <div class="profile-info">
-                            <p class="name">Admin</p>
-                            <p class="fullname">Admin</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <div id="header-container"></div>
+            <a href="#" id="back-to-settings-btn" class="back-button" onclick="history.back()">
+                <i class="ph ph-arrow-left"></i>
+                <span>Back to Settings</span>
+            </a>
             <!-- INBOX CARD -->
             <div class="card inbox-layout">
                 <div class="inbox-header">
@@ -56,7 +42,8 @@
             </div>
         </main>
     </div>
-    <script src="../../scripts/sidebar.js"></script>
-    <script src="../../scripts/inbox.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/components/header.js"></script>
+    <script src="../../scripts/settings/inbox.js"></script>
 </body>
 </html>

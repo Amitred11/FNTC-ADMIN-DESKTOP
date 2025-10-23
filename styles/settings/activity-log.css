@@ -1,0 +1,224 @@
+/* styles/settings/activity-log.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    /* Color Palette */
+    --primary-color: #007BFF;
+    --primary-hover: #0056b3;
+
+    --danger-color: #D32F2F;
+    --danger-bg: #FFEBEE;
+    
+    --warning-color: #FFA000;
+    --warning-bg: #FFF8E1;
+
+    --info-color: #1976D2;
+    --info-bg: #E3F2FD;
+
+    --text-primary: #1D2D3E;
+    --text-secondary: #5A6A7B;
+    --text-muted: #6c757d;
+    --border-color: #EAECEF;
+    
+    --page-bg: #0A3D62;
+    --card-bg: #FFFFFF;
+    --timeline-line: #DEE2E6;
+
+    /* Shadows */
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--page-bg);
+    color: var(--text-primary);
+    margin: 0;
+    overflow: hidden;
+}
+
+.layout { display: grid; grid-template-columns: 260px 1fr; height: 100vh; transition: grid-template-columns 0.3s ease; }
+.layout.sidebar-collapsed { grid-template-columns: 90px 1fr; }
+
+.main-section {
+    height: 100vh;
+    overflow-y: auto; /* Critical fix for scrollable content */
+    padding: 24px 32px;
+}
+
+.page-header {
+    margin-bottom: 16px;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.page-header .page-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-light);
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: var(--primary-color);
+}
+
+.back-button i {
+    font-size: 20px;
+}
+
+/* LOG CONTAINER */
+.log-container {
+    background-color: var(--card-bg);
+    max-width: 900px;
+    margin: 0 auto 32px auto; /* Centered with bottom margin */
+    padding: 32px 40px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.log-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.log-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.log-header p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* TIMELINE */
+.timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+
+/* The vertical line */
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 15px; /* Aligned with the center of the marker */
+    height: calc(100% - 10px);
+    width: 2px;
+    background-color: var(--timeline-line);
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 56px; /* Space for marker and line */
+    margin-bottom: 2rem;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    /* Default marker style (can be overridden) */
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* Marker color variations */
+.timeline-marker.info {
+    background-color: var(--info-bg);
+    color: var(--info-color);
+}
+.timeline-marker.warning {
+    background-color: var(--warning-bg);
+    color: var(--warning-color);
+}
+.timeline-marker.danger {
+    background-color: var(--danger-bg);
+    color: var(--danger-color);
+}
+
+.log-content {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.timeline-item:hover .log-content {
+    border-color: #B0C4DE; /* A slightly stronger border on hover */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.log-action {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1rem 0;
+}
+
+.log-action strong {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.log-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.75rem;
+}
+
+.log-actor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.actor-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.actor-name, .log-timestamp {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
