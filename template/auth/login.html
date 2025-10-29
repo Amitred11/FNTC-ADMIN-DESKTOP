@@ -3,49 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FiBear Admin Login - Unified Design</title>
+    <title>FiBear Admin Login</title>
+    
     <link href="../../styles/auth/login.css" rel="stylesheet">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
-<body>
+<body data-page="login"> 
 
-    <!-- Unified Background Element -->
-    <div class="background-shapes"></div>
+    <div class="background-container">
+        <div class="stars"></div>
+    </div>
 
-    <!-- Loading Overlay for Transition -->
     <div id="loading-overlay">
         <div id="loading-logo" class="loading-logo">
-            <!-- USE YOUR ACTUAL LOGO PATH HERE -->
             <img src="../../assets/logo.png" alt="FiBear Network Logo">
         </div>
     </div>
 
-    <!-- Main Login Container -->
-    <div class="login-container" id="login-container">
+    <!-- Main login form, now visible by default with a fade-in animation -->
+    <main class="login-container" id="login-container">
         <!-- Informational Section (Left) -->
-        <div class="info-section">
+        <section class="info-section">
             <div class="info-content">
                 <div class="info-logo">
                     <img src="../../assets/logo.png" alt="FiBear Network Logo">
                 </div>
-                <h1 class="company-name">FiBear Network Technologies Corp.</h1>
+                <h2 class="company-name">FiBear Network Technologies Corp.</h2>
                 <p class="company-branch">Kasiglahan Branch</p>
-                <div class="info-divider"></div>
-                <h2 class="info-title">Administrative Control Panel</h2>
+                <hr class="info-divider">
+                <h3 class="info-title">Administrative Control Panel</h3>
                 <p class="info-description">
                     Secure access for authorized personnel. Your activities are logged for security purposes.
                 </p>
             </div>
-            <p class="info-footer">
-                &copy; 2025 FiBear Network Technologies Corp.
-            </p>
-        </div>
+            <footer class="info-footer">
+                <p>&copy; 2025 FiBear Network Technologies Corp.</p>
+            </footer>
+        </section>
 
         <!-- Form Section (Right) -->
-        <div class="form-section">
+        <section class="form-section">
             <div class="form-wrapper">
                 <div class="form-header">
                     <h2 class="title">Welcome Back</h2>
@@ -75,13 +76,16 @@
                     </button>
                 </form>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- Error Modal -->
-    <div id="error-modal" class="modal-overlay hidden">
+    <div id="error-modal" class="modal-overlay hidden" role="alertdialog" aria-labelledby="modal-title" aria-describedby="error-message">
         <div class="modal-content">
-            <h3 class="modal-title">Login Failed</h3>
+            <div class="modal-icon-wrapper">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="modal-title" class="modal-title">Login Failed</h3>
             <p id="error-message" class="modal-body"></p>
             <button id="close-modal-btn" class="modal-close-btn">
                 Try Again

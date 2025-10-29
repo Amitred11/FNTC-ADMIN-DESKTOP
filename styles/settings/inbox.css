@@ -32,16 +32,14 @@
     transition: all 0.2s ease;
 }
 
-/* Primary action button (Reply) */
 .message-footer .btn-primary {
     background-color: var(--primary-color);
     color: white;
 }
 .message-footer .btn-primary:hover {
-    background-color: #3378c6; /* A slightly darker primary color */
+    background-color: #3378c6; 
 }
 
-/* --- NEW: Danger action button (Delete) --- */
 .message-footer .btn-danger {
     background-color: rgba(239, 68, 68, 0.1);
     color: #ef4444;
@@ -51,7 +49,6 @@
     color: #dc2626;
 }
 
-/* Back Button Style */
 .back-btn {
     background: transparent;
     border: 1px solid var(--border-color);
@@ -71,20 +68,18 @@
     color: var(--text-primary);
 }
 
-/* Main Inbox Card Layout */
 .card.inbox-layout {
     margin: 0 40px 40px;
     border-radius: 12px;
     background-color: var(--surface-background);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); /* Softer shadow */
-    height: calc(100vh - 160px); /* Adjusted for better fit */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); 
+    height: calc(100vh - 160px); 
     padding: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-/* Header of the Inbox Card */
 .inbox-header {
     display: flex;
     justify-content: space-between;
@@ -102,7 +97,6 @@
     font-weight: 600;
 }
 
-/* Refresh Button in Header */
 .inbox-header .btn-secondary {
     background-color: transparent;
     border: 1px solid var(--border-color);
@@ -121,23 +115,20 @@
     color: var(--primary-color);
 }
 
-/* Main Body Grid (List + View) */
 .inbox-body {
     display: grid;
-    grid-template-columns: 340px 1fr; /* Slightly wider list */
+    grid-template-columns: 340px 1fr; 
     height: 100%;
     overflow: hidden;
 }
 
-/* Left Panel: Message List -- UPDATED */
 .message-list {
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
-    padding: 0.5rem; /* Add padding for spacing */
-    background-color: #FBFDFF; /* A very light blue tint */
+    padding: 0.5rem; 
+    background-color: #FBFDFF;
 }
 
-/* Individual Message Item in the List -- UPDATED */
 .message-item {
     display: flex;
     flex-direction: column;
@@ -147,9 +138,9 @@
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
-    border: 1px solid var(--border-color); /* Create the box */
-    border-radius: 8px; /* Rounded corners */
-    margin-bottom: 0.5rem; /* Space between boxes */
+    border: 1px solid var(--border-color); 
+    border-radius: 8px; 
+    margin-bottom: 0.5rem; 
     background-color: #ffffff;
 }
 
@@ -171,7 +162,7 @@
 }
 
 .message-item .subject {
-    font-weight: 400; /* Lighter font weight */
+    font-weight: 400; 
     margin: 0 0 4px 0;
     font-size: 0.9rem;
     color: var(--text-primary);
@@ -186,7 +177,7 @@
 .message-item .timestamp { align-self: flex-start; }
 
 .message-item.unread .subject {
-    font-weight: 700; /* Bolder for unread */
+    font-weight: 700; 
 }
 
 .message-item.unread::before {
@@ -201,9 +192,8 @@
     border-radius: 50%;
 }
 
-/* Right Panel: Message Details View */
 .message-view {
-    padding: 2rem 2.5rem; /* More spacious padding */
+    padding: 2rem 2.5rem;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -216,7 +206,7 @@
 }
 
 .message-view-header h3 {
-    font-size: 1.75rem; /* Larger subject title */
+    font-size: 1.75rem; 
     font-weight: 600;
     margin: 0;
     line-height: 1.3;
@@ -240,13 +230,12 @@
     font-size: 1rem;
 }
 
-/* Footer with Action Buttons */
 .message-footer {
     margin-top: auto;
     padding-top: 1.5rem;
     border-top: 1px solid var(--border-color);
     display: flex;
-    gap: 12px; /* Spacing between buttons */
+    gap: 12px; 
 }
 
 /* Placeholder for Empty States */
@@ -261,18 +250,89 @@
     font-size: 1rem;
 }
 
-/* Responsive Adjustments */
+/* --- For Tablets and Small Desktops --- */
+@media (max-width: 1024px) {
+    .layout { 
+        grid-template-columns: 1fr; 
+    }
+    #sidebar-container { 
+        display: none; 
+    }
+}
+
+/* --- For Tablets and All Mobile Devices --- */
 @media (max-width: 992px) {
-    .card.inbox-layout { margin: 0 20px 20px; }
-    .inbox-body { grid-template-columns: 1fr; }
+    .card.inbox-layout {
+        margin: 0 24px 24px;
+        height: calc(100vh - 120px);
+    }
+
+    .inbox-body {
+        grid-template-columns: 1fr; 
+    }
+
     .message-list {
         border-right: none;
         border-bottom: 1px solid var(--border-color);
-        max-height: 250px;
+        max-height: 30vh; 
+        min-height: 200px; 
     }
+
     .message-item.active {
         border-left: none;
         border-bottom: 4px solid var(--primary-color);
-        padding-left: 1.5rem;
+        padding-left: 1.25rem;
     }
+
+    .message-view-header .back-btn {
+        display: none; 
+    }
+}
+
+/* --- For Mobile Devices --- */
+@media (max-width: 768px) {
+    .card.inbox-layout {
+        margin: 0;
+        border-radius: 0;
+        height: 100%; 
+        box-shadow: none;
+    }
+
+    .inbox-header h2 { 
+        font-size: 1.1rem; 
+    }
+
+    .message-view { 
+        padding: 1.5rem; 
+    }
+
+    .message-view-header h3 { 
+        font-size: 1.4rem; 
+    }
+}
+
+/* --- For Small Mobile Devices --- */
+@media (max-width: 480px) {
+    .message-view { 
+        padding: 1rem; 
+    }
+
+    .message-view-header { 
+        padding-bottom: 1rem; 
+        margin-bottom: 1rem; 
+    }
+
+    .message-view-header h3 { 
+        font-size: 1.2rem; 
+    }
+
+    .message-footer { 
+        flex-direction: column; 
+        gap: 10px; 
+    }
+
+    .message-footer .btn { 
+        width: 100%; 
+        justify-content: center; 
+    } 
 }

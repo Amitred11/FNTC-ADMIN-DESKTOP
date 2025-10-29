@@ -1,7 +1,83 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // =================================================================
-    // API CONNECTOR
-    // =================================================================
+function renderAccessDenied() {
+    const layout = document.getElementById('layout');
+    if (layout) {
+        layout.style.display = 'none';
+    }
+
+    document.body.style.backgroundColor = '#FFFFFF';
+    document.body.innerHTML = ''; 
+
+    if (!document.getElementById('access-denied-container')) {
+        const deniedContainer = document.createElement('div');
+        deniedContainer.id = 'access-denied-container';
+        deniedContainer.style.cssText = `
+            text-align: center;
+            padding: 40px 20px;
+            width: 100vw; /* Use viewport width */
+            height: 100vh; /* Use viewport height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #FFFFFF; /* White background */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99999; /* Higher z-index to be safe */
+            font-family: 'Inter', sans-serif; /* Ensure consistent font */
+        `;
+
+        deniedContainer.innerHTML = `
+            <div style="font-size: 6rem; color: #DC2626; margin-bottom: 1.5rem;">
+                <i class="ph-fill ph-hand-palm"></i>
+            </div>
+            <h1 style="color: #121212; font-size: 3rem; margin: 0; font-weight: 600;">Access Denied</h1>
+            <p style="font-size: 1.25rem; color: #5A6474; max-width: 450px; margin-top: 1rem; line-height: 1.6;">
+                You do not have the required permissions to access this page.
+            </p>
+            <button id="go-back-btn" style="margin-top: 2.5rem; padding: 14px 28px; font-size: 1.1rem; cursor: pointer; border: none; background-color: #3553E4; color: white; border-radius: 10px; font-weight: 500; transition: background-color 0.2s ease;">
+                Return to Previous Page
+            </button>
+        `;
+        document.body.appendChild(deniedContainer);
+
+        const goBackButton = document.getElementById('go-back-btn');
+        goBackButton.addEventListener('click', () => {
+            history.back();
+        });
+        goBackButton.onmouseover = () => { goBackButton.style.backgroundColor = '#4A6CFD'; };
+        goBackButton.onmouseout = () => { goBackButton.style.backgroundColor = '#3553E4'; };
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const ALLOWED_ROLES = ['admin', 'field_agent'];
+    let currentUserRole = null;
+
+    try {
+        const response = await window.electronAPI.getUserProfile();
+        const user = response;
+
+        if (user && user.role) {
+            currentUserRole = user.role;
+        } else {
+            throw new Error("Role not found in profile.");
+        }
+    } catch (e) {
+        console.error("Critical security error: Could not fetch user profile.", e);
+        renderAccessDenied();
+        return;
+    }
+
+    if (!ALLOWED_ROLES.includes(currentUserRole)) {
+        console.warn(`SECURITY: User with role '${currentUserRole}' attempted to access the subscriptions page without permission.`);
+        renderAccessDenied();
+        return;
+    }
+    
+    console.log("Permission granted. Initializing subscription management page.");
     const supportTicketAPI = {
         _request: async (method, ...args) => {
             if (!window.electronAPI) {
@@ -27,9 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteReply: (ticketId, messageId) => supportTicketAPI._request('apiDelete', `/tickets/${ticketId}/reply/${messageId}`)
     };
 
-    // =================================================================
-    // STATE & DOM ELEMENTS
-    // =================================================================
     const state = {
         tickets: [],
         currentFilter: 'All',
@@ -56,9 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         evidenceModalClose: document.getElementById('evidence-modal-close'),
     };
 
-    // =================================================================
-    // RENDER FUNCTIONS
-    // =================================================================
     const renderTickets = () => {
         if (!Array.isArray(state.tickets)) return;
         const searchQuery = dom.searchInput.value.toLowerCase();
@@ -95,54 +165,67 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderTicketDetail = (ticket) => {
-        state.currentTicketId = ticket._id;
-        document.getElementById('detail-ticket-id').textContent = `#${ticket._id.slice(-6)}`;
-        document.getElementById('detail-ticket-subject').textContent = ticket.subject;
-        document.getElementById('detail-ticket-description').textContent = ticket.description;
-        document.getElementById('detail-customer-name').textContent = ticket.userId?.displayName || 'N/A';
-        document.getElementById('detail-customer-email').textContent = ticket.userId?.email || 'N/A';
-        document.getElementById('detail-created-date').textContent = new Date(ticket.createdAt).toLocaleString();
-        document.getElementById('status-select').value = ticket.status;
-        const evidenceContainer = document.getElementById('detail-ticket-evidence');
-        if (ticket.imageUrl) {
-            evidenceContainer.innerHTML = `<button class="btn-link" id="view-evidence-btn" data-image-url="${ticket.imageUrl}"><i class="ph ph-image"></i> View Attached Image</button>`;
-        } else {
-            evidenceContainer.innerHTML = `<p class="text-muted">No evidence attached.</p>`;
-        }
-        const repliesContainer = document.getElementById('detail-replies-container');
-        repliesContainer.innerHTML = '';
-        if (ticket.messages.length > 0) {
-            const fragment = document.createDocumentFragment();
-            ticket.messages.forEach(msg => {
-                const replyEl = document.createElement('div');
-                replyEl.className = `reply-message ${msg.isAdmin ? 'admin-reply' : 'user-reply'}`;
-                const messageActionsHTML = msg.isAdmin ? `<div class="message-actions"><button class="edit-reply-btn" data-message-id="${msg._id}" title="Edit"><i class="ph ph-pencil-simple"></i></button><button class="delete-reply-btn" data-message-id="${msg._id}" title="Delete"><i class="ph ph-trash"></i></button></div>` : '';
-                replyEl.innerHTML = `${messageActionsHTML}<div class="message-bubble"><div class="author"><strong>${msg.senderName}</strong></div><div class="message-content"><p>${msg.text.replace(/\n/g, '<br>')}</p></div></div>`;
-                fragment.appendChild(replyEl);
-            });
-            repliesContainer.appendChild(fragment);
-        } else {
-            repliesContainer.innerHTML = `<div class="no-replies-placeholder"><i class="ph ph-chats"></i><p>No conversation history yet.</p></div>`;
-        }
-        
-        // --- FIX #1: Reply form is now hidden based on ticket status ---
-        const isTicketClosed = ticket.status === 'Resolved' || ticket.status === 'Closed';
-        document.getElementById('reply-action-form').classList.toggle('hidden', isTicketClosed);
-        
-        document.getElementById('reply-textarea').value = '';
-        dom.ticketsView.classList.add('hidden');
-        dom.ticketDetailView.classList.remove('hidden');
-        repliesContainer.scrollTop = repliesContainer.scrollHeight;
-    };
+    state.currentTicketId = ticket._id;
+    document.getElementById('detail-ticket-id').textContent = `#${ticket._id.slice(-6)}`;
+    document.getElementById('detail-ticket-subject').textContent = ticket.subject;
+    document.getElementById('detail-ticket-description').textContent = ticket.description;
+    document.getElementById('detail-customer-name').textContent = ticket.userId?.displayName || 'N/A';
+    document.getElementById('detail-customer-email').textContent = ticket.userId?.email || 'N/A';
+    document.getElementById('detail-created-date').textContent = new Date(ticket.createdAt).toLocaleString();
+    document.getElementById('status-select').value = ticket.status;
+    
+    const evidenceContainer = document.getElementById('detail-ticket-evidence');
+    if (ticket.imageUrl) {
+        evidenceContainer.innerHTML = `<button class="btn-link" id="view-evidence-btn" data-image-url="${ticket.imageUrl}"><i class="ph ph-image"></i> View Attached Image</button>`;
+    } else {
+        evidenceContainer.innerHTML = `<p class="text-muted">No evidence attached.</p>`;
+    }
 
-    // =================================================================
-    // EVENT HANDLERS
-    // =================================================================
-    const notifyUser = (options) => {
-        if (window.AppAlert && typeof window.AppAlert.notify === 'function') {
-            window.AppAlert.notify(options);
+    const repliesContainer = document.getElementById('detail-replies-container');
+    repliesContainer.innerHTML = '';
+    if (ticket.messages.length > 0) {
+        const fragment = document.createDocumentFragment();
+        ticket.messages.forEach(msg => {
+            const replyEl = document.createElement('div');
+            replyEl.className = `reply-message ${msg.isAdmin ? 'admin-reply' : 'user-reply'}`;
+            const messageActionsHTML = msg.isAdmin ? `<div class="message-actions"><button class="edit-reply-btn" data-message-id="${msg._id}" title="Edit"><i class="ph ph-pencil-simple"></i></button><button class="delete-reply-btn" data-message-id="${msg._id}" title="Delete"><i class="ph ph-trash"></i></button></div>` : '';
+            replyEl.innerHTML = `${messageActionsHTML}<div class="message-bubble"><div class="author"><strong>${msg.senderName}</strong></div><div class="message-content"><p>${msg.text.replace(/\n/g, '<br>')}</p></div></div>`;
+            fragment.appendChild(replyEl);
+        });
+        repliesContainer.appendChild(fragment);
+    } else {
+        repliesContainer.innerHTML = `<div class="no-replies-placeholder"><i class="ph ph-chats"></i><p>No conversation history yet.</p></div>`;
+    }
+    
+    const replyForm = document.getElementById('reply-action-form');
+    const replyTextarea = document.getElementById('reply-textarea');
+    const sendReplyBtn = document.getElementById('send-reply-btn');
+
+    const isTicketClosed = ticket.status === 'Resolved' || ticket.status === 'Closed';
+    replyForm.classList.toggle('hidden', isTicketClosed);
+
+    if (!isTicketClosed) {
+        const lastMessage = ticket.messages.length > 0 ? ticket.messages[ticket.messages.length - 1] : null;
+
+        if (lastMessage && lastMessage.isAdmin) {
+            replyTextarea.value = '';
+            replyTextarea.disabled = true;
+            replyTextarea.placeholder = 'You have already replied. Delete your last message to send a new one.';
+            sendReplyBtn.disabled = true;
+            sendReplyBtn.innerHTML = `<i class="ph ph-check-circle"></i> Reply Sent`;
+        } else {
+            replyTextarea.disabled = false;
+            replyTextarea.placeholder = 'Type your reply here...';
+            if (!sendReplyBtn.disabled) {
+                 sendReplyBtn.innerHTML = `<i class="ph ph-paper-plane-tilt"></i> Send Reply`;
+            }
         }
-    };
+    }
+
+    dom.ticketsView.classList.add('hidden');
+    dom.ticketDetailView.classList.remove('hidden');
+    repliesContainer.scrollTop = repliesContainer.scrollHeight;
+};
 
     const handleTabClick = (e) => {
         dom.tabs.forEach(t => t.classList.remove('active'));
@@ -159,46 +242,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await supportTicketAPI.getTicketById(ticketId);
                 renderTicketDetail(response.data);
             } catch (error) {
-                notifyUser({ type: 'error', title: 'Error', message: `Could not load ticket: ${error.message}` });
+                AppAlert.notify({ type: 'error', title: 'Error', message: `Could not load ticket: ${error.message}` });
             }
         }
     };
     
-    const handleReplySubmit = async () => {
-        const replyText = document.getElementById('reply-textarea').value.trim();
-        if (!replyText || !state.currentTicketId) return;
+const handleReplySubmit = async () => {
+    const replyText = document.getElementById('reply-textarea').value.trim();
+    if (!replyText || !state.currentTicketId) return;
 
-        // --- FIX #2: Add a loading state to prevent double clicks and give user feedback ---
-        dom.sendReplyBtn.disabled = true;
-        dom.sendReplyBtn.innerHTML = `<i class="ph ph-spinner-gap"></i> Sending...`;
+    dom.sendReplyBtn.disabled = true;
+    dom.sendReplyBtn.innerHTML = `<i class="ph ph-spinner-gap"></i> Sending...`;
 
-        try {
-            await supportTicketAPI.addReply(state.currentTicketId, replyText);
-            const response = await supportTicketAPI.getTicketById(state.currentTicketId);
-            renderTicketDetail(response.data);
-            notifyUser({ type: 'success', title: 'Reply Sent!', message: 'Your message has been successfully sent to the user.' });
-        } catch (error) {
-            // --- FIX #3: Provide a more descriptive error message to the user ---
-            notifyUser({ type: 'error', title: 'Send Failed', message: `Could not send reply: ${error.message}` });
-        } finally {
-            // Always re-enable the button and restore its text
-            dom.sendReplyBtn.disabled = false;
-            dom.sendReplyBtn.innerHTML = `<i class="ph ph-paper-plane-tilt"></i> Send Reply`;
-        }
-    };
+    try {
+        await supportTicketAPI.addReply(state.currentTicketId, replyText);
+        const response = await supportTicketAPI.getTicketById(state.currentTicketId);
+        renderTicketDetail(response.data);
+        AppAlert.notify({ type: 'success', title: 'Reply Sent!', message: 'Your message has been successfully sent to the user.' });
+    } catch (error) {
+        AppAlert.notify({ type: 'error', title: 'Send Failed', message: `Could not send reply: ${error.message}` });
+    } finally {
+        dom.sendReplyBtn.disabled = false;
+        dom.sendReplyBtn.innerHTML = `<i class="ph ph-paper-plane-tilt"></i> Send Reply`;
+    }
+};
 
     const handleStatusUpdate = async () => {
         const newStatus = document.getElementById('status-select').value;
         if (!state.currentTicketId || !newStatus) return;
         try {
-            await window.AppAlert.confirm({ type: 'primary', title: 'Update Status?', message: `Are you sure you want to change the status to "${newStatus}"?`, confirmText: 'Yes, Update' });
+            await AppAlert.confirmOnDialog({ type: 'info', title: 'Update Status?', message: `Are you sure you want to change the status to "${newStatus}"?`, confirmText: 'Yes, Update' });
             await supportTicketAPI.updateTicketStatus(state.currentTicketId, newStatus);
             const response = await supportTicketAPI.getTicketById(state.currentTicketId);
             renderTicketDetail(response.data);
-            notifyUser({ type: 'success', title: 'Status Updated', message: `Ticket moved to "${newStatus}".` });
+            AppAlert.notify({ type: 'success', title: 'Status Updated', message: `Ticket moved to "${newStatus}".` });
         } catch (error) {
-            if (error && error.message.toLowerCase() !== 'user cancelled the action.') {
-                notifyUser({ type: 'error', title: 'Update Failed', message: error.message });
+            if (error) {
+                AppAlert.notify({ type: 'error', title: 'Update Failed', message: error.message });
             }
         }
     };
@@ -219,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dom.evidenceModalImage.src = imageUrl;
             dom.evidenceModal.classList.remove('hidden');
         } else {
-            notifyUser({ type: 'error', title: 'Error', message: 'Could not display the image.' });
+            AppAlert.notify({ type: 'error', title: 'Error', message: 'Could not display the image.' });
         }
     };
 
@@ -234,21 +314,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 dom.editModalTextarea.focus();
             }
         } catch (error) {
-            notifyUser({ type: 'error', title: 'Error', message: 'Could not fetch message to edit.' });
+            AppAlert.notify({ type: 'error', title: 'Error', message: 'Could not fetch message to edit.' });
         }
     };
 
     const handleDeleteReply = async (messageId) => {
         try {
-            await window.AppAlert.confirm({ type: 'danger', title: 'Delete Reply?', message: 'This action is permanent and cannot be undone.', confirmText: 'Yes, Delete' });
+            await AppAlert.confirmOnDialog({ type: 'danger', title: 'Delete Reply?', message: 'This action is permanent and cannot be undone.', confirmText: 'Yes, Delete' });
             await supportTicketAPI.deleteReply(state.currentTicketId, messageId);
             const response = await supportTicketAPI.getTicketById(state.currentTicketId);
             renderTicketDetail(response.data);
-            // --- FIX #4: Add a descriptive message for a consistent UI ---
-            notifyUser({ type: 'success', title: 'Reply Deleted', message: 'The message has been permanently removed.' });
+            AppAlert.notify({ type: 'success', title: 'Reply Deleted', message: 'The message has been permanently removed.' });
         } catch (error) {
-            if (error && error.message.toLowerCase() !== 'user cancelled the action.') {
-                notifyUser({ type: 'error', title: 'Delete Failed', message: error.message });
+            if (error) {
+                AppAlert.notify({ type: 'error', title: 'Delete Failed', message: error.message });
             }
         }
     };
@@ -262,15 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
             closeEditModal();
             const response = await supportTicketAPI.getTicketById(ticketId);
             renderTicketDetail(response.data);
-            notifyUser({ type: 'success', title: 'Reply Updated' });
+            AppAlert.notify({ type: 'success', title: 'Reply Updated' });
         } catch(error) {
-            notifyUser({ type: 'error', title: 'Save Failed', message: error.message });
+            AppAlert.notify({ type: 'error', title: 'Save Failed', message: error.message });
         }
     };
 
-    // =================================================================
-    // HELPER FUNCTIONS & INITIALIZATION
-    // =================================================================
     const showListView = () => {
         dom.ticketDetailView.classList.add('hidden');
         dom.ticketsView.classList.remove('hidden');

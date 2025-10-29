@@ -56,7 +56,7 @@ body {
     flex-direction: column;
     height: 100vh; 
     overflow: hidden;
-    position: relative; /* Context for show button */
+    position: relative; 
 }
 
 #header-container {
@@ -89,9 +89,9 @@ body {
     grid-template-columns: 380px 1fr; 
     gap: 24px; 
     padding: 24px 32px; 
-    flex-grow: 1; /* Makes the container fill the remaining space */
-    overflow: hidden; /* Ensures children scroll internally */
-    min-height: 0; /* A flexbox hack to guarantee sizing and scrolling */
+    flex-grow: 1; 
+    overflow: hidden; 
+    min-height: 0;
     transition: grid-template-columns 0.4s ease, gap 0.4s ease;
 }
 
@@ -178,6 +178,14 @@ body {
 .info-item:last-child { border-bottom: none; }
 .info-label { color: var(--text-dark); }
 .info-value { font-weight: 500; }
+
+.info-item.reason .info-value {
+    white-space: normal; 
+    text-align: right;
+    max-width: 70%;
+    line-height: 1.5;
+}
+
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td { text-align: left; padding: 14px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
 .data-table th { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
@@ -223,4 +231,82 @@ body {
 }
 #show-user-list-btn.visible {
     display: flex;
+}
+
+/* --- For Tablets and Small Desktops --- */
+@media (max-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+    #sidebar-container {
+        display: none;
+    }
+    .main-section {
+        overflow-y: auto;
+    }
+    .management-container {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+    }
+    .user-list-panel {
+        max-height: 50vh;
+    }
+    .user-details-panel {
+        overflow-y: auto;
+    }
+    #toggle-user-list-btn,
+    #show-user-list-btn {
+        display: none !important;
+    }
+}
+
+/* --- For Mobile Devices --- */
+@media (max-width: 768px) {
+    .management-container {
+        padding: 16px;
+        gap: 16px;
+    }
+    .details-header {
+        padding: 32px 24px;
+    }
+    .details-avatar-container {
+        width: 90px;
+        height: 90px;
+        font-size: 38px;
+    }
+    .details-name {
+        font-size: 22px;
+    }
+    .details-tabs {
+        padding: 0 16px;
+        overflow-x: auto;
+    }
+    .tab-content {
+        padding: 24px;
+    }
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- For Small Mobile Devices --- */
+@media (max-width: 480px) {
+    .tab-content {
+        padding: 20px;
+    }
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .info-item.reason .info-value {
+        text-align: left;
+        max-width: 100%;
+    }
+    .data-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
 }

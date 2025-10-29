@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
         getActiveChats: () => window.electronAPI.apiGet('/chats'),
         getChatById: (chatId) => window.electronAPI.apiGet(`/chats/${chatId}`),
         sendMessage: (chatId, messageText) => window.electronAPI.apiPost(`/chats/${chatId}/message`, { text: messageText }),
-        endChat: (chatId) => window.electronAPI.apiPost(`/chats/${chatId}/close`, {})
+        endChat: (chatId) => window.electronAPI.apiPost(`/chats/${chatId}/close`, {}),
+        deleteMessage: (chatId, messageId) => window.electronAPI.apiDelete(`/chats/${chatId}/message/${messageId}`),
     };
 
     // =================================================================
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let state = {
         chats: [],
         activeChatId: null,
+        pollingIntervalId: null,
     };
     const headerContainer = document.getElementById('header-container');
     const chatListContainer = document.getElementById('chat-list-container');
@@ -70,6 +72,68 @@ document.addEventListener('DOMContentLoaded', () => {
         showBtn.classList.toggle('visible', isCollapsed);
     };
 
+    // =================================================================
+    // REAL-TIME POLLING LOGIC
+    // =================================================================
+    const stopChatPolling = () => {
+        if (state.pollingIntervalId) {
+            clearInterval(state.pollingIntervalId);
+            state.pollingIntervalId = null;
+        }
+    };
+
+    const startChatPolling = (chatId) => {
+        stopChatPolling(); 
+
+        state.pollingIntervalId = setInterval(async () => {
+            if (state.activeChatId !== chatId) {
+                stopChatPolling();
+                return;
+            }
+
+            try {
+                const response = await api.getChatById(chatId);
+                if (response.ok) {
+                    const chat = response.data;
+                    const chatBody = document.getElementById('chat-body');
+                    if (!chatBody) return;
+
+                    const currentMessageCount = chatBody.querySelectorAll('.message-wrapper, .system-note').length;
+                    
+                    if (chat.messages.length > currentMessageCount) {
+                        const isScrolledToBottom = chatBody.scrollHeight - chatBody.clientHeight <= chatBody.scrollTop + 100;
+                        
+                        const newMessages = chat.messages.slice(currentMessageCount);
+                        newMessages.forEach(msg => {
+                            const wrapper = document.createElement('div');
+                            const isSystemMessage = msg.senderId === 'system';
+
+                            if(isSystemMessage) {
+                                wrapper.className = 'message system-note';
+                                wrapper.innerHTML = `<p><em>${msg.text}</em></p>`;
+                            } else {
+                                wrapper.className = `message-wrapper ${msg.isAdmin ? 'admin' : 'user'}`;
+                                wrapper.dataset.messageId = msg._id;
+                                const formattedTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                                const actions = msg.isAdmin ? `<div class="message-actions"><button class="btn-icon delete-message-btn" title="Delete Message"><i class="ph ph-trash"></i></button></div>` : '';
+                                const messageBubble = `<div class="message"><p>${msg.text.replace(/\n/g, '<br>')}</p><time>${formattedTime}</time></div>`;
+                                wrapper.innerHTML = actions + messageBubble;
+                            }
+                            chatBody.appendChild(wrapper);
+                        });
+
+                        if (isScrolledToBottom) {
+                            chatBody.scrollTop = chatBody.scrollHeight;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('Polling failed:', error.message);
+            }
+        }, 3000);
+    };
+    
     // =================================================================
     // RENDER FUNCTIONS
     // =================================================================
@@ -138,10 +202,25 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="chat-body" id="chat-body">
                 ${chat.messages.map(msg => {
                     const formattedTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const isSystemMessage = msg.senderId === 'system';
+
+                    if (isSystemMessage) {
+                        return `<div class="message system-note"><p><em>${msg.text}</em></p></div>`;
+                    }
+                    
                     return `
-                        <div class="message ${msg.isAdmin ? 'admin' : 'user'}">
-                            <p>${msg.text.replace(/\n/g, '<br>')}</p>
-                            <time>${formattedTime}</time>
+                        <div class="message-wrapper ${msg.isAdmin ? 'admin' : 'user'}" data-message-id="${msg._id}">
+                            ${msg.isAdmin ? `
+                                <div class="message-actions">
+                                    <button class="btn-icon delete-message-btn" title="Delete Message">
+                                        <i class="ph ph-trash"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
+                            <div class="message">
+                                <p>${msg.text.replace(/\n/g, '<br>')}</p>
+                                <time>${formattedTime}</time>
+                            </div>
                         </div>
                     `;
                 }).join('')}
@@ -163,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderPlaceholder = (message = 'Select a conversation from the list to view messages.') => {
         state.activeChatId = null;
+        stopChatPolling();
         chatWindow.innerHTML = `<div class="chat-placeholder"><i class="ph-fill ph-chats-teardrop"></i><p>${message}</p></div>`;
         document.querySelectorAll('.chat-card.active').forEach(card => card.classList.remove('active'));
     };
@@ -186,11 +266,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderChatWindow(response.data);
                 document.querySelectorAll('.chat-card.active').forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
+                startChatPolling(chatId);
             } else {
                  renderPlaceholder(`Failed to load chat: ${response.data.message}`);
             }
         } catch (error) {
-            window.AppAlert.notify({ type: 'error', title: 'Error', message: 'Could not connect to the server to load chat.' });
+            AppAlert.notify({ type: 'error', title: 'Error', message: 'Could not connect to the server to load chat.' });
         }
     });
     
@@ -199,31 +280,74 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!chatId) return;
 
         const input = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-reply-btn');
         const messageText = input.value.trim();
-        if (messageText) {
+
+        if (messageText && sendButton && !sendButton.disabled) {
             input.value = '';
             input.style.height = 'auto'; 
             input.focus();
+
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="ph ph-spinner-gap"></i>';
+
             try {
                 const response = await api.sendMessage(chatId, messageText);
                 if (response.ok) {
                     const chatBody = document.getElementById('chat-body');
                     const newMessage = response.data;
-                    const messageElement = document.createElement('div');
-                    const formattedTime = new Date(newMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const wrapper = document.createElement('div');
+                    wrapper.className = `message-wrapper ${newMessage.isAdmin ? 'admin' : 'user'}`;
+                    wrapper.dataset.messageId = newMessage._id;
+
+                    const actions = newMessage.isAdmin ? `<div class="message-actions"><button class="btn-icon delete-message-btn" title="Delete Message"><i class="ph ph-trash"></i></button></div>` : '';
+                    const messageBubble = `<div class="message"><p>${newMessage.text.replace(/\n/g, '<br>')}</p><time>${new Date(newMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time></div>`;
                     
-                    messageElement.className = `message ${newMessage.isAdmin ? 'admin' : 'user'}`;
-                    messageElement.innerHTML = `
-                        <p>${newMessage.text.replace(/\n/g, '<br>')}</p>
-                        <time>${formattedTime}</time>
-                    `;
-                    chatBody.appendChild(messageElement);
+                    wrapper.innerHTML = actions + messageBubble;
+                    chatBody.appendChild(wrapper);
                     chatBody.scrollTop = chatBody.scrollHeight;
+
                 } else {
-                    window.AppAlert.notify({ type: 'error', title: 'Send Failed', message: `Could not send message: ${response.data.message}` });
+                    AppAlert.notify({ type: 'error', title: 'Send Failed', message: `Could not send message: ${response.data.message}` });
+                    input.value = messageText;
                 }
             } catch (error) {
-                window.AppAlert.notify({ type: 'error', title: 'Connection Error', message: 'Could not send message. Please check your connection.' });
+                AppAlert.notify({ type: 'error', title: 'Connection Error', message: 'Could not send message. Please check your connection.' });
+                input.value = messageText;
+            } finally {
+                sendButton.disabled = false;
+                sendButton.innerHTML = '<i class="ph-fill ph-paper-plane-tilt"></i>';
+            }
+        }
+    };
+
+    const handleDeleteMessage = async (chatId, messageId) => {
+        if (!chatId || !messageId) return;
+
+        try {
+            await AppAlert.confirmOnDialog({
+                type: 'danger',
+                title: 'Delete Message?',
+                message: 'This message will be permanently deleted and replaced with a system note. This cannot be undone.',
+                confirmText: 'Yes, Delete'
+            });
+
+            const response = await api.deleteMessage(chatId, messageId);
+            if (response.ok) {
+                const messageWrapper = document.querySelector(`.message-wrapper[data-message-id="${messageId}"]`);
+                if (messageWrapper) {
+                    const systemNote = document.createElement('div');
+                    systemNote.className = 'message system-note';
+                    systemNote.innerHTML = `<p><em>A message was deleted by the administrator.</em></p>`;
+                    messageWrapper.parentNode.replaceChild(systemNote, messageWrapper);
+                }
+                 AppAlert.notify({ type: 'success', title: 'Message Deleted' });
+            } else {
+                AppAlert.notify({ type: 'error', title: 'Error', message: `Could not delete message: ${response.data.message}` });
+            }
+        } catch (error) {
+            if (error && error.message !== 'Confirmation cancelled.') {
+                AppAlert.notify({ type: 'error', title: 'Action Failed', message: error.message });
             }
         }
     };
@@ -231,12 +355,13 @@ document.addEventListener('DOMContentLoaded', () => {
     chatWindow.addEventListener('click', async (e) => {
         const sendButton = e.target.closest('#send-reply-btn');
         const endButton = e.target.closest('#end-chat-window-btn');
+        const deleteButton = e.target.closest('.delete-message-btn');
 
         if (sendButton) {
             handleSendMessage();
         } else if (endButton) {
             try {
-                await window.AppAlert.confirm({
+                await AppAlert.confirmOnDialog({
                     type: 'danger',
                     title: 'End This Chat?',
                     message: 'This will close the conversation for the user. This action cannot be undone.',
@@ -247,11 +372,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     await initializeApp(false); 
                     renderPlaceholder('This chat has been closed.');
+                    AppAlert.notify({ type: 'success', title: 'Chat Ended', message: 'The conversation has been successfully closed.' });
                 } else {
-                    window.AppAlert.notify({ type: 'error', title: 'Error', message: `Could not end chat: ${response.data.message}` });
+                    AppAlert.notify({ type: 'error', title: 'Error', message: `Could not end chat: ${response.data.message}` });
                 }
             } catch (error) {
-                // User cancelled the action
+                if (error && error.message !== 'Confirmation cancelled.') {
+                    AppAlert.notify({ type: 'error', title: 'Action Failed', message: error.message });
+                }
+            }
+        } else if (deleteButton) {
+            const messageWrapper = e.target.closest('.message-wrapper');
+            if (messageWrapper) {
+                const messageId = messageWrapper.dataset.messageId;
+                handleDeleteMessage(state.activeChatId, messageId);
             }
         }
     });
@@ -265,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initializeApp = async (loadHeaderFlag = true) => {
         if (loadHeaderFlag) await loadHeader();
-        
         setupToggleButton();
 
         if (window.setHeader) {

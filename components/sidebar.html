@@ -1,46 +1,48 @@
-<!-- components/sidebar.html -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <img src="../../assets/logo.png" alt="Logo" class="logo" />
-        <button class="hamburger-btn" id="hamburger">
-            <i class="ph ph-list"></i>
+        <img src="../../assets/logo.png" alt="Company Logo" class="logo" />
+        <button class="hamburger-btn" id="hamburger" aria-label="Toggle Menu">
+            <i class="ph ph-list" aria-hidden="true"></i>
         </button>
     </div>
 
-    <!-- MAIN MENU: All links use a relative path from the page they are on -->
-    <nav class="menu-section">
-        <h4 class="sidebar-text">MAIN MENU</h4>
-        <a href="../main/dashboard.html" class="sidebar-btn" data-page="dashboard">
-            <i class="icon ph ph-squares-four"></i><span class="fontbt">Dashboard</span>
+    <!-- MAIN MENU -->
+    <nav class="menu-section" aria-labelledby="main-menu-heading">
+        <h4 id="main-menu-heading" class="sidebar-text">MAIN MENU</h4>
+        <a href="../main/dashboard.html" class="sidebar-btn" data-page="dashboard" data-tooltip="Dashboard">
+            <i class="icon ph ph-squares-four" aria-hidden="true"></i><span class="fontbt">Dashboard</span>
         </a>
-        <a href="../main/subscription.html" class="sidebar-btn" data-page="subscriptions">
-            <i class="icon ph ph-newspaper"></i><span class="fontbt">Subscriptions</span>
+        <a href="../main/subscription.html" class="sidebar-btn" data-page="subscriptions" data-tooltip="Subscriptions">
+            <i class="icon ph ph-newspaper" aria-hidden="true"></i><span class="fontbt">Subscriptions</span>
         </a>
-        <a href="../main/billing.html" class="sidebar-btn" data-page="billing">
-            <i class="icon ph ph-invoice"></i><span class="fontbt">Billing</span>
+        <a href="../main/billing.html" class="sidebar-btn" data-page="billing" data-tooltip="Billing">
+            <i class="icon ph ph-invoice" aria-hidden="true"></i><span class="fontbt">Billing</span>
         </a>
-        <a href="../main/joborder.html" class="sidebar-btn" data-page="joborder">
-            <i class="icon ph ph-users-three"></i><span class="fontbt">Job Order</span>
+        <a href="../main/joborder.html" class="sidebar-btn" data-page="joborder" data-tooltip="Job Order">
+            <i class="icon ph ph-users-three" aria-hidden="true"></i><span class="fontbt">Job Order</span>
+        </a>
+        <a href="../main/fieldagent.html" class="sidebar-btn" data-page="fieldagent" data-tooltip="Job Order">
+            <i class="icon ph ph-users-three" aria-hidden="true"></i><span class="fontbt">Job Order</span>
         </a>
     </nav>
-
-    <hr class="divider" />
 
     <!-- GENERAL -->
-    <nav class="menu-section">
-        <h4 class="sidebar-text">GENERAL</h4>
-        <a href="../support/support.html" class="sidebar-btn" data-page="support">
-            <i class="icon ph ph-ticket"></i><span class="fontbt">Support</span>
+    <nav class="menu-section" aria-labelledby="general-menu-heading">
+        <h4 id="general-menu-heading" class="sidebar-text">GENERAL</h4>
+        <a href="../support/support.html" class="sidebar-btn" data-page="support" data-tooltip="Support">
+            <i class="icon ph ph-ticket" aria-hidden="true"></i><span class="fontbt">Support</span>
         </a>
-        <a href="../support/livechats.html" class="sidebar-btn" data-page="livechats">
-            <i class="icon ph ph-chat-circle-dots"></i><span class="fontbt">Live Chats</span>
+        <a href="../support/livechats.html" class="sidebar-btn" data-page="livechats" data-tooltip="Live Chats">
+            <i class="icon ph ph-chat-circle-dots" aria-hidden="true"></i><span class="fontbt">Live Chats</span>
         </a>
-        <a href="../settings/settings.html" class="sidebar-btn" data-page="settings">
-            <i class="icon ph ph-gear"></i><span class="fontbt">Settings</span>
+        <a href="../settings/settings.html" class="sidebar-btn" data-page="settings" data-tooltip="Settings">
+            <i class="icon ph ph-gear" aria-hidden="true"></i><span class="fontbt">Settings</span>
         </a>
     </nav>
 
-    <a href="#" class="logout">
-        <i class="icon ph ph-sign-out"></i><span class="fontbt">Log Out</span>
-    </a>
+    <div class="logout">
+        <a href="#" class="sidebar-btn" id="logout-btn" data-tooltip="Log Out">
+            <i class="icon ph ph-sign-out" aria-hidden="true"></i><span class="fontbt">Log Out</span>
+        </a>
+    </div>
 </aside>

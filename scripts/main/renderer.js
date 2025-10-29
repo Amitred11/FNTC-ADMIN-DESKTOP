@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- PART 1: DOM Element Selectors (Unchanged) ---
+    // --- PART 1: DOM Element Selectors  ---
     const headerContainer = document.getElementById('header-container');
     const totalSubscribersEl = document.getElementById('total-subscribers');
     const newSubscribersEl = document.getElementById('new-subscribers');
@@ -10,23 +10,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const barChartEl = document.getElementById('bar-chart-body');
     const donutChartEl = document.getElementById('donut-chart-figure');
 
-    // --- PART 2: Dashboard-Specific Functions (Unchanged) ---
-    const loadHeader = async () => {
+    // --- PART 2: Dashboard-Specific Functions ---
+    const loadHeader = async (title, subtitle) => {
         try {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`Failed to fetch header: ${response.status}`);
             headerContainer.innerHTML = await response.text();
-            
-            if (window.initializeHeader) {
+
+            if (window.initializeHeader && window.setHeader) {
                 window.initializeHeader();
+                
+                window.setHeader(title, subtitle);
             } else {
-                console.error("Header script not loaded or initializeHeader function not found.");
+                throw new Error("Header scripts (initializeHeader or setHeader) not found. Check script load order.");
             }
         } catch (error) {
             console.error('Failed to load header component:', error);
             headerContainer.innerHTML = `<p class="error-message" style="text-align: center; color: red;">Error: Header failed to load.</p>`;
         }
     };
+
 
     // --- PART 5: Dashboard Analytics & Charts ---
     const renderDonutChart = (distributionData) => {
@@ -82,30 +85,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchDashboardAnalytics = async () => {
         const data = await AppCommon.fetchData('/dashboard-analytics');
-        if (!data) { 
+        if (!data) {
             barChartEl.innerHTML = '<p class="chart-placeholder">Could not load dashboard data.</p>';
             AppAlert.notify({ type: 'error', title: 'Load Failed', message: 'Could not fetch dashboard analytics data.' });
             return; 
         };
         totalSubscribersEl.textContent = data.quickAccess?.totalSubscribers || 0;
         newSubscribersEl.textContent = `+${data.quickAccess?.newSubscribersThisMonth || 0}`;
-        overduePaymentsEl.textContent = data.quickAccess?.overduePayments || 0;
         renderDonutChart(data.subscriptionDistribution);
         renderBarChart(data.monthlySubscribersByPlan);
     };
 
     const fetchDashboardUserList = async () => {
-        const users = await AppCommon.fetchData('/dashboard-user-list?limit=6');
+        const users = await AppCommon.fetchData('/dashboard-user-list'); 
         if (!users) {
             noticeListEl.innerHTML = '<li class="notice-item-placeholder">Could not load user data.</li>';
-            // UPDATED: Show an alert on failure
+            overduePaymentsEl.textContent = '0';
             AppAlert.notify({ type: 'error', title: 'Load Failed', message: 'Could not fetch the subscriber status list.' });
             return;
         }
+
+        const overdueCount = users.filter(user => user.status === 'Overdue').length;
+        overduePaymentsEl.textContent = overdueCount;
+
         noticeListEl.innerHTML = users.length === 0 
             ? '<li class="notice-item-placeholder">No users with active issues.</li>'
-            : users.map(user => {
-                const userAvatar = user.photoUrl ? `<img src="${user.photoUrl}" class="avatar" alt="${user.name}">` : `<img src="https://via.placeholder.com/40" class="avatar" alt="Default avatar">`;
+            : users.slice(0, 6).map(user => {
+                const userAvatar = user.photoUrl ? `<img src="${user.photoUrl}" class="avatar" alt="${user.name}">` : `<img src="../../assets/images/default-avatar.jpg" class="avatar" alt="Default avatar">`;
                 const amountMatch = user.detailText.match(/₱[\d,]+\.\d{2}/);
                 const amount = amountMatch ? amountMatch[0] : '';
                 const detailText = amount ? user.detailText.split(amount)[0].trim() : user.detailText;
@@ -134,18 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (totalUsersEl) totalUsersEl.textContent = data.totalUsers || 0;
             if (openTicketsEl) openTicketsEl.textContent = data.openTickets || 0;
         } else {
-            // UPDATED: Show an alert on failure
             AppAlert.notify({ type: 'warning', title: 'Warning', message: 'Could not fetch secondary stats like total users.' });
         }
     };
 
     // --- PART 3: Initialization ---
     const initializeDashboard = async () => {
-        await loadHeader(); 
-        
-        if (window.setHeader) {
-            window.setHeader('Dashboard', 'Here’s a quick overview of Active subscriptions.');
-        }
+        await loadHeader('Dashboard', 'Here’s a quick overview of Active subscriptions.'); 
         
         fetchDashboardAnalytics();
         fetchDashboardUserList();

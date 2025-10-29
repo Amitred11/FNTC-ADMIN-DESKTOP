@@ -1,7 +1,13 @@
-/* styles/settings.css */
+/* =================================================================
+   SETTINGS PAGE STYLESHEET
+   ================================================================= */
+
+/* --- Font Import --- */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* --- Theme & Layout Variables --- */
+/* =================================================================
+   GLOBAL VARIABLES (Non-Conflicting)
+   ================================================================= */
 :root {
     /* Color Palette */
     --primary: #4A90E2;
@@ -11,21 +17,18 @@
     --disabled: #BDC3C7;
 
     /* Backgrounds */
-    --bg-main: #0A3D62; /* Light gray background */
+    --bg-main: #0A3D62;
     --bg-card: #FFFFFF;
-    
-    /* Text */
-    --text-primary: #FFFFFF;
-    --text-dark: #2C3E50;
-    --text-light: #636e72;
-    --text-muted: #95A5A6;
     
     /* Borders & Shadows */
     --border-color: #EAECEF;
     --shadow-soft: 0 4px 15px rgba(44, 62, 80, 0.06);
     --shadow-medium: 0 8px 25px rgba(44, 62, 80, 0.1);
 }
-/* --- Base & Layout Styles --- */
+
+/* =================================================================
+   BASE & LAYOUT
+   ================================================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -35,14 +38,22 @@
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-main);
-    color: var(--text-dark);
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-.layout { display: grid; grid-template-columns: 260px 1fr; height: 100vh; transition: grid-template-columns 0.3s ease; }
-.layout.sidebar-collapsed { grid-template-columns: 90px 1fr; }
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: 100vh;
+    transition: grid-template-columns 0.3s ease;
+}
+
+.layout.sidebar-collapsed {
+    grid-template-columns: 90px 1fr;
+}
+
 .main-section {
     display: flex;
     flex-direction: column;
@@ -59,15 +70,21 @@ body {
 .settings-container {
     max-width: 720px;
     margin: 0 auto;
+    
+    /* Scoped Text Color Variables to Prevent Global Conflicts */
+    --text-primary: #FFFFFF;
+    --text-dark: #2C3E50;
+    --text-light: #636e72;
+    --text-muted: #95A5A6;
 }
 
 .hidden {
     display: none !important;
 }
 
-/* =========================================== */
-/* Main Settings Screen Styles (View 1)        */
-/* =========================================== */
+/* =================================================================
+   VIEW 1: MAIN SETTINGS SCREEN
+   ================================================================= */
 .profile-header-main {
     display: flex;
     align-items: center;
@@ -82,12 +99,30 @@ body {
     box-shadow: var(--shadow-medium);
 }
 
-.profile-text-container { margin-left: 20px; }
-.user-name { font-size: 28px; font-weight: 700; color: var(--text-primary); }
-.user-email { font-size: 16px; color: var(--text-light); }
+.profile-text-container {
+    margin-left: 20px;
+}
 
-.settings-content { display: flex; flex-direction: column; gap: 32px; }
-.settings-group { width: 100%; }
+.user-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.user-email {
+    font-size: 16px;
+    color: var(--text-light);
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.settings-group {
+    width: 100%;
+}
 
 .settings-group-title {
     font-size: 13px;
@@ -114,7 +149,10 @@ body {
     color: var(--text-dark);
     transition: background-color 0.2s ease;
 }
-.settings-item:hover { background-color: #F8F9FD; }
+
+.settings-item:hover {
+    background-color: #F8F9FD;
+}
 
 .settings-item-icon {
     font-size: 24px;
@@ -123,10 +161,23 @@ body {
     text-align: center;
 }
 
-.settings-item-label { flex: 1; margin-left: 24px; font-size: 16px; font-weight: 500; }
-.settings-item .ph-caret-right { font-size: 20px; color: var(--text-muted); }
+.settings-item-label {
+    flex: 1;
+    margin-left: 24px;
+    font-size: 16px;
+    font-weight: 500;
+}
 
-.separator { height: 1px; background-color: var(--border-color); margin-left: 80px; }
+.settings-item .ph-caret-right {
+    font-size: 20px;
+    color: var(--text-muted);
+}
+
+.separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin-left: 80px;
+}
 
 .logout-button {
     display: flex;
@@ -144,12 +195,19 @@ body {
     box-shadow: var(--shadow-soft);
     transition: background-color 0.2s ease, color 0.2s ease;
 }
-.logout-button:hover { background-color: var(--danger); color: var(--text-primary); }
-.logout-button-text { margin-left: 10px; }
 
-/* =========================================== */
-/* Edit Profile Screen Styles (View 2)         */
-/* =========================================== */
+.logout-button:hover {
+    background-color: var(--danger);
+    color: var(--text-primary);
+}
+
+.logout-button-text {
+    margin-left: 10px;
+}
+
+/* =================================================================
+   VIEW 2: EDIT PROFILE SCREEN
+   ================================================================= */
 .back-button {
     display: inline-flex;
     align-items: center;
@@ -161,8 +219,14 @@ body {
     cursor: pointer;
     transition: color 0.2s ease;
 }
-.back-button:hover { color: var(--primary); }
-.back-button i { font-size: 20px; }
+
+.back-button:hover {
+    color: var(--primary);
+}
+
+.back-button i {
+    font-size: 20px;
+}
 
 .profile-header-card {
     text-align: center;
@@ -173,36 +237,68 @@ body {
     box-shadow: var(--shadow-soft);
 }
 
-.avatar-edit-container { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; }
-.avatar-edit { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--bg-main); object-fit: cover; }
+.avatar-edit-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+}
+
+.avatar-edit {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid var(--bg-main);
+    object-fit: cover;
+}
 
 .camera-button {
-    position: absolute; bottom: 5px; right: 5px;
-    width: 40px; height: 40px;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background-color: var(--primary);
     border: 2px solid var(--bg-card);
     display: grid;
     place-items: center;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     transition: transform 0.2s ease;
     color: var(--text-primary);
 }
-.camera-button:hover { transform: scale(1.1); }
-.camera-button .ph-camera { font-size: 20px; }
+
+.camera-button:hover {
+    transform: scale(1.1);
+}
+
+.camera-button .ph-camera {
+    font-size: 20px;
+}
 
 .upload-overlay {
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     background-color: rgba(44, 62, 80, 0.6);
     display: grid;
     place-items: center;
 }
 
-.display-name { font-size: 26px; font-weight: 700; color: var(--text-dark); }
-.email { font-size: 16px; color: var(--text-light); }
+.display-name {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.email {
+    font-size: 16px;
+    color: var(--text-light);
+}
 
 .card {
     background-color: var(--bg-card);
@@ -212,7 +308,14 @@ body {
     box-shadow: var(--shadow-soft);
 }
 
-.card-title { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
 .input-group {
     display: flex;
@@ -223,11 +326,18 @@ body {
     margin-bottom: 20px;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .input-group:focus-within {
     border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
 }
-.input-group .ph { padding: 0 18px; color: var(--text-muted); font-size: 20px; }
+
+.input-group .ph {
+    padding: 0 18px;
+    color: var(--text-muted);
+    font-size: 20px;
+}
+
 .input-group input {
     flex: 1;
     border: none;
@@ -236,7 +346,10 @@ body {
     font-size: 16px;
     color: var(--text-dark);
 }
-.input-group input:focus { outline: none; }
+
+.input-group input:focus {
+    outline: none;
+}
 
 .button-primary {
     width: 100%;
@@ -250,8 +363,17 @@ body {
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
-.button-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
-.button-primary:disabled { background-color: var(--disabled); cursor: not-allowed; transform: translateY(0); }
+
+.button-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.button-primary:disabled {
+    background-color: var(--disabled);
+    cursor: not-allowed;
+    transform: translateY(0);
+}
 
 .settings-item-card {
     display: flex;
@@ -261,23 +383,173 @@ body {
     padding: 12px 0;
     cursor: pointer;
 }
-.settings-item-card .ph { font-size: 22px; width: 24px; text-align: center; }
-.settings-item-card .ph-caret-right { color: var(--text-muted); margin-left: auto; }
-.settings-item-card .settings-item-label { margin-left: 16px; flex: 1; font-size: 16px; }
-.settings-item-card.destructive,
-.settings-item-card.destructive .ph,
-.settings-item-card.destructive .settings-item-label { color: var(--danger); }
-.settings-item-card:hover .settings-item-label { color: var(--primary); }
-.settings-item-card.destructive:hover .settings-item-label { color: var(--danger-hover); }
 
-.separator-card { height: 1px; background-color: var(--border-color); margin: 10px 0; }
-
-.spinner {
-  width: 32px; height: 32px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: var(--text-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.settings-item-card .ph {
+    font-size: 22px;
+    width: 24px;
+    text-align: center;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+.settings-item-card .ph-caret-right {
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.settings-item-card .settings-item-label {
+    margin-left: 16px;
+    flex: 1;
+    font-size: 16px;
+}
+
+.settings-item-card.destructive,
+.settings-item-card.destructive .ph,
+.settings-item-card.destructive .settings-item-label {
+    color: var(--danger);
+}
+
+.settings-item-card:hover .settings-item-label {
+    color: var(--primary);
+}
+
+.settings-item-card.destructive:hover .settings-item-label {
+    color: var(--danger-hover);
+}
+
+.separator-card {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 10px 0;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--text-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* --- For Tablets and Smaller Desktops --- */
+@media (max-width: 992px) {
+    .layout {
+        /* Remove the sidebar column and let main content take up the full width */
+        grid-template-columns: 1fr;
+    }
+
+    .main-section {
+        /* Allow the main section itself to scroll */
+        overflow-y: auto;
+    }
+
+    .content-area {
+        /* Disable scrolling on the inner container to prevent double scrollbars */
+        overflow-y: visible;
+    }
+    #sidebar-container {
+        display: none;
+    }
+}
+
+/* --- For Mobile Devices --- */
+@media (max-width: 768px) {
+    .content-area {
+        padding: 32px 24px;
+    }
+
+    .user-name {
+        font-size: 24px;
+    }
+
+    .user-email {
+        font-size: 15px;
+    }
+
+    .avatar-main {
+        width: 70px;
+        height: 70px;
+    }
+
+    .settings-item {
+        padding: 16px;
+    }
+    
+    .settings-item-label {
+        margin-left: 16px;
+    }
+
+    .separator {
+        margin-left: 64px; /* Adjust based on new padding and icon size */
+    }
+    
+    .profile-header-card {
+        padding: 24px;
+    }
+    
+    .avatar-edit-container {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .display-name {
+        font-size: 22px;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    #sidebar-container {
+        display: none;
+    }
+}
+
+/* --- For Small Mobile Devices --- */
+@media (max-width: 480px) {
+    .content-area {
+        padding: 24px 16px;
+    }
+    
+    .profile-header-main {
+        /* Stack the avatar and text on very small screens */
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .profile-text-container {
+        margin-left: 0;
+    }
+
+    .user-name {
+        font-size: 22px;
+    }
+
+    .settings-item {
+        padding: 14px;
+    }
+    
+    .settings-item-icon {
+        font-size: 22px;
+    }
+    
+    .settings-item-label {
+        font-size: 15px;
+    }
+
+    .input-group input {
+        font-size: 15px;
+    }
+
+    .button-primary {
+        padding: 14px;
+        font-size: 15px;
+    }
+    #sidebar-container {
+        display: none;
+    }
+}

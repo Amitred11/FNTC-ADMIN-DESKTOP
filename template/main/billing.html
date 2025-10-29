@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="../../styles/components/sidebar.css">
     <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
-<body>
-    <div class="layout">
+<body data-page="billing">
+    <div class="layout" id="layout">
         <div id="sidebar-container"></div>
 
         <main class="main-content">
@@ -34,13 +34,9 @@
 
                 <nav class="tabs" id="tabs">
                     <button class="tabs__item tabs__item--active" data-tab="all">All</button>
-                    <button class="tabs__item" data-tab="pending_verification">Pending</button>
-                    <button class="tabs__item" data-tab="due">Due</button>
-                    <button class="tabs__item" data-tab="overdue">Overdue</button>
-                    <button class="tabs__item" data-tab="partially_paid">Partially Paid</button>
-                    <button class="tabs__item" data-tab="paid">Paid</button>
+                    <button class="tabs__item" data-tab="needs_attention">Needs Attention</button>
                     <button class="tabs__item" data-tab="upcoming">Upcoming</button>
-                    <button class="tabs__item" data-tab="voided">Voided</button>
+                    <button class="tabs__item" data-tab="archive">Archive</button>
                 </nav>
 
                 <div class="billing-table-container">
@@ -66,48 +62,39 @@
 
     <!-- MODALS -->
 
-    <!-- Create/Edit Bill Modal -->
+    <!-- Create Bill Modal -->
     <div class="modal" id="createBillModal">
         <div class="modal__content modal__content--large">
             <div class="modal__header">
-                <h2 class="modal__title" id="billModalTitle">Create Manual Bill</h2>
+                <h2 class="modal__title">Create Manual Bill</h2>
                 <button class="modal__close" data-modal-close>&times;</button>
             </div>
             <form class="form" id="billForm" novalidate>
                 <div class="form-section form-section--left">
-                    <div id="customer-section-create">
-                        <h3 class="form-section__title">Customer Information</h3>
-                        <div class="form-group">
-                            <label>Customer Type</label>
-                            <div class="toggle-group">
-                                <input type="radio" id="userTypeExisting" name="userType" value="existing" checked>
-                                <label for="userTypeExisting">Existing User</label>
-                                <input type="radio" id="userTypeNew" name="userType" value="new">
-                                <label for="userTypeNew">New Customer</label>
-                            </div>
-                        </div>
-                        <div id="existingUser-group">
-                            <div class="form-group">
-                                <label for="userSearch">Select a Customer</label>
-                                <div id="selectedUserPill" class="selected-user-pill" style="display: none;"></div>
-                                <div class="search-wrapper">
-                                    <i class="ph ph-magnifying-glass search-bar__icon"></i>
-                                    <input type="text" id="userSearch" name="userSearch" placeholder="Search by name or email...">
-                                    <div id="userSearchResults" class="user-search-results"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="newUser-group" style="display: none;">
-                            <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" name="fullName" placeholder="e.g., John Doe"></div>
-                            <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="e.g., john.doe@example.com"></div>
+                    <h3 class="form-section__title">Customer Information</h3>
+                    <div class="form-group">
+                        <label>Customer Type</label>
+                        <div class="toggle-group">
+                            <input type="radio" id="userTypeExisting" name="userType" value="existing" checked>
+                            <label for="userTypeExisting">Existing User</label>
+                            <input type="radio" id="userTypeNew" name="userType" value="new">
+                            <label for="userTypeNew">New Customer</label>
                         </div>
                     </div>
-                    <div id="customer-section-edit" style="display: none;">
-                         <h3 class="form-section__title">Customer Information</h3>
-                         <div class="form-group">
-                            <label>Billed To</label>
-                            <div id="static-customer-info" class="selected-user-pill"></div>
-                         </div>
+                    <div id="existingUser-group">
+                        <div class="form-group">
+                            <label for="userSearch">Select a Customer</label>
+                            <div id="selectedUserPill" class="selected-user-pill" style="display: none;"></div>
+                            <div class="search-wrapper">
+                                <i class="ph ph-magnifying-glass search-bar__icon"></i>
+                                <input type="text" id="userSearch" name="userSearch" placeholder="Search by name or email...">
+                                <div id="userSearchResults" class="user-search-results"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="newUser-group" style="display: none;">
+                        <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" name="fullName" placeholder="e.g., John Doe"></div>
+                        <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="e.g., john.doe@example.com"></div>
                     </div>
                 </div>
                 <div class="form-section form-section--right">
@@ -122,13 +109,39 @@
                     <div class="form-group"><label for="notes">Notes (Optional)</label><textarea id="notes" name="notes" placeholder="Add any internal notes..."></textarea></div>
                     <div class="total-amount"><h4>Total Amount</h4><p id="totalAmountDisplay">$0.00</p></div>
                 </div>
+                 <div class="modal__actions">
+                    <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
+                    <button type="submit" class="btn btn--primary" id="createBillSubmitBtn" form="billForm" disabled>Create Bill</button>
+                </div>
             </form>
-             <div class="modal__actions">
-                <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
-                <button type="submit" class="btn btn--primary" id="createBillSubmitBtn" form="billForm" disabled>Create Bill</button>
-            </div>
         </div>
     </div>
+    
+    <!-- Edit Bill Modal -->
+    <div class="modal" id="editBillModal">
+        <div class="modal__content">
+            <div class="modal__header">
+                <h2 class="modal__title" id="editBillModalTitle">Edit Bill</h2>
+                <button class="modal__close" data-modal-close>&times;</button>
+            </div>
+            <form class="form" id="editBillForm" novalidate>
+                <input type="hidden" id="editBillId" name="billId">
+                <div class="form-group">
+                    <label for="newAmount">New Amount</label>
+                    <input type="number" id="newAmount" name="newAmount" step="0.01" placeholder="Enter new total amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="editReason">Reason for Change (Required)</label>
+                    <textarea id="editReason" name="reason" placeholder="e.g., Corrected service charge for the month." required></textarea>
+                </div>
+                <div class="modal__actions">
+                    <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
+                    <button type="submit" class="btn btn--primary" form="editBillForm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <!-- Record Partial Payment Modal -->
     <div class="modal" id="recordPartialModal">
@@ -137,12 +150,21 @@
             <form class="form" id="partialPaymentForm">
                 <input type="hidden" id="partialBillId" name="billId">
                 <div class="form-group"><label for="amountPaid">Amount Paid</label><input type="number" id="amountPaid" name="amountPaid" step="0.01" placeholder="Enter exact amount paid..." required></div>
+                <div class="form-group">
+                    <label>Carry over remaining balance to next month?</label>
+                    <div class="toggle-group">
+                        <input type="radio" id="carryOverYes" name="carryOverToNextMonth" value="true" checked>
+                        <label for="carryOverYes">Yes</label>
+                        <input type="radio" id="carryOverNo" name="carryOverToNextMonth" value="false">
+                        <label for="carryOverNo">No</label>
+                    </div>
+                </div>
                 <div class="form-group"><label for="paymentNotes">Notes (Optional)</label><textarea id="paymentNotes" name="notes" placeholder="e.g., Reference or Receipt #"></textarea></div>
+                 <div class="modal__actions">
+                    <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
+                    <button type="submit" class="btn btn--primary" form="partialPaymentForm">Submit Payment</button>
+                </div>
             </form>
-             <div class="modal__actions">
-                <button type="button" class="btn btn--secondary" data-modal-close>Cancel</button>
-                <button type="submit" class="btn btn--primary" form="partialPaymentForm">Submit Payment</button>
-            </div>
         </div>
     </div>
 
@@ -172,22 +194,43 @@
     <div class="modal-overlay"></div>
 
     <div id="app-alert-container">
+        <!-- Overlay for the standard DIV-based Confirmation Modal -->
         <div id="app-alert-overlay" class="app-alert-overlay"></div>
-        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true">
-            <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
-            <h2 id="app-alert-title" class="app-alert-title"></h2>
-            <p id="app-alert-message" class="app-alert-message"></p>
+
+        <!-- Standard DIV-based Confirmation Modal Box -->
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="app-alert-title" aria-describedby="app-alert-message">
+            <div class="app-alert-icon-wrapper">
+                <i id="app-alert-icon" class="ph-fill"></i>
+            </div>
+            <h2 id="app-alert-title" class="app-alert-title">Confirmation</h2>
+            <p id="app-alert-message" class="app-alert-message">This is the standard alert box.</p>
             <div class="app-alert-buttons">
-                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
-                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+                <button id="app-alert-cancel-btn" class="app-alert-button cancel">Cancel</button>
+                <button id="app-alert-confirm-btn" class="app-alert-button confirm">Confirm</button>
             </div>
         </div>
-        <div id="app-alert-toast-container"></div>
+        <dialog id="app-alert-dialog-box" class="app-alert-dialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
+            <form method="dialog" style="display: contents;">
+                <div class="app-alert-icon-wrapper">
+                    <i id="app-alert-dialog-icon" class="ph-fill"></i>
+                </div>
+                <h2 id="app-alert-dialog-title" class="app-alert-title">Confirmation on Dialog</h2>
+                <p id="app-alert-dialog-message" class="app-alert-message">This is the dialog-based alert box.</p>
+                <div class="app-alert-buttons">
+                    <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel" value="cancel">Cancel</button>
+                    <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm" value="default">Confirm</button>
+                </div>
+            </form>
+        </dialog>
+        
+        <!-- Container for Toast Notifications -->
+        <div id="app-alert-toast-container" aria-live="assertive" aria-atomic="true"></div>
     </div>
     
     <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/main/billing.js"></script>
+    <script src="../../scripts/components/global.js"></script>
     <script src="../../scripts/components/sidebar.js"></script>
     <script src="../../scripts/components/header.js"></script>
-    <script src="../../scripts/main/billing.js"></script>
 </body>
 </html>

@@ -2,35 +2,32 @@
 <!-- ||       APP ALERT COMPONENT HTML          || -->
 <!-- ============================================= -->
 <div id="app-alert-container">
-    <!-- Overlay for standard DIV-based Confirmation Modal -->
     <div id="app-alert-overlay" class="app-alert-overlay"></div>
-
-    <!-- Standard DIV-based Confirmation Modal Box -->
     <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="app-alert-title" aria-describedby="app-alert-message">
         <div class="app-alert-icon-wrapper">
             <i id="app-alert-icon" class="ph-fill"></i>
         </div>
-        <h2 id="app-alert-title" class="app-alert-title"></h2>
-        <p id="app-alert-message" class="app-alert-message"></p>
+        <h2 id="app-alert-title" class="app-alert-title">Confirmation</h2>
+        <p id="app-alert-message" class="app-alert-message">This is the standard alert box.</p>
         <div class="app-alert-buttons">
-            <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
-            <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+            <button id="app-alert-cancel-btn" class="app-alert-button cancel">Cancel</button>
+            <button id="app-alert-confirm-btn" class="app-alert-button confirm">Confirm</button>
         </div>
     </div>
     
-    <!-- DIALOG-based Modal for appearing over other modals -->
     <dialog id="app-alert-dialog-box" class="app-alert-dialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
+    <form method="dialog" style="display: contents;">
         <div class="app-alert-icon-wrapper">
             <i id="app-alert-dialog-icon" class="ph-fill"></i>
         </div>
-        <h2 id="app-alert-dialog-title" class="app-alert-title"></h2>
-        <p id="app-alert-dialog-message" class="app-alert-message"></p>
+        <h2 id="app-alert-dialog-title" class="app-alert-title">Confirmation on Dialog</h2>
+        <p id="app-alert-dialog-message" class="app-alert-message">This is the dialog-based alert box.</p>
         <div class="app-alert-buttons">
-            <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel"></button>
-            <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm"></button>
+            <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel" value="cancel">Cancel</button>
+            <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm" value="default">Confirm</button>
         </div>
-    </dialog>
+    </form>
+</dialog>
 
-    <!-- Container for Toast Notifications -->
     <div id="app-alert-toast-container" aria-live="assertive" aria-atomic="true"></div>
 </div>

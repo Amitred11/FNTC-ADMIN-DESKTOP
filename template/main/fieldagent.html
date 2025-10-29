@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Agent Dashboard</title>
+    <link rel="stylesheet" href="../../styles/main/fieldagent.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="../../styles/components/alert-component-styles.css">
+    <link rel="stylesheet" href="../../styles/components/sidebar.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
+</head>
+<body data-page="joborder">
+    <div class="layout" id="layout">
+        <div id="sidebar-container"></div>
+
+        <div class="main-section">
+            <div id="header-container"></div>
+
+            <main class="main-content">
+                <!-- LIST VIEW (Always visible) -->
+                <section id="list-view">
+                    <div class="stats-grid">
+                        <!-- Stat cards -->
+                        <div class="stat-card" id="stat-today">
+                            <div class="stat-icon purple"><i class="ph-fill ph-calendar"></i></div>
+                            <div class="stat-meta">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Today's Jobs</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" id="stat-pending">
+                            <div class="stat-icon orange"><i class="ph-fill ph-hourglass"></i></div>
+                            <div class="stat-meta">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Pending</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" id="stat-in-progress">
+                            <div class="stat-icon blue"><i class="ph-fill ph-wrench"></i></div>
+                            <div class="stat-meta">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">In Progress</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" id="stat-completed">
+                            <div class="stat-icon green"><i class="ph-fill ph-check-circle"></i></div>
+                            <div class="stat-meta">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Completed Today</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title">Active Assignments</h2>
+                    <div id="job-list-container">
+                        <div class="placeholder">Loading jobs...</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL for Status Updates -->
+    <div id="status-update-modal-overlay" class="modal-overlay hidden">
+        <div id="status-update-modal" class="modal-container hidden">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="ph-fill ph-pencil-line"></i></div>
+                <h3 class="modal-title" id="modal-title">Update Status</h3>
+                <button class="close-modal-btn"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="status-update-form">
+                    <div class="form-group"><label for="note">Add a Note (Required)</label><textarea id="note" name="note" rows="4" placeholder="e.g., 'Customer not home, will reschedule.'" required></textarea></div>
+                    <div class="form-actions"><button type="button" class="action-btn secondary close-modal-btn">Cancel</button><button type="submit" class="action-btn primary">Confirm Update</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL for Job Details -->
+<div id="details-view-overlay" class="modal-overlay hidden">
+    <div id="details-view-modal" class="modal-container modal-lg hidden">
+        
+        <!-- NEW: Refactored Modal Header -->
+        <div class="modal-header-detailed">
+            <div class="header-main-info">
+                <h3 class="modal-title">Job Order Details</h3>
+                <span class="job-id-tag" id="modal-header-job-id">--</span>
+            </div>
+            <div class="header-meta-info">
+                <div id="modal-header-status"></div>
+                <button class="close-modal-btn"><i class="ph ph-x"></i></button>
+            </div>
+        </div>
+
+        <!-- Refactored Modal Body -->
+        <div class="modal-body">
+            <div class="details-content-grid">
+                <div class="details-main-column">
+                    
+                    <!-- Section: Job Overview -->
+                    <section class="details-section">
+                        <h4 class="details-section-title">Overview</h4>
+                        <div class="info-grid">
+                            <div class="info-item"><i class="ph ph-wrench"></i><div class="meta"><span class="label">Job Type</span><span class="value" id="detail-type">--</span></div></div>
+                            <div class="info-item"><i class="ph ph-clock"></i><div class="meta"><span class="label">Created On</span><span class="value" id="detail-created">--</span></div></div>
+                        </div>
+                    </section>
+
+                    <!-- Section: Customer Info -->
+                    <section class="details-section">
+                        <h4 class="details-section-title">Customer Information</h4>
+                        <div class="info-grid">
+                            <div class="info-item"><i class="ph ph-user"></i><div class="meta"><span class="label">Name</span><span class="value" id="detail-customer-name">--</span></div></div>
+                            <div class="info-item"><i class="ph ph-phone"></i><div class="meta"><span class="label">Contact No.</span><span class="value" id="detail-contact">--</span></div></div>
+                            <div class="info-item full-width"><i class="ph ph-map-pin"></i><div class="meta"><span class="label">Address</span><span class="value" id="detail-address">--</span></div></div>
+                        </div>
+                    </section>
+                    
+                    <!-- Section: Task Description -->
+                    <section class="details-section">
+                        <h4 class="details-section-title">Task Description</h4>
+                        <p class="task-description" id="detail-description">--</p>
+                    </section>
+
+                </div>
+
+                <div class="details-side-column">
+                    <section class="details-section">
+                        <h4 class="details-section-title">History & Notes</h4>
+                        <div id="notes-container" class="notes-list">
+                            <div class="placeholder">No notes available.</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            
+            <div id="action-buttons-container" class="details-actions">
+                <!-- Action buttons will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <div id="app-alert-container">
+        <div id="app-alert-overlay" class="app-alert-overlay"></div>
+    
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="app-alert-title" aria-describedby="app-alert-message">
+            <div class="app-alert-icon-wrapper">
+                <i id="app-alert-icon" class="ph-fill"></i>
+            </div>
+            <h2 id="app-alert-title" class="app-alert-title"></h2>
+            <p id="app-alert-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+            </div>
+        </div>
+        
+        <dialog id="app-alert-dialog-box" class="app-alert-dialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
+            <div class="app-alert-icon-wrapper">
+                <i id="app-alert-dialog-icon" class="ph-fill"></i>
+            </div>
+            <h2 id="app-alert-dialog-title" class="app-alert-title"></h2>
+            <p id="app-alert-dialog-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm"></button>
+            </div>
+        </dialog>
+    
+        <!-- Container for Toast Notifications -->
+        <div id="app-alert-toast-container" aria-live="assertive" aria-atomic="true"></div>
+    </div>
+    <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/main/fieldagent.js"></script>
+    <script src="../../scripts/components/sidebar.js"></script>
+    <script src="../../scripts/components/header.js"></script>
+</body>
+</html>

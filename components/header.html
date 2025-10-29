@@ -3,6 +3,7 @@
 <!-- =================================================================
      HEADER BAR
 ================================================================== -->
+
 <header class="header">
     <div class="header-left">
         <div class="header-title-group">
@@ -11,10 +12,10 @@
         </div>
     </div>
     <div class="header-right">
-        <button class="header-icon-btn" id="broadcast-btn">
+        <button class="header-icon-btn" id="broadcast-btn" title="Send a Broadcast">
             <i class="ph ph-speaker-high"></i>
         </button>
-        <button class="header-icon-btn" id="notification-bell">
+        <button class="header-icon-btn" id="notification-bell" title="View Notifications">
             <i class="ph ph-bell"></i>
             <span class="notification-badge hidden" id="notification-badge">0</span>
         </button>
@@ -28,15 +29,16 @@
 <!-- =================================================================
      MODALS & OVERLAYS CONTROLLED BY THE HEADER
 ================================================================== -->
+
 <div id="modal-overlay" class="modal-overlay hidden"></div>
 
 <!-- NOTIFICATION MODAL -->
 <div id="notification-modal" class="fullscreen-modal hidden">
     <header class="nav-modal-header">
-        <button class="nav-back-btn" id="close-notification-modal-btn"><span class="ph ph-arrow-left"></span></button>
+        <button class="nav-back-btn" id="close-notification-modal-btn" title="Go back"><span class="ph ph-arrow-left"></span></button>
         <h1>Notifications</h1>
     </header>
-    <main class="nav-modal-body">
+    <main class="nav-modal-body no-padding">
         <div id="notification-action-header" class="notification-action-header hidden">
             <div class="selection-info">
                 <input type="checkbox" id="select-all-notifications-checkbox" class="form-checkbox">
@@ -47,42 +49,58 @@
             </button>
         </div>
         <ul id="notification-list" class="notification-list-fullscreen">
-            <li class="notification-item-placeholder">Loading notifications...</li>
+            <!-- JS will populate this -->
         </ul>
     </main>
     <footer class="nav-modal-footer">
-        <button id="mark-all-read-btn" class="action-btn">Mark all as read</button>
+        <button id="mark-all-read-btn" class="action-btn"><span class="ph ph-check-square"></span>Mark all as read</button>
     </footer>
 </div>
 
 <!-- BROADCAST MODAL -->
 <div id="broadcast-modal" class="fullscreen-modal hidden">
     <header class="nav-modal-header">
-        <button class="nav-back-btn" id="close-broadcast-modal-btn"><span class="ph ph-arrow-left"></span></button>
-        <h1>Broadcast</h1>
+        <button class="nav-back-btn" id="close-broadcast-modal-btn" title="Go back"><span class="ph ph-arrow-left"></span></button>
+        <h1>New Broadcast Message</h1>
     </header>
-    <main class="nav-modal-body has-form">
-        <section class="form-section">
-            <h2>1. Choose Recipients</h2>
-            <div class="recipient-toggle" id="recipient-toggle">
-                <button class="toggle-btn active" data-type="all">All Subscribers</button>
-                <button class="toggle-btn" data-type="specific">Specific Users</button>
+    <main class="nav-modal-body">
+        <div class="form-card">
+            <div class="form-card-header">
+                <h2><i class="ph-fill ph-users"></i>1. Choose Recipients</h2>
             </div>
-            <div class="user-selection-area hidden" id="user-selection-area">
-                <div class="selected-users-list" id="selected-users-list">
-                     <p class="placeholder-text"><span class="ph-fill ph-info"></span> No users selected</p>
+            <div class="form-card-body">
+                <div class="recipient-toggle" id="recipient-toggle">
+                    <button class="toggle-btn active" data-type="all">All Subscribers</button>
+                    <button class="toggle-btn" data-type="specific">Specific Users</button>
                 </div>
-                <button class="select-users-btn" id="select-users-btn"><span class="ph-fill ph-user-plus"></span> Select Users</button>
+                <div class="user-selection-area hidden" id="user-selection-area">
+                    <div class="selected-users-list" id="selected-users-list">
+                        <p class="placeholder-text">No users selected</p>
+                    </div>
+                    <div class="select-users-btn-container">
+                        <button class="select-users-btn" id="select-users-btn"><span class="ph-fill ph-user-plus"></span> Select Users</button>
+                    </div>
+                </div>
             </div>
-        </section>
-        <section class="form-section">
-            <h2>2. Compose Message</h2>
-            <input type="text" id="broadcast-title" class="form-input" placeholder="Notification Title">
-            <textarea id="broadcast-message" class="form-textarea" placeholder="Enter your message here...."></textarea>
-        </section>
+        </div>
+        <div class="form-card">
+             <div class="form-card-header">
+                <h2><i class="ph-fill ph-chat-text"></i>2. Compose Message</h2>
+            </div>
+            <div class="form-card-body">
+                <div class="form-input-group">
+                    <label for="broadcast-title">Title</label>
+                    <input type="text" id="broadcast-title" class="form-input" placeholder="e.g., System Maintenance Alert">
+                </div>
+                 <div class="form-input-group">
+                    <label for="broadcast-message">Message</label>
+                    <textarea id="broadcast-message" class="form-textarea" placeholder="Enter your message here...."></textarea>
+                </div>
+            </div>
+        </div>
     </main>
     <footer class="nav-modal-footer">
-        <button id="send-broadcast-btn" class="action-btn primary">Send Broadcast</button>
+        <button id="send-broadcast-btn" class="action-btn primary"><span class="ph ph-paper-plane-tilt"></span>Send Broadcast</button>
     </footer>
 </div>
 
@@ -91,10 +109,13 @@
     <div class="modal-dialog-content">
         <header class="modal-dialog-header">
             <h2>Select Users</h2>
-            <button id="close-user-select-modal-btn" class="close-btn ph ph-x"></button>
+            <button id="close-user-select-modal-btn" class="close-btn ph ph-x" title="Close"></button>
         </header>
         <div class="modal-dialog-body">
-            <input type="search" id="user-search-input" class="form-input" placeholder="Search by name or email...">
+            <div class="search-input-wrapper">
+                 <i class="ph ph-magnifying-glass icon"></i>
+                 <input type="search" id="user-search-input" class="form-input" placeholder="Search by name or email...">
+            </div>
             <ul class="user-select-list" id="user-select-list">
                 <!-- Users will be populated by JS -->
             </ul>

@@ -1,193 +1,384 @@
-/* --- Base Variables (Can be customized to match your app's theme) --- */
-:root {
-    --alert-font-family: 'Inter', sans-serif;
-    --alert-green: #10B981;
-    --alert-green-light: #ECFDF5;
-    --alert-red: #EF4444;
-    --alert-red-light: #FEF2F2;
-    --alert-orange: #F59E0B;
-    --alert-orange-light: #FFFBEB;
-    --alert-blue: #3B82F6;
-    --alert-blue-light: #EFF6FF;
-    --alert-text-primary: #111827;
-    --alert-text-secondary: #4B5563;
-    --alert-border-color: #E5E7EB;
-    --alert-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    --alert-radius: 12px;
+/* =================================================================
+   ||         VISUALLY STUNNING ALERT & NOTIFICATION STYLES         ||
+   - styles/components/alert-component-styles.css
+   - Features: Frosted glass/blur effects, refined animations,
+   - modern shadows, and a premium visual language.
+   ================================================================= */
+
+/* --- KEYFRAMES FOR ANIMATIONS --- */
+@keyframes fadeInScaleUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 
-/* --- Main Container & Overlay for original DIV-based modal --- */
-#app-alert-container {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    font-family: var(--alert-font-family);
-    pointer-events: none; 
-}
-.app-alert-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(17, 24, 39, 0.4); /* translucent dark layer */
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.08); /* subtle frosted edge */
-    box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.02); /* inner glow */
-    opacity: 0;
-    transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
-}
-#app-alert-container.show {
-    pointer-events: auto;
-}
-#app-alert-container.show .app-alert-overlay {
-    opacity: 1;
+@keyframes fadeOutScaleDown {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateY(10px) scale(0.98);
+    }
 }
 
-/* --- Universal Styles for Alert Boxes --- */
-.app-alert-box {
-    width: 100%;
-    max-width: 420px;
-    background-color: white;
-    border-radius: var(--alert-radius);
-    box-shadow: var(--alert-shadow-lg);
+/* FIX: Added a dedicated fade-in animation for the overlay */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(calc(100% + 20px));
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes toastSlideOut {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(calc(100% + 20px));
+    }
+}
+
+@keyframes toastTimer {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+
+/* ============================================= */
+/* ||          MODAL & DIALOG STYLES          || */
+/* ============================================= */
+
+.app-alert-box,
+.app-alert-dialog {
     text-align: center;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-}
+    padding: 2.5rem 2rem 2rem;
+    border-radius: 16px;
+    max-width: 420px;
+    width: calc(100% - 40px);
+    border: none;
+    
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
-/* --- Centering for the original DIV-based modal --- */
-#app-alert-box {
-    position: absolute;
+    animation: fadeInScaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.3s, transform 0.3s;
+    
+    position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-#app-alert-container.show #app-alert-box {
-    opacity: 1;
     transform: translate(-50%, -50%) scale(1);
+    margin: 0;
+    z-index: 10001;
 }
 
-/* --- Styling for new DIALOG-based modal --- */
-#app-alert-dialog-box {
-    margin: auto;
-    pointer-events: auto;
+.app-alert-box {
+    display: none;
 }
-
-/* ================================================================= */
-/* ||    NEW: Apply Glassmorphism to the Alert Dialog Backdrop    || */
-/* ================================================================= */
-#app-alert-dialog-box::backdrop {
-    background: rgba(20, 20, 20, 0.3); /* Semi-transparent background */
-    backdrop-filter: blur(10px) saturate(150%);
-    -webkit-backdrop-filter: blur(10px) saturate(150%);
+.app-alert-box.visible {
+    display: block;
 }
 
 
-/* --- Shared Inner Styles --- */
+/* --- The dark, blurred background --- */
+.app-alert-overlay,
+.app-alert-dialog::backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 25, 47, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    /* FIX: Use the new 'fadeIn' animation for a smooth, simple fade effect */
+    animation: fadeIn 0.3s ease-out;
+}
+
+.app-alert-overlay {
+    z-index: 10000;
+    display: none;
+}
+.app-alert-overlay.visible {
+    display: block;
+}
+
+
+/* --- Shared Icon & Text Styling --- */
 .app-alert-icon-wrapper {
-    width: 56px;
-    height: 56px;
+    margin: 0 auto 1.5rem;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: 2.25rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
 }
+
 .app-alert-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--alert-text-primary);
-    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: #1f2937;
 }
+
 .app-alert-message {
     font-size: 1rem;
-    color: var(--alert-text-secondary);
+    color: #4b5563;
     line-height: 1.6;
-    margin: 0;
+    margin: 0 0 2.25rem;
 }
+
+/* --- Shared Button Styling --- */
 .app-alert-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 1rem;
-    width: 100%;
-    margin-top: 1.5rem;
+    justify-content: center;
 }
+
 .app-alert-button {
-    padding: 12px 20px;
+    font-family: inherit;
     font-size: 1rem;
-    font-weight: 600;
+    padding: 12px 28px;
+    border-radius: 10px;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
+    font-weight: 500;
     transition: all 0.2s ease;
+    outline: none;
 }
-.app-alert-button:hover {
-    transform: translateY(-2px);
+
+.app-alert-button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6);
 }
+
 .app-alert-button.cancel {
-    background-color: white;
-    color: var(--alert-text-secondary);
-    border: 1px solid var(--alert-border-color);
+    background-color: #f3f4f6;
+    color: #4b5563;
 }
+
 .app-alert-button.cancel:hover {
-    background-color: #f9fafb;
+    background-color: #e5e7eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.08);
 }
 
-/* --- Universal Themes --- */
-.app-alert-box.danger .app-alert-icon-wrapper { background-color: var(--alert-red-light); color: var(--alert-red); }
-.app-alert-box.danger .app-alert-button.confirm { background-color: var(--alert-red); color: white; }
-.app-alert-box.warning .app-alert-icon-wrapper { background-color: var(--alert-orange-light); color: var(--alert-orange); }
-.app-alert-box.warning .app-alert-button.confirm { background-color: var(--alert-orange); color: white; }
-.app-alert-box.info .app-alert-icon-wrapper { background-color: var(--alert-blue-light); color: var(--alert-blue); }
-.app-alert-box.info .app-alert-button.confirm { background-color: var(--alert-blue); color: white; }
+.app-alert-button.confirm {
+    background-color: #0A3D62;
+    color: white;
+    box-shadow: 0 4px 12px -2px rgba(10, 61, 98, 0.4);
+}
+
+.app-alert-button.confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px -4px rgba(10, 61, 98, 0.5);
+    background-color: #08304F;
+}
+
+/* --- MODAL COLOR THEMES (Applied to both) --- */
+/* Success */
+.app-alert-box[data-type="success"] .app-alert-icon-wrapper,
+.app-alert-dialog[data-type="success"] .app-alert-icon-wrapper { background-image: linear-gradient(to top, #dcfce7, #f0fdf4); color: #16a34a; }
+.app-alert-box[data-type="success"] .confirm,
+.app-alert-dialog[data-type="success"] .confirm { background-color: #16a34a; box-shadow: 0 4px 14px -3px #16a34a99; }
+.app-alert-box[data-type="success"] .confirm:hover,
+.app-alert-dialog[data-type="success"] .confirm:hover { background-color: #15803d; }
+
+/* Error / Danger */
+.app-alert-box[data-type="error"] .app-alert-icon-wrapper,
+.app-alert-box[data-type="danger"] .app-alert-icon-wrapper,
+.app-alert-dialog[data-type="error"] .app-alert-icon-wrapper,
+.app-alert-dialog[data-type="danger"] .app-alert-icon-wrapper { background-image: linear-gradient(to top, #fee2e2, #fef2f2); color: #dc2626; }
+.app-alert-box[data-type="error"] .confirm,
+.app-alert-box[data-type="danger"] .confirm,
+.app-alert-dialog[data-type="error"] .confirm,
+.app-alert-dialog[data-type="danger"] .confirm { background-color: #dc2626; box-shadow: 0 4px 14px -3px #dc262699; }
+.app-alert-box[data-type="error"] .confirm:hover,
+.app-alert-box[data-type="danger"] .confirm:hover,
+.app-alert-dialog[data-type="error"] .confirm:hover,
+.app-alert-dialog[data-type="danger"] .confirm:hover { background-color: #b91c1c; }
+
+/* Warning */
+.app-alert-box[data-type="warning"] .app-alert-icon-wrapper,
+.app-alert-dialog[data-type="warning"] .app-alert-icon-wrapper { background-image: linear-gradient(to top, #fef3c7, #fefce8); color: #f59e0b; }
+.app-alert-box[data-type="warning"] .confirm,
+.app-alert-dialog[data-type="warning"] .confirm { background-color: #f59e0b; box-shadow: 0 4px 14px -3px #f59e0b99; }
+.app-alert-box[data-type="warning"] .confirm:hover,
+.app-alert-dialog[data-type="warning"] .confirm:hover { background-color: #d97706; }
+.app-alert-input-wrapper {
+    margin: -1rem 0 1.5rem; /* Adjust margin to fit nicely */
+    display: none; /* Hidden by default */
+}
+
+.app-alert-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-family: inherit;
+    font-size: 1rem;
+    color: #1f2937;
+    background-color: #f9fafb;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.app-alert-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.app-alert-error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    text-align: left;
+    margin-top: 6px;
+    display: none;
+}
+
+.app-alert-input.invalid {
+    border-color: #dc2626;
+}
+
+.app-alert-input.invalid:focus {
+     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+}
+/* Info */
+.app-alert-box[data-type="info"] .app-alert-icon-wrapper,
+.app-alert-dialog[data-type="info"] .app-alert-icon-wrapper { background-image: linear-gradient(to top, #dbeafe, #eff6ff); color: #3b82f6; }
+.app-alert-box[data-type="info"] .confirm,
+.app-alert-dialog[data-type="info"] .confirm { background-color: #3b82f6; box-shadow: 0 4px 14px -3px #3b82f699; }
+.app-alert-box[data-type="info"] .confirm:hover,
+.app-alert-dialog[data-type="info"] .confirm:hover { background-color: #2563eb; }
 
 
-/* --- Toast Notification Container --- */
+/* ============================================= */
+/* ||       TOAST NOTIFICATION STYLES         || */
+/* ============================================= */
+
 #app-alert-toast-container {
     position: fixed;
-    top: 24px;
-    right: 24px;
+    top: 20px;
+    right: 20px;
+    z-index: 10002;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    z-index: 9999;
-    pointer-events: none;
+    gap: 12px;
+    width: 360px;
 }
+
 .app-alert-toast {
-    pointer-events: auto;
     display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    width: 100%;
-    max-width: 400px;
-    padding: 1rem;
-    border-radius: var(--alert-radius);
-    border-left: 5px solid transparent;
-    box-shadow: var(--alert-shadow-lg);
-    background-color: white;
-    opacity: 0;
-    transform: translateX(calc(100% + 24px));
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    align-items: center;
+    padding: 16px;
+    border-radius: 12px;
+    
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    transform: translateX(calc(100% + 20px));
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    
+    position: relative;
+    overflow: hidden;
 }
+
 .app-alert-toast.show {
-    opacity: 1;
     transform: translateX(0);
 }
-.app-alert-toast-icon { font-size: 1.5rem; margin-top: 2px; }
-.app-alert-toast-title { font-weight: 700; font-size: 1rem; color: var(--alert-text-primary); margin-bottom: 0.25rem; }
-.app-alert-toast-message { font-size: 0.9rem; color: var(--alert-text-secondary); line-height: 1.5; margin: 0; }
 
-/* --- Toast Themes --- */
-.app-alert-toast.success { border-left-color: var(--alert-green); }
-.app-alert-toast.success .app-alert-toast-icon { color: var(--alert-green); }
-.app-alert-toast.error { border-left-color: var(--alert-red); }
-.app-alert-toast.error .app-alert-toast-icon { color: var(--alert-red); }
-.app-alert-toast.warning { border-left-color: var(--alert-orange); }
-.app-alert-toast.warning .app-alert-toast-icon { color: var(--alert-orange); }
-.app-alert-toast.info { border-left-color: var(--alert-blue); }
-.app-alert-toast.info .app-alert-toast-icon { color: var(--alert-blue); }
+.app-alert-toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    animation: toastTimer linear forwards;
+    animation-duration: var(--toast-duration, 5s);
+}
+
+.app-alert-toast-icon {
+    font-size: 1.8rem;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.app-alert-toast-content {
+    flex-grow: 1;
+}
+
+.app-alert-toast-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 2px;
+}
+
+.app-alert-toast-message {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin: 0;
+}
+
+.app-alert-toast-close {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: #9ca3af;
+    padding: 4px;
+    line-height: 1;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s;
+    margin-left: 8px;
+}
+
+.app-alert-toast-close:hover {
+    color: #374151;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* --- TOAST COLOR THEMES --- */
+.app-alert-toast[data-type="success"] .app-alert-toast-icon { color: #16A34A; }
+.app-alert-toast[data-type="success"]::after { background-color: #16A34A; }
+
+.app-alert-toast[data-type="error"] .app-alert-toast-icon { color: #DC2626; }
+.app-alert-toast[data-type="error"]::after { background-color: #DC2626; }
+
+.app-alert-toast[data-type="warning"] .app-alert-toast-icon { color: #F59E0B; }
+.app-alert-toast[data-type="warning"]::after { background-color: #F59E0B; }
+
+.app-alert-toast[data-type="info"] .app-alert-toast-icon { color: #3B82F6; }
+.app-alert-toast[data-type="info"]::after { background-color: #3B82F6; }

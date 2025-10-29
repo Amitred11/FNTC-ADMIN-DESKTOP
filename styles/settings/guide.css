@@ -2,7 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-    /* Define variables in case main dashboard styles aren't loaded */
     --primary: #4A90E2;
     --bg-main: #0A3D62;
     --bg-card: #FFFFFF;
@@ -28,7 +27,7 @@ body {
 /* Main Content Area */
 .main-content {
     flex-grow: 1;
-    overflow-y: auto; /* Allow content to scroll independently */
+    overflow-y: auto; 
     padding: 0;
 }
 
@@ -55,7 +54,6 @@ body {
 .back-button:hover { color: var(--primary); }
 .back-button i { font-size: 20px; }
 
-/* --- Typography --- */
 .mainTitle {
     font-size: 2.8rem;
     font-weight: 700;
@@ -101,7 +99,6 @@ li {
     color: var(--text-dark, #636e72);
 }
 
-/* --- NEW: Professional List Item Style --- */
 li::before {
     content: '✓';
     position: absolute;
@@ -117,7 +114,7 @@ li::before {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    line-height: 1; /* Aligns the checkmark vertically */
+    line-height: 1;
 }
 
 /* --- Components --- */
@@ -148,4 +145,83 @@ li::before {
     padding: 2px 8px;
     border-radius: 6px;
     font-size: 0.9em;
+}
+
+/* --- For Tablets and Small Desktops --- */
+@media (max-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    #sidebar-container {
+        display: none;
+    }
+    
+    .main-content {
+        background-color: var(--bg-card);
+    }
+
+    .container {
+        margin: 0;
+        padding: 48px; 
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .back-button {
+        margin: 24px 0 0 48px;
+    }
+}
+
+/* --- For Mobile Devices --- */
+@media (max-width: 768px) {
+    .container {
+        padding: 32px 24px;
+    }
+
+    .back-button {
+        margin: 24px 0 0 24px;
+    }
+
+    .mainTitle {
+        font-size: 2.2rem;
+    }
+
+    .mainSubtitle {
+        font-size: 1.05rem;
+    }
+
+    .doc-section h2 {
+        font-size: 1.6rem;
+    }
+}
+
+/* --- For Small Mobile Devices --- */
+@media (max-width: 480px) {
+    .container {
+        padding: 24px 16px;
+    }
+    
+    .back-button {
+        margin: 16px 0 0 16px;
+    }
+
+    .mainTitle {
+        font-size: 1.8rem;
+    }
+
+    .mainSubtitle {
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+    }
+
+    .doc-section h2 {
+        font-size: 1.4rem;
+        margin-bottom: 16px;
+    }
+
+    p, li {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
 }

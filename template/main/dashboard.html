@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../../styles/components/header.css">
     <link rel="stylesheet" href="../../styles/components/alert-component-styles.css">
 </head>
-<body class="is-loading">
+<body data-page="dashboard">
 
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
@@ -23,8 +23,8 @@
                 <div class="top-row">
                     <section class="stats-cards-container">
                         <article class="stat-card"><a href="subscription.html"><span class="card-icon ph ph-users-three"></span> <div class="card-content-split"><div class="stat-item"><h3>Total Subscribers</h3><p id="total-subscribers">0</p></div><div class="stat-item"><h3>New This Month</h3><p id="new-subscribers">+0</p></div></div></a></article>
-                        <article class="stat-card"><a href="billing.html"><span class="card-icon ph ph-warning-circle"></span><div class="card-content"><h3>Pending Payment</h3><p id="overdue-payments" class="overdue-value">0</p></div></a></article>
-                        <article class="stat-card"><a href="support.html"><span class="card-icon ph ph-ticket"></span> <div class="card-content"><h3>Open Tickets</h3><p id="open-tickets">0</p></div></a></article>
+                        <article class="stat-card"><a href="billing.html"><span class="card-icon ph ph-warning-circle"></span><div class="card-content"><h3>Overdue Payments</h3><p id="overdue-payments" class="overdue-value">0</p></div></a></article>
+                        <article class="stat-card"><a href="../support/support.html"><span class="card-icon ph ph-ticket"></span> <div class="card-content"><h3>Open Tickets</h3><p id="open-tickets">0</p></div></a></article>
                         <article class="stat-card"><a href="../settings/user-management.html"><span class="card-icon ph ph-users"></span><div class="card-content"><h3>Total Users</h3><p id="total-users">0</p></div></a></article>
                     </section>
                     <section class="chart-container">
@@ -57,13 +57,26 @@
                 <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
             </div>
         </div>
-        <div id="app-alert-toast-container"></div>
     </div>
+    <dialog id="app-alert-dialog-box" class="dialog app-alert-box" role="alertdialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
+        <div id="app-alert-dialog-icon-wrapper" class="app-alert-icon-wrapper">
+            <i id="app-alert-dialog-icon" class="ph-fill"></i>
+        </div>
+        <h2 id="app-alert-dialog-title" class="app-alert-title"></h2>
+        <p id="app-alert-dialog-message" class="app-alert-message"></p>
+        <div class="app-alert-buttons">
+            <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel" value="cancel"></button>
+            <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm" value="default"></button>
+        </div>
+    </dialog>
+        <div id="app-alert-toast-container"></div>
+    
 
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="../../scripts/components/common.js"></script>
     <script src="../../scripts/components/app-alert.js"></script>
+    <script src="../../scripts/components/global.js"></script>
+    <script src="../../scripts/components/common.js"></script>
     <script src="../../scripts/main/renderer.js"></script>
     <script src="../../scripts/components/sidebar.js"></script>
     <script src="../../scripts/components/header.js"></script>

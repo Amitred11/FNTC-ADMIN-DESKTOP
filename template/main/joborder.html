@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../../styles/components/sidebar.css">
     <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
-<body>
+<body data-page="joborder">
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
 
@@ -38,7 +38,7 @@
                     </article>
                     <article class="summary-card" role="listitem" data-key="completed">
                         <div class="card-inner">
-                            <div class="card-title">Completed Today</div>
+                            <div class="card-title">Total Completed</div>
                             <div class="card-value">0</div>
                         </div>
                     </article>
@@ -152,7 +152,6 @@
                             <!-- Subscriber options loaded by JS -->
                         </select>
                     </div>
-                    <!-- *** UPDATED: Separate fields for walk-in customer *** -->
                     <div id="walk-in-container" class="form-grid" style="display: none;">
                         <label class="full">
                             Customer Name
@@ -252,37 +251,38 @@
             </footer>
         </form>
     </dialog>
-   <div id="app-alert-container">
-    <!-- Overlay for the original Confirmation Modal -->
-    <div id="app-alert-overlay" class="app-alert-overlay"></div>
-
-    <!-- ORIGINAL Confirmation Modal Box (this remains for other alerts) -->
-    <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="app-alert-title" aria-describedby="app-alert-message">
-        <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
-        <h2 id="app-alert-title" class="app-alert-title"></h2>
-        <p id="app-alert-message" class="app-alert-message"></p>
-        <div class="app-alert-buttons">
-            <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
-            <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+   <!-- APP ALERT COMPONENT HTML -->
+    <div id="app-alert-container">
+        <div id="app-alert-overlay" class="app-alert-overlay"></div>
+    
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="app-alert-title" aria-describedby="app-alert-message">
+            <div class="app-alert-icon-wrapper">
+                <i id="app-alert-icon" class="ph-fill"></i>
+            </div>
+            <h2 id="app-alert-title" class="app-alert-title"></h2>
+            <p id="app-alert-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
+            </div>
         </div>
+        
+        <!-- DIALOG-based Modal for appearing over other modals -->
+        <dialog id="app-alert-dialog-box" class="app-alert-dialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
+            <div class="app-alert-icon-wrapper">
+                <i id="app-alert-dialog-icon" class="ph-fill"></i>
+            </div>
+            <h2 id="app-alert-dialog-title" class="app-alert-title"></h2>
+            <p id="app-alert-dialog-message" class="app-alert-message"></p>
+            <div class="app-alert-buttons">
+                <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel"></button>
+                <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm"></button>
+            </div>
+        </dialog>
+    
+        <!-- Container for Toast Notifications -->
+        <div id="app-alert-toast-container" aria-live="assertive" aria-atomic="true"></div>
     </div>
-
-    <dialog id="app-alert-dialog-box" class="dialog app-alert-box" role="alertdialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
-        <div id="app-alert-dialog-icon-wrapper" class="app-alert-icon-wrapper">
-            <i id="app-alert-dialog-icon" class="ph-fill"></i>
-        </div>
-        <h2 id="app-alert-dialog-title" class="app-alert-title"></h2>
-        <p id="app-alert-dialog-message" class="app-alert-message"></p>
-        <div class="app-alert-buttons">
-            <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel" value="cancel"></button>
-            <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm" value="default"></button>
-        </div>
-    </dialog>
-
-    <!-- Container for Toast Notifications -->
-    <div id="app-alert-toast-container"></div>
-</div>
-
     <script src="../../scripts/components/app-alert.js"></script>
     <script src="../../scripts/main/joborder.js"></script>
     <script src="../../scripts/components/sidebar.js"></script>

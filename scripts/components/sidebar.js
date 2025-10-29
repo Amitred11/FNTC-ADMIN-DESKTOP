@@ -2,25 +2,20 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. CONFIGURATION & STATE ---
-
     const permissions = {
-        // --- FIX: Added the 'admin' role to all permissions lists ---
-        'dashboard': ['super_admin', 'admin', 'collector', 'field_agent'],
-        'subscriptions': ['super_admin', 'admin'],
-        'billing': ['super_admin', 'admin', 'collector'],
-        'joborder': ['super_admin', 'admin', 'field_agent'],
-        'support': ['super_admin', 'admin', 'field_agent'],
-        'livechats': ['super_admin', 'admin'],
-        'settings': ['super_admin', 'admin', 'collector', 'field_agent']
+        'dashboard': [ 'admin', 'collector', 'field_agent'],
+        'subscriptions': ['admin'],
+        'billing': ['admin', 'collector'],
+        'joborder': ['admin'],
+        'fieldagent': ['field_agent'],
+        'support': ['admin', 'field_agent'],
+        'livechats': ['admin'],
+        'settings': ['admin','collector', 'field_agent']
     };
-
     const sidebarStateKey = 'sidebarCollapsedState';
+    let currentUserRole = null;
 
     // --- 2. HELPER FUNCTIONS ---
-
-    /**
-     * Applies the correct permissions to sidebar links based on the user's role.
-     */
     const applyRolePermissions = async () => {
         try {
             const user = await window.electronAPI.getUserProfile();
@@ -29,22 +24,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 await window.electronAPI.logout();
                 return;
             }
-
-            const userRole = user.role;
-            console.log(`Applying permissions for role: ${userRole}`);
-
+            currentUserRole = user.role;
             document.querySelectorAll('.sidebar-btn').forEach(button => {
                 const page = button.dataset.page;
                 if (!page) return;
-
                 const allowedRoles = permissions[page];
-                if (allowedRoles && !allowedRoles.includes(userRole)) {
-                    button.style.display = 'none'; // Hide button if role not allowed
+                if (allowedRoles && !allowedRoles.includes(currentUserRole)) {
+                    button.style.display = 'none';
                 } else {
-                    button.style.display = 'flex'; // Ensure button is visible
+                    button.style.display = 'flex';
                 }
             });
-
         } catch (error) {
             console.error('Failed to apply role permissions:', error);
             document.querySelectorAll('.sidebar-btn[data-page]').forEach(button => {
@@ -55,27 +45,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Highlights the sidebar link corresponding to the current page.
-     */
     const setActiveLink = () => {
         const currentPage = document.body.getAttribute('data-page');
         if (!currentPage) return;
-
         const activeLink = document.querySelector(`.sidebar-btn[data-page="${currentPage}"]`);
         if (activeLink) {
             activeLink.classList.add('active');
         }
     };
 
-    /**
-     * Attaches all necessary event listeners for sidebar interactions.
-     */
     const attachEventListeners = () => {
+        // --- Get Element References ---
         const hamburger = document.getElementById('hamburger');
         const layout = document.getElementById('layout');
-        const logoutButton = document.querySelector('.logout');
+        const logoutButton = document.getElementById('logout-btn');
 
+        // --- Hamburger Menu Listener ---
         if (hamburger && layout) {
             hamburger.addEventListener('click', () => {
                 const isCollapsed = layout.classList.toggle('sidebar-collapsed');
@@ -83,21 +68,64 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // --- Navigation Link Click Handler ---
+        document.querySelectorAll('.sidebar-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const page = button.dataset.page;
+                if (!page) return;
+
+                const requiredRoles = permissions[page];
+                const isRestricted = requiredRoles && !requiredRoles.includes(currentUserRole);
+
+                if (isRestricted) {
+                    event.preventDefault();
+                    if (AppAlert && AppAlert.notify) {
+                        AppAlert.notify({
+                            type: 'error',
+                            title: 'Permission Denied',
+                            message: `You do not have the necessary permissions to access this page.`
+                        });
+                    } else {
+                        console.error(`Permission denied for ${page}. AppAlert.notify not available.`);
+                    }
+                }
+            });
+        });
+
+        // =================================================================
+        // --- LOGOUT LOGIC USING APPALERT (UPDATED) ---
+        // =================================================================
         if (logoutButton) {
             logoutButton.addEventListener('click', async (event) => {
                 event.preventDefault();
-                if (confirm('Are you sure you want to log out?')) {
-                    await window.electronAPI.logout();
+                
+                try {
+                    await AppAlert.confirm({
+                        type: 'warning',
+                        title: 'Confirm Logout',
+                        message: 'Are you sure you want to log out of your account?',
+                        confirmText: 'Log Out',
+                        cancelText: 'Cancel'
+                    });
+                    try {
+                        await window.electronAPI.logout();
+                    } catch (apiError) {
+                        console.error('Logout API call failed:', apiError);
+                        AppAlert.notify({
+                            type: 'error',
+                            title: 'Logout Failed',
+                            message: 'Could not log out. Please try again.'
+                        });
+                    }
+
+                } catch (error) {
+                    console.log("Logout was cancelled by the user.");
                 }
             });
         }
     };
 
     // --- 3. INITIALIZATION ---
-
-    /**
-     * The main function to set up the sidebar.
-     */
     const initSidebar = async () => {
         const sidebarContainer = document.getElementById('sidebar-container');
         if (!sidebarContainer) {
@@ -111,20 +139,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch('../../components/sidebar.html');
-            
             if (!response.ok) {
                 throw new Error(`Failed to fetch sidebar component. Status: ${response.status}`);
             }
-            
             sidebarContainer.innerHTML = await response.text();
-
             await applyRolePermissions();
             setActiveLink();
             attachEventListeners();
-
         } catch (error) {
             console.error('Failed to initialize sidebar:', error);
-            sidebarContainer.innerHTML = `<p style="color:red; padding:1rem;">Error: Could not load sidebar. Check file path.</p>`;
+            sidebarContainer.innerHTML = `<p style="color:red; padding:1rem;">Error: Could not load sidebar.</p>`;
         }
     };
 

@@ -9,13 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    /**
-     * Maps log types from the backend to display icons and styles.
-     * @param {string} logType - The type of the log entry.
-     * @returns {{icon: string, markerClass: string}}
-     */
     const getLogTypeDetails = (logType) => {
-        const details = { icon: 'ph-fill ph-info', markerClass: 'info' }; // Default to info
+        const details = { icon: 'ph-fill ph-info', markerClass: 'info' }; 
         switch (logType) {
             case 'admin_update':
                 details.icon = 'ph-fill ph-user-gear';
@@ -40,11 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return details;
     };
 
-    /**
-     * Formats an ISO date string into a more readable format.
-     * @param {string} isoDate - The date string from the API.
-     * @returns {string} A formatted date string.
-     */
     const formatTimestamp = (isoDate) => {
         const date = new Date(isoDate);
         return date.toLocaleString('en-US', {
@@ -57,12 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    /**
-     * Fetches activity logs from the backend and renders them.
-     */
     const fetchAndRenderLogs = async () => {
         try {
-            // FIX: The API call must be awaited and its result assigned to 'response'.
             const response = await window.electronAPI.apiGet('/activity-log');
 
             if (!response.ok) {
@@ -70,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const logs = response.data.data;
-            timelineList.innerHTML = ''; // Clear the loading placeholder
+            timelineList.innerHTML = '';
 
             if (!logs || logs.length === 0) {
                 timelineList.innerHTML = '<li class="loading-placeholder">No activity logs found.</li>';
@@ -111,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     backButton.addEventListener('click', (e) => {
-        e.preventDefault(); // Prevent default link behavior if it's an <a> tag
+        e.preventDefault();
         window.history.back();
     });
 

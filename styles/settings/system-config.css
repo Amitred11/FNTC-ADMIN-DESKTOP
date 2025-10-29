@@ -297,3 +297,81 @@ body {
         opacity: 0;
     }
 }
+
+/* --- For Tablets and Small Desktops --- */
+@media (max-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    #sidebar-container {
+        display: none;
+    }
+}
+
+/* --- For Mobile Devices --- */
+@media (max-width: 768px) {
+    .main-section {
+        padding: 24px;
+    }
+
+    .page-header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .config-card {
+        padding: 24px;
+    }
+    
+    .system-config-form {
+        max-width: 100%; 
+    }
+
+    .form-footer {
+        text-align: center; 
+    }
+
+    .btn.btn-primary {
+        width: 100%; 
+    }
+}
+
+/* --- For Small Mobile Devices --- */
+@media (max-width: 480px) {
+    .main-section {
+        padding: 16px;
+    }
+
+    .config-card {
+        padding: 20px;
+    }
+    
+    .page-header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .page-header .page-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
+    
+    .form-group input {
+        height: 42px;
+        font-size: 0.95rem;
+    }
+    
+    #toast-container {
+        right: 10px;
+        left: 10px;
+        top: 10px;
+        align-items: center; 
+    }
+    
+    .toast {
+        width: 100%;
+        max-width: 400px;
+    }
+}

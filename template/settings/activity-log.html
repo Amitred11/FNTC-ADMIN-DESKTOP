@@ -11,16 +11,16 @@
     <link rel="stylesheet" href="../../styles/settings/activity-log.css">
     <link rel="stylesheet" href="../../styles/components/sidebar.css">
 </head>
-<body data-page="settings"> <!-- Keeps the 'Settings' link active -->
+<body data-page="settings">
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
         <!-- MAIN CONTENT -->
         <main class="main-section">
             <div class="page-header">
                 <h1>Activity Logs</h1>
-                <p class="page-subtitle">Manage and adjust system settings for users, connections, and preferences.</p>
+                <p class="page-subtitle">See all activities of the device, system, and user actions.</p></p>
             </div>
-            <a href="#" id="back-to-settings-btn" class="back-button" onclick="history.back()">
+            <a href="settings.html" id="back-to-settings-btn" class="back-button">
                 <i class="ph ph-arrow-left"></i>
                 <span>Back to Settings</span>
             </a>
@@ -40,6 +40,7 @@
         </main>
     </div>
     <!-- Scripts -->
+     <script src="../../scripts/components/global.js"></script>
     <script src="../../scripts/components/sidebar.js"></script>
     <script src="../../scripts/settings/activity-log.js"></script>
 </body>

@@ -1,12 +1,9 @@
-// scripts/system-config.js
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- Element Selections ---
     const form = document.getElementById('system-config-form');
     const toastContainer = document.getElementById('toast-container');
     const passwordToggles = document.querySelectorAll('.password-toggle-icon');
 
-    // Ensure essential elements exist
     if (!form || !toastContainer ) {
         console.error('A required element is missing from the DOM.');
         return;
@@ -19,11 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const xenditTokenInput = document.getElementById('xendit-token');
     const xenditFeeInput = document.getElementById('xendit-fee');
 
-    /**
-     * [NEW] Displays a toast notification.
-     * @param {string} message The message to display.
-     * @param {'success'|'error'} type The type of notification.
-     */
     const showToast = (message, type = 'success') => {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -33,15 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         toastContainer.appendChild(toast);
 
-        // Remove the toast after the animation ends
         setTimeout(() => {
             toast.remove();
-        }, 5000); // Duration matches CSS animation
+        }, 5000);
     };
     
-    /**
-     * Fetches configuration from the backend and populates the form.
-     */
     const loadAndDisplayConfig = async () => {
         try {
             const response = await window.electronAPI.apiGet('/config');
@@ -55,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
             fromAddressInput.value = config.emailFromAddress || '';
             xenditFeeInput.value = config.xenditTransactionFee || '0.00';
 
-            sendgridKeyInput.placeholder = config.sendgridApiKey || 'Enter new SendGrid key';
-            xenditKeyInput.placeholder = config.xenditApiKey || 'Enter new Xendit key';
-            xenditTokenInput.placeholder = config.xenditCallbackToken || 'Enter new Xendit callback token';
+            sendgridKeyInput.placeholder = config.sendgridApiKeyConfigured ? 'API Key is set and hidden for security' : 'Enter new SendGrid key';
+            xenditKeyInput.placeholder = config.xenditApiKeyConfigured ? 'API Key is set and hidden for security' : 'Enter new Xendit key';
+            xenditTokenInput.placeholder = config.xenditCallbackTokenConfigured ? 'Callback Token is set and hidden for security' : 'Enter new Xendit callback token';
             
             sendgridKeyInput.value = '';
             xenditKeyInput.value = '';
@@ -69,10 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Handles the form submission to update the configuration.
-     * @param {Event} event The form submission event.
-     */
     const handleFormSubmit = async (event) => {
         event.preventDefault();
         const submitButton = form.querySelector('button[type="submit"]');
@@ -109,10 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    /**
-     * [NEW] Toggles the visibility of a password input field.
-     * @param {Event} event The click event.
-     */
     const togglePasswordVisibility = (event) => {
         const icon = event.currentTarget;
         const input = icon.previousElementSibling;

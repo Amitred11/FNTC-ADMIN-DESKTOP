@@ -106,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const buffer = await readFileAsArrayBuffer(file);
             const fileData = { buffer, name: file.name, type: file.type };
 
-            // CORRECTED: Using window.electronAPI.uploadFile
             const response = await window.electronAPI.uploadFile({
                 endpoint: '/me/photo',
                 fieldName: 'profileImage',
@@ -116,12 +115,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 state.profile = response.data;
                 renderProfileData(state.profile);
-                alert('Photo updated successfully!');
+                AppAlert.notify({
+                    type: 'success',
+                    title: 'Success',
+                    message: 'Photo updated successfully!'
+                });
             } else {
                 throw new Error(response.data.message || 'Server error');
             }
         } catch (error) {
-            alert(`Failed to upload photo: ${error.message}`);
+            AppAlert.notify({
+                type: 'error',
+                title: 'Upload Failed',
+                message: `Failed to upload photo: ${error.message}`
+            });
         } finally {
             showUploadingState(false);
             e.target.value = '';
@@ -135,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveChangesBtn.disabled = true;
 
         try {
-            // CORRECTED: Using window.electronAPI.apiPut
             const response = await window.electronAPI.apiPut('/me', { 
                 displayName: fullNameInput.value.trim() 
             });
@@ -143,23 +149,42 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 state.profile = response.data;
                 renderProfileData(state.profile);
-                alert('Profile updated successfully!');
+                AppAlert.notify({
+                    type: 'success',
+                    title: 'Profile Updated',
+                    message: 'Your profile has been saved successfully!'
+                });
                 showView('settings-view');
             } else {
                 throw new Error(response.data.message || 'Server error');
             }
         } catch (error) {
-            alert(`Failed to save profile: ${error.message}`);
+            AppAlert.notify({
+                type: 'error',
+                title: 'Update Failed',
+                message: `Failed to save profile: ${error.message}`
+            });
         } finally {
             saveChangesBtn.textContent = 'Save Changes';
             updateSaveButtonState();
         }
     });
     
-    const handleLogout = () => {
-        // CORRECTED: Using window.electronAPI.logout
-        window.electronAPI.logout();
+    const handleLogout = async () => {
+        try {
+            await AppAlert.confirm({
+                type: 'warning',
+                title: 'Confirm Logout',
+                message: 'Are you sure you want to log out of your account?',
+                confirmText: 'Logout',
+                cancelText: 'Cancel'
+            });
+            window.electronAPI.logout();
+        } catch (error) {
+            console.log('Logout cancelled by user.');
+        }
     };
+    
     document.getElementById('logout-btn-main').addEventListener('click', handleLogout);
     document.getElementById('logout-btn-profile').addEventListener('click', handleLogout);
 
@@ -169,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // =================================================================
     const initializeApp = async () => {
         try {
-            // CORRECTED: Using window.electronAPI.apiGet
             const response = await window.electronAPI.apiGet('/me'); 
             if (response.ok) {
                 state.profile = response.data;
@@ -180,7 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("Initialization failed:", error);
-            alert(`Could not load user settings: ${error.message}`);
+            AppAlert.notify({
+                type: 'error',
+                title: 'Loading Error',
+                message: `Could not load user settings: ${error.message}`
+            });
         }
     };
 

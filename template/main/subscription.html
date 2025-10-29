@@ -11,26 +11,25 @@
     <link rel="stylesheet" href="../../styles/components/sidebar.css">
     <link rel="stylesheet" href="../../styles/components/header.css">
 </head>
-<body>
+<body data-page="subscriptions">
     <div class="layout" id="layout">
         <div id="sidebar-container"></div>
         <!-- MAIN CONTENT -->
         <main class="main-section" role="main">
+            <div id="header-container"></div>
             <!-- VIEW 1: SUBSCRIBER LIST -->
             <div id="list-view">
-                <div id="header-container"></div>
                 <div class="top-actions">
-                    <button id="add-subscriber-btn" class="action-btn primary"><span class="ph ph-plus"></span> Add New Subscriber</button>
-                    <button id="manage-plans-btn" class="action-btn secondary"><span class="ph ph-wrench"></span> Manage Plans</button>
+                    <div class="search-wrapper">
+                        <span class="ph ph-magnifying-glass"></span>
+                        <input id="search-input" class="search-input" type="text" placeholder="Search by Name or ID..." />
+                    </div>
+                    <div class="action-buttons">
+                        <button id="manage-plans-btn" class="btn secondary"><span class="ph ph-wrench"></span> Manage Plans</button>
+                        <button id="add-subscriber-btn" class="btn primary"><span class="ph ph-plus"></span> Add Subscriber</button>
+                    </div>
                 </div>
                 <div class="list-card">
-                    <div class="list-card-header">
-                        <h3>All Subscribers (<span id="total-count">0</span>)</h3>
-                        <div class="search-wrapper">
-                            <span class="ph ph-magnifying-glass"></span>
-                            <input id="search-input" class="search-input" type="text" placeholder="Search by Name or ID..." />
-                        </div>
-                    </div>
                     <section class="client-list-container" id="client-list">
                         <div class="placeholder">Loading subscribers...</div>
                     </section>
@@ -42,7 +41,6 @@
                 <section class="details-card">
                     <header class="details-card-header">
                         <button id="back-to-list-btn" class="back-btn"><span class="ph ph-arrow-left"></span> Back to List</button>
-                        <h4>Subscriber Details & History</h4>
                     </header>
             
                     <div class="details-profile-header">
@@ -64,10 +62,9 @@
                 
                         <div id="overview-content-view">
                             <div class="subscriber-cards">
-                                <div class="info-card"><div class="card-icon-wrapper balance"><span class="ph-fill ph-wallet"></span></div><div><p class="label">Current Bal.</p><p class="value red" id="card-balance"></p></div></div>
-                                <div class="info-card"><div class="card-icon-wrapper plan"><span class="ph-fill ph-rocket-launch"></span></div><div><p class="label">Active Subscription</p><p class="value blue" id="card-active-plan"></p><p class="sub-value" id="card-active-plan-details"></p></div></div>
-                                <div class="info-card"><div class="card-icon-wrapper billing"><span class="ph-fill ph-tag"></span></div><div><p class="label">Billing & Price</p><p class="value" id="card-billing"></p><p class="sub-value">Cycle: Monthly</p></div></div>
-                                <div class="info-card"><div class="card-icon-wrapper status"><span class="ph-fill ph-power"></span></div><div><p class="label">Subscription Status</p><p class="value" id="card-status"></p></div></div>
+                                <div class="info-card"><div class="card-icon-wrapper balance"><span class="ph-fill ph-wallet"></span></div><div><p class="label">Current Balance</p><p class="value red" id="card-balance"></p></div></div>
+                                <div class="info-card"><div class="card-icon-wrapper plan"><span class="ph-fill ph-rocket-launch"></span></div><div><p class="label">Subscription</p><p class="value" id="card-active-plan"></p></div></div>
+                                <div class="info-card"><div class="card-icon-wrapper status"><span class="ph-fill ph-power"></span></div><div><p class="label">Status</p><p class="value" id="card-status"></p></div></div>
                             </div>
                             <div class="history-table-wrap">
                                 <h4>Billing History</h4>
@@ -86,11 +83,10 @@
    <!-- ALL MODALS -->
     <div class="modal-overlay hidden" id="plan-modal-overlay"></div>
     <div class="modal-container hidden" id="plan-management-modal">
-        <!-- FIXED HEADER -->
         <header class="modal-header">
             <h2>Plan Management</h2>
             <div class="modal-header-actions">
-                <button class="action-btn primary" id="add-new-plan-btn"><span class="ph ph-plus"></span> New Plan</button>
+                <button class="btn primary" id="add-new-plan-btn"><span class="ph ph-plus"></span> New Plan</button>
                 <button class="close-modal-btn" id="close-plan-modal-btn"><span class="ph ph-x"></span></button>
             </div>
         </header>
@@ -98,79 +94,88 @@
     </div>
 
     <div class="modal-overlay hidden" id="plan-upsert-modal-overlay"></div>
-    <div class="modal-container hidden" id="plan-upsert-modal">
+    <div class="modal-container hidden dark-theme-body" id="plan-upsert-modal">
         <header class="modal-header">
             <div>
                 <h2 id="upsert-modal-title">Add New Plan</h2>
-                <p class="modal-subtitle">Configure the details, pricing, and features for this subscription plan.</p>
+                <p class="modal-subtitle">Configure the details, pricing, and features for this plan.</p>
             </div>
             <button class="close-modal-btn" id="close-upsert-modal-btn"><span class="ph ph-x"></span></button>
         </header>
-        <main class="modal-body">
-            <form id="plan-upsert-form" class="plan-upsert-form">
+        <form id="plan-upsert-form">
+            <main class="modal-body form-grid two-col">
+                <div class="form-group full-width"><label for="planName">Plan Name</label><input type="text" id="planName" name="name" required placeholder="e.g., Premium Fiber"></div>
+                <div class="form-group"><label for="planPrice">Price</label><div class="input-with-icon"><span>₱</span><input type="number" id="planPrice" name="price" required placeholder="1500"></div></div>
+                <div class="form-group"><label for="priceLabel">Price Label</label><input type="text" id="priceLabel" name="priceLabel" placeholder="e.g., / month"></div>
+                <div class="form-group full-width"><label for="planFeatures">Features <small>(One per line)</small></label><textarea id="planFeatures" name="features" rows="4" placeholder="- 100 Mbps Speed&#10;- Unlimited Data"></textarea></div>
+                
+                <!-- NEW ICON SELECT DROPDOWN -->
+                <div class="form-group full-width">
+                    <label for="planIcon">Plan Icon</label>
+                    <select id="planIcon" name="planIcon" class="form-control">
+                    </select>
+                    <div id="currentIconDisplay" style="margin-top: 10px; text-align: center;">
+                    </div>
+                </div>
+                <div class="form-group full-width"><label for="planNote">Note / Description</label><textarea id="planNote" name="note" rows="2" placeholder="Optional short description."></textarea></div>
                 <input type="hidden" id="planId" name="planId">
-                <div class="form-section">
-                    <h3 class="form-section-title">Plan Identity</h3>
-                    <div class="form-grid two-col">
-                        <div class="form-group span-2"><label for="planName">Plan Name</label><input type="text" id="planName" name="name" required placeholder="e.g., Premium Fiber"></div>
-                        <div class="form-group span-2"><label for="planIconSelect">Plan Icon</label><div class="icon-picker"><div id="icon-preview" class="icon-preview-box"></div><select id="planIconSelect"></select></div><input type="hidden" id="iconSvg" name="iconSvg"></div>
-                    </div>
+            </main>
+            <footer class="modal-footer" style="justify-content: space-between;">
+                <button type="button" id="delete-plan-btn-modal" class="btn danger hidden"><span class="ph ph-trash"></span> Delete</button>
+                <div>
+                    <button type="button" class="btn secondary" id="cancel-upsert-btn">Cancel</button>
+                    <button type="submit" class="btn primary">Save Plan</button>
                 </div>
-                <div class="form-section">
-                    <h3 class="form-section-title">Pricing</h3>
-                    <div class="form-grid two-col">
-                        <div class="form-group"><label for="planPrice">Price</label><div class="input-with-icon"><span>₱</span><input type="number" id="planPrice" name="price" required placeholder="1500"></div></div>
-                        <div class="form-group"><label for="priceLabel">Price Label</label><input type="text" id="priceLabel" name="priceLabel" placeholder="e.g., / month"></div>
-                    </div>
-                </div>
-                <div class="form-section">
-                    <h3 class="form-section-title">Details</h3>
-                    <div class="form-grid one-col">
-                        <div class="form-group"><label for="planFeatures">Features <small>(One per line)</small></label><textarea id="planFeatures" name="features" rows="4" placeholder="- 100 Mbps Speed&#10;- Unlimited Data"></textarea></div>
-                        <div class="form-group"><label for="planNote">Note / Description</label><textarea id="planNote" name="note" rows="3" placeholder="Optional short description for the plan."></textarea></div>
-                    </div>
-                </div>
-                <div class="form-section">
-                     <h3 class="form-section-title">Status</h3>
-                     <div class="form-group">
-                        <label class="checkbox-wrapper"><input type="checkbox" id="planIsActive" name="isActive" checked><span class="toggle-switch"></span><span class="toggle-label-group"><span class="toggle-label">Make Plan Active</span><span class="toggle-sublabel">Active plans will be available for new subscriptions.</span></span></label>
-                    </div>
-                </div>
-            </form>
-        </main>
-        <footer class="modal-footer"><button type="button" class="action-btn secondary" id="cancel-upsert-btn">Cancel</button><button type="submit" form="plan-upsert-form" class="action-btn primary">Save Plan</button></footer>
+            </footer>
+        </form>
     </div>
 
     <div class="modal-overlay hidden" id="add-subscriber-modal-overlay"></div>
-    <div class="modal-container hidden" id="add-subscriber-modal">
+    <div class="modal-container hidden dark-theme-body" id="add-subscriber-modal">
         <header class="modal-header"><h2>Add New Subscriber</h2><button class="close-modal-btn" id="close-add-modal-btn"><span class="ph ph-x"></span></button></header>
-        <main class="modal-body"><form id="add-subscriber-form" class="add-subscriber-form"><div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" name="fullName" required></div><div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" required></div><div class="form-group"><label for="phoneNumber">Phone Number</label><input type="tel" id="phoneNumber" name="phoneNumber" required></div><div class="form-group"><label for="password">Set Initial Password</label><input type="password" id="password" name="password" required minlength="8"></div><div class="form-group"><label for="plan">Subscription Plan</label><select id="plan" name="planId" required><option value="" disabled selected>Loading...</option></select></div><div class="form-group full-width"><h4>Installation Address</h4></div><div class="form-group"><label for="streetAddress">Street Address</label><input type="text" id="streetAddress" name="streetAddress" required></div><div class="form-group"><label for="barangay">Barangay</label><input type="text" id="barangay" name="barangay" required></div><div class="form-group"><label for="city">City / Municipality</label><input type="text" id="city" name="city" value="Rodriguez, Rizal" disabled></div></form></main>
-        <footer class="modal-footer"><button type="button" class="action-btn secondary" id="cancel-add-btn">Cancel</button><button type="submit" form="add-subscriber-form" class="action-btn primary">Create Subscription</button></footer>
+        <form id="add-subscriber-form">
+            <main class="modal-body form-grid two-col">
+                <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" name="fullName" required></div>
+                <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" required></div>
+                <div class="form-group"><label for="phoneNumber">Phone Number</label><input type="tel" id="phoneNumber" name="phoneNumber" required></div>
+                <div class="form-group"><label for="password">Set Password</label><input type="password" id="password" name="password" required minlength="8"></div>
+                <div class="form-group full-width"><label for="plan">Subscription Plan</label><select id="plan" name="planId" required><option value="" disabled selected>Loading...</option></select></div>
+                <div class="form-group"><label for="streetAddress">Street Address</label><input type="text" id="streetAddress" name="streetAddress" required></div>
+                <div class="form-group"><label for="barangay">Barangay</label><input type="text" id="barangay" name="barangay" required></div>
+            </main>
+            <footer class="modal-footer"><button type="button" class="btn secondary" id="cancel-add-btn">Cancel</button><button type="submit" class="btn primary">Create Subscription</button></footer>
+        </form>
     </div>
 
     <div class="modal-overlay hidden" id="update-plan-modal-overlay"></div>
     <div class="modal-container hidden" id="update-plan-modal" style="max-width: 500px;">
         <header class="modal-header"><h2>Update Subscription Plan</h2><button class="close-modal-btn" id="close-update-plan-modal-btn"><span class="ph ph-x"></span></button></header>
-        <main class="modal-body"><form id="update-plan-form"><div class="form-group"><label for="newPlanSelect">Select New Plan</label><select id="newPlanSelect" name="newPlanId" required><option value="" disabled selected>Loading...</option></select><p class="form-hint">The plan change will take effect immediately.</p></div></form></main>
-        <footer class="modal-footer"><button type="button" class="action-btn secondary" id="cancel-update-plan-btn">Cancel</button><button type="submit" form="update-plan-form" class="action-btn primary">Confirm Update</button></footer>
+        <form id="update-plan-form">
+            <main class="modal-body"><div class="form-group"><label for="newPlanSelect">Select New Plan</label><select id="newPlanSelect" name="newPlanId" required><option value="" disabled selected>Loading...</option></select></div></main>
+            <footer class="modal-footer"><button type="button" class="btn secondary" id="cancel-update-plan-btn">Cancel</button><button type="submit" class="btn primary">Confirm Update</button></footer>
+        </form>
     </div>
     
     <div class="modal-overlay hidden" id="cancel-plan-modal-overlay"></div>
-    <div class="modal-container hidden" id="cancel-plan-modal" style="max-width: 500px;">
+    <div class="modal-container hidden dark-theme-body" id="cancel-plan-modal" style="max-width: 500px;">
         <header class="modal-header"><h2>Cancel Subscription</h2><button class="close-modal-btn" id="close-cancel-plan-modal-btn"><span class="ph ph-x"></span></button></header>
-        <main class="modal-body"><p>Are you sure? This action is permanent and will void outstanding bills.</p></main>
-        <footer class="modal-footer"><button type="button" class="action-btn secondary" id="cancel-cancel-plan-btn">Go Back</button><button type="submit" form="cancel-plan-form" class="action-btn danger">Confirm Cancellation</button></footer>
+        <form id="cancel-plan-form">
+            <main class="modal-body"><p>Are you sure? This action is permanent and will void outstanding bills.</p><div class="form-group" style="margin-top: 1rem;"><label for="cancelReason">Reason for Cancellation (Required)</label><textarea id="cancelReason" name="reason" rows="3" required></textarea></div></main>
+            <footer class="modal-footer"><button type="button" class="btn secondary" id="cancel-cancel-plan-btn">Go Back</button><button type="submit" class="btn danger">Confirm Cancellation</button></footer>
+        </form>
     </div>
 
     <div class="modal-overlay hidden" id="suspend-plan-modal-overlay"></div>
-    <div class="modal-container hidden" id="suspend-plan-modal" style="max-width: 500px;">
+    <div class="modal-container hidden dark-theme-body" id="suspend-plan-modal" style="max-width: 500px;">
         <header class="modal-header"><h2>Suspend Subscription</h2><button class="close-modal-btn" id="close-suspend-plan-modal-btn"><span class="ph ph-x"></span></button></header>
-        <main class="modal-body"><p>This will temporarily disable the user's service.</p><form id="suspend-plan-form"><div class="form-group"><label for="suspendReason">Reason for Suspension (Required)</label><textarea id="suspendReason" name="reason" rows="3" required></textarea></div></form></main>
-        <footer class="modal-footer"><button type="button" class="action-btn secondary" id="cancel-suspend-plan-btn">Go Back</button><button type="submit" form="suspend-plan-form" class="action-btn danger">Confirm Suspension</button></footer>
+        <form id="suspend-plan-form">
+            <main class="modal-body"><p>This will temporarily disable the user's service.</p><div class="form-group" style="margin-top: 1rem;"><label for="suspendReason">Reason for Suspension (Required)</label><textarea id="suspendReason" name="reason" rows="3" required></textarea></div></main>
+            <footer class="modal-footer"><button type="button" class="btn secondary" id="cancel-suspend-plan-btn">Go Back</button><button type="submit" class="btn danger">Confirm Suspension</button></footer>
+        </form>
     </div>
 
     <div class="modal-overlay hidden" id="decline-reason-modal-overlay"></div>
-    <div class="modal-container hidden" id="decline-reason-modal" style="max-width: 500px;">
+    <div class="modal-container hidden dark-theme-body" id="decline-reason-modal" style="max-width: 500px;">
         <header class="modal-header"><h2>Decline Reason</h2><button class="close-modal-btn" id="close-decline-reason-modal-btn"><span class="ph ph-x"></span></button></header>
         <main class="modal-body">
             <form id="decline-reason-form">
@@ -181,26 +186,20 @@
             </form>
         </main>
         <footer class="modal-footer">
-            <button type="button" class="action-btn secondary" id="cancel-decline-reason-btn">Cancel</button>
-            <button type="submit" form="decline-reason-form" class="action-btn primary">Submit</button>
+            <button type="button" class="btn secondary" id="cancel-decline-reason-btn">Cancel</button>
+            <button type="submit" form="decline-reason-form" class="btn primary">Submit</button>
         </footer>
     </div>
-
+    
+    <!-- App Alert Component and Scripts remain unchanged -->
     <div id="app-alert-container">
         <div id="app-alert-overlay" class="app-alert-overlay"></div>
-        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true">
-            <div id="app-alert-icon-wrapper" class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div>
-            <h2 id="app-alert-title" class="app-alert-title"></h2>
-            <p id="app-alert-message" class="app-alert-message"></p>
-            <div class="app-alert-buttons">
-                <button id="app-alert-cancel-btn" class="app-alert-button cancel"></button>
-                <button id="app-alert-confirm-btn" class="app-alert-button confirm"></button>
-            </div>
-        </div>
-        <div id="app-alert-toast-container"></div>
+        <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true"><div class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div><h2 id="app-alert-title" class="app-alert-title"></h2><p id="app-alert-message" class="app-alert-message"></p><div class="app-alert-buttons"><button id="app-alert-cancel-btn" class="app-alert-button cancel"></button><button id="app-alert-confirm-btn" class="app-alert-button confirm"></button></div></div>
+        <dialog id="app-alert-dialog-box" class="app-alert-dialog"><div class="app-alert-icon-wrapper"><i id="app-alert-dialog-icon" class="ph-fill"></i></div><h2 id="app-alert-dialog-title" class="app-alert-title"></h2><p id="app-alert-dialog-message" class="app-alert-message"></p><div class="app-alert-buttons"><button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel"></button><button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm"></button></div></dialog>
+        <div id="app-alert-toast-container" aria-live="assertive" aria-atomic="true"></div>
     </div>
 
-
+    <script src="../../scripts/components/global.js"></script>
     <script src="../../scripts/components/app-alert.js"></script>
     <script src="../../scripts/components/sidebar.js"></script>
     <script src="../../scripts/components/header.js"></script>

@@ -1,4 +1,87 @@
-document.addEventListener('DOMContentLoaded', () => {
+function renderAccessDenied() {
+    const layout = document.getElementById('layout');
+    if (layout) {
+        layout.style.display = 'none';
+    }
+
+    document.body.style.backgroundColor = '#FFFFFF';
+    document.body.innerHTML = '';
+
+    if (!document.getElementById('access-denied-container')) {
+        const deniedContainer = document.createElement('div');
+        deniedContainer.id = 'access-denied-container';
+        deniedContainer.style.cssText = `
+            text-align: center;
+            padding: 40px 20px;
+            width: 100vw; /* Use viewport width */
+            height: 100vh; /* Use viewport height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #FFFFFF; /* White background */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99999; /* Higher z-index to be safe */
+            font-family: 'Poppins', sans-serif; /* Ensure consistent font */
+        `;
+
+        deniedContainer.innerHTML = `
+            <div style="font-size: 6rem; color: #E53935; margin-bottom: 1.5rem;">
+                <i class="ph-fill ph-hand-palm"></i>
+            </div>
+            <h1 style="color: #333; font-size: 3rem; margin: 0; font-weight: 600;">Access Denied</h1>
+            <p style="font-size: 1.25rem; color: #6c757d; max-width: 450px; margin-top: 1rem; line-height: 1.6;">
+                You do not have the required permissions to access this page.
+            </p>
+            <button id="go-back-btn" style="margin-top: 2.5rem; padding: 14px 28px; font-size: 1.1rem; cursor: pointer; border: none; background-color: #0A3D62; color: white; border-radius: 8px; font-weight: 500; transition: background-color 0.2s ease;">
+                Return to Previous Page
+            </button>
+        `;
+        document.body.appendChild(deniedContainer);
+
+        const goBackButton = document.getElementById('go-back-btn');
+        goBackButton.addEventListener('click', () => {
+            history.back();
+        });
+        goBackButton.onmouseover = () => { goBackButton.style.backgroundColor = '#08304f'; };
+        goBackButton.onmouseout = () => { goBackButton.style.backgroundColor = '#0A3D62'; };
+    }
+}
+document.addEventListener('DOMContentLoaded', async () => {
+    const ALLOWED_ROLES = ['admin', 'collector'];
+    let currentUserRole = null;
+
+    try {
+        const response = await window.electronAPI.getUserProfile();
+        const user = response;
+        if (user && user.role) {
+            currentUserRole = user.role;
+        } else {
+            throw new Error("Role not found in profile.");
+        }
+    } catch (e) {
+        console.error("Critical security error: Could not fetch user profile.", e);
+        
+        AppAlert.notify({
+            type: 'error',
+            title: 'Authentication Error',
+            message: 'Could not retrieve your user profile. Please check your connection and try again.'
+        });
+
+        renderAccessDenied();
+        return; 
+    }
+
+    if (!ALLOWED_ROLES.includes(currentUserRole)) {
+        console.warn(`SECURITY: User with role '${currentUserRole}' attempted to access the page without permission.`);
+        renderAccessDenied();
+        return; 
+    }
+    
+    console.log("Permission granted. Initializing subscription management page.");
+
 
     // --- DOM Element Selection ---
     const headerContainer = document.getElementById('header-container');
@@ -11,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal Elements
     const createBillModal = document.getElementById('createBillModal');
     const billForm = document.getElementById('billForm');
-    const billModalTitle = document.getElementById('billModalTitle');
     const userTypeRadios = document.querySelectorAll('input[name="userType"]');
     const existingUserGroup = document.getElementById('existingUser-group');
     const newUserGroup = document.getElementById('newUser-group');
@@ -22,13 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const addItemBtn = document.getElementById('addItemBtn');
     const totalAmountDisplay = document.getElementById('totalAmountDisplay');
     const createBillSubmitBtn = document.getElementById('createBillSubmitBtn');
-    const customerCreateSection = document.getElementById('customer-section-create');
-    const customerEditSection = document.getElementById('customer-section-edit');
-    const staticCustomerInfo = document.getElementById('static-customer-info');
     const billingDetailsModal = document.getElementById('billingDetailsModal');
     const billingDetailsContent = document.getElementById('billingDetailsContent');
     const partialPaymentForm = document.getElementById('partialPaymentForm');
     const recordPartialModal = document.getElementById('recordPartialModal');
+    const editBillModal = document.getElementById('editBillModal');
+    const editBillForm = document.getElementById('editBillForm');
+    const editBillModalTitle = document.getElementById('editBillModalTitle');
 
     // --- State Management ---
     let allBills = [];
@@ -126,22 +208,51 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchUsers = async () => {
-        try { allUsers = await api.get('/users/list'); } 
-        catch (error) { AppAlert.notify({ title: 'Warning', message: 'Could not load user data for bill creation.', type: 'warning' }); }
+        try { 
+            allUsers = await api.get('/users/list'); 
+        } catch (error) { 
+            AppAlert.notify({ 
+                title: 'Warning', 
+                message: `Could not load user data for bill creation: ${error.message}`, 
+                type: 'warning' 
+            }); 
+        }
     };
 
     const filterAndRender = () => {
-        let filtered = allBills.filter(bill => currentFilter === 'all' || bill.status.toLowerCase() === currentFilter.replace(/_/g, ' '));
-        const searchTerm = searchInput.value.toLowerCase();
-        if (searchTerm) {
-            filtered = filtered.filter(bill =>
-                (bill.userId?.displayName || '').toLowerCase().includes(searchTerm) ||
-                (bill.planName || '').toLowerCase().includes(searchTerm) ||
-                bill._id.toLowerCase().includes(searchTerm)
-            );
-        }
-        renderTable(filtered);
-    };
+    let filtered = [];
+
+    switch (currentFilter) {
+        case 'needs_attention':
+            const attentionStatuses = ['due', 'overdue', 'pending verification'];
+            filtered = allBills.filter(bill => attentionStatuses.includes(bill.status.toLowerCase()));
+            break;
+            
+        case 'upcoming':
+            filtered = allBills.filter(bill => bill.status.toLowerCase() === 'upcoming');
+            break;
+            
+        case 'archive':
+            const archiveStatuses = ['paid', 'voided', 'partially paid'];
+            filtered = allBills.filter(bill => archiveStatuses.includes(bill.status.toLowerCase()));
+            break;
+            
+        case 'all':
+        default:
+            filtered = allBills;
+            break;
+    }
+
+    const searchTerm = searchInput.value.toLowerCase();
+    if (searchTerm) {
+        filtered = filtered.filter(bill =>
+            (bill.userId?.displayName || '').toLowerCase().includes(searchTerm) ||
+            (bill.planName || '').toLowerCase().includes(searchTerm) ||
+            bill._id.toLowerCase().includes(searchTerm)
+        );
+    }
+    renderTable(filtered);
+};
 
     // --- Billing Details Modal ---
     const openBillingDetails = async (billId) => {
@@ -158,23 +269,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 let primaryBtn = '';
                 let secondaryActions = [];
 
-                if (status === 'paid') {
+                if (status === 'voided') {
+                    primaryBtn = '';
+                    secondaryActions = [];
+                } else if (status === 'paid') {
                     primaryBtn = `<button class="btn btn--primary" data-action="view-receipt"><i class="ph ph-receipt"></i> View Receipt</button>`;
-                    secondaryActions.push(`<button class="btn btn--secondary btn--danger-outline" data-action="delete-bill"><i class="ph ph-trash"></i> Delete Bill</button>`);
+                    if (currentUserRole === 'admin') {
+                        secondaryActions.push(`<button class="btn btn--secondary btn--danger-outline" data-action="delete-bill"><i class="ph ph-trash"></i> Delete Bill</button>`);
+                    }
                 } else if (status === 'pending_verification') {
                     primaryBtn = `<button class="btn btn--success" data-action="approve-payment"><i class="ph ph-check"></i> Confirm Payment</button>`;
-                    secondaryActions.push(`<button class="btn btn--secondary" data-action="edit-bill"><i class="ph ph-pencil-simple"></i> Edit Bill</button>`);
-                    secondaryActions.push(`<button class="btn btn--secondary btn--danger-outline" data-action="delete-bill"><i class="ph ph-trash"></i> Delete Bill</button>`);
+                    if (currentUserRole === 'admin') {
+                        secondaryActions.push(`<button class="btn btn--secondary" data-action="edit-bill"><i class="ph ph-pencil-simple"></i> Edit Bill</button>`);
+                        secondaryActions.push(`<button class="btn btn--secondary btn--danger-outline" data-action="delete-bill"><i class="ph ph-trash"></i> Delete Bill</button>`);
+                    }
+                } else if (status === 'partially_paid') {
+                    primaryBtn = ``;
+                    if (currentUserRole === 'admin') {
+                        secondaryActions.push(`<button class="btn btn--secondary btn--danger-outline" data-action="delete-bill"><i class="ph ph-trash"></i> Delete Bill</button>`);
+                    }
                 } else {
-                    primaryBtn = (status !== 'upcoming') 
+                    primaryBtn = (status !== 'upcoming')
                         ? `<button class="btn btn--success" data-action="mark-paid"><i class="ph ph-check-circle"></i> Mark as Paid</button>`
                         : `<button class="btn btn--primary" data-action="view-invoice"><i class="ph ph-file-text"></i> View Invoice</button>`;
-                    
+
                     if (status !== 'upcoming' && status !== 'voided') {
                         secondaryActions.push(`<button class="btn btn--secondary" data-action="record-partial"><i class="ph ph-coins"></i> Record Partial Payment</button>`);
                     }
-                    secondaryActions.push(`<button class="btn btn--secondary" data-action="edit-bill"><i class="ph ph-pencil-simple"></i> Edit Bill</button>`);
-                    secondaryActions.push(`<button class="btn btn--secondary btn--danger-outline" data-action="delete-bill"><i class="ph ph-trash"></i> Delete Bill</button>`);
+                    if (currentUserRole === 'admin') {
+                        secondaryActions.push(`<button class="btn btn--secondary" data-action="edit-bill"><i class="ph ph-pencil-simple"></i> Edit Bill</button>`);
+                        secondaryActions.push(`<button class="btn btn--secondary btn--danger-outline" data-action="delete-bill"><i class="ph ph-trash"></i> Delete Bill</button>`);
+                    }
                 }
 
                 let secondaryActionsHtml = '';
@@ -282,9 +407,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const validateBillForm = () => {
-        const isEditMode = billForm.dataset.editMode === 'true';
         const userType = document.querySelector('input[name="userType"]:checked')?.value;
-        const isUserValid = isEditMode || (userType === 'existing' ? !!selectedUser : (billForm.fullName.value.trim() && billForm.email.value.trim()));
+        const isUserValid = (userType === 'existing' ? !!selectedUser : (billForm.fullName.value.trim() && billForm.email.value.trim()));
         const isDateValid = billForm.dueDate.value;
         const areItemsValid = [...lineItemsContainer.querySelectorAll('.line-item')].every(item => item.querySelector('[name="description"]').value.trim() && parseFloat(item.querySelector('[name="lineAmount"]').value) > 0);
         createBillSubmitBtn.disabled = !(isUserValid && isDateValid && areItemsValid && calculateTotal() > 0);
@@ -329,11 +453,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const setupCreateBillForm = () => {
         billForm.reset();
-        Object.assign(billForm.dataset, { editMode: 'false', billId: '' });
-        billModalTitle.textContent = 'Create Manual Bill';
-        createBillSubmitBtn.textContent = 'Create Bill';
-        customerCreateSection.style.display = 'block';
-        customerEditSection.style.display = 'none';
         selectedUser = null;
         lineItemsContainer.innerHTML = '';
         clearUserSelection();
@@ -341,27 +460,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const futureDate = new Date();
         futureDate.setDate(futureDate.getDate() + 7);
         billForm.dueDate.value = futureDate.toISOString().split('T')[0];
-        billForm.userTypeExisting.checked = true;
-        existingUserGroup.style.display = 'block';
-        newUserGroup.style.display = 'none';
+        
+        const existingUserRadio = document.getElementById('userTypeExisting');
+        if (allUsers.length === 0) {
+            if (existingUserRadio) existingUserRadio.disabled = true;
+            document.getElementById('userTypeNew').checked = true;
+            if (existingUserGroup) existingUserGroup.style.display = 'none';
+            if (newUserGroup) newUserGroup.style.display = 'block';
+        } else {
+            if (existingUserRadio) {
+                existingUserRadio.disabled = false;
+                existingUserRadio.checked = true;
+            }
+            if (existingUserGroup) existingUserGroup.style.display = 'block';
+            if (newUserGroup) newUserGroup.style.display = 'none';
+        }
         validateBillForm();
     };
 
     const setupAndOpenEditForm = (bill) => {
-        billForm.reset();
-        Object.assign(billForm.dataset, { editMode: 'true', billId: bill._id });
-        billModalTitle.textContent = `Edit Invoice #${bill._id.slice(-6).toUpperCase()}`;
-        createBillSubmitBtn.textContent = 'Save Changes';
-        customerCreateSection.style.display = 'none';
-        customerEditSection.style.display = 'block';
-        staticCustomerInfo.innerHTML = `<span class="user-info">${bill.userId.displayName} (${bill.userId.email})</span>`;
-        billForm.dueDate.value = new Date(bill.dueDate).toISOString().split('T')[0];
-        billForm.notes.value = bill.notes || '';
-        lineItemsContainer.innerHTML = '';
-        (bill.lineItems?.length ? bill.lineItems : [{ description: 'Service Charge', amount: bill.amount }])
-            .forEach(addLineItem);
-        validateBillForm();
-        openModal(createBillModal);
+        editBillForm.reset();
+        editBillModalTitle.textContent = `Edit Invoice #${bill._id.slice(-6).toUpperCase()}`;
+        document.getElementById('editBillId').value = bill._id;
+        document.getElementById('newAmount').value = bill.amount.toFixed(2);
+        openModal(editBillModal);
     };
 
     const setupAndOpenPartialPaymentModal = () => {
@@ -395,11 +517,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const attachEventListeners = () => {
         document.addEventListener('click', (e) => { if (e.target.closest('[data-modal-close]')) closeModal(); });
-        modalTriggers.forEach(trigger => trigger.addEventListener('click', () => {
+        
+        modalTriggers.forEach(trigger => {
             const modalId = trigger.dataset.modalTarget;
-            if (modalId === 'createBillModal') setupCreateBillForm();
-            openModal(document.getElementById(modalId));
-        }));
+    
+            trigger.addEventListener('click', () => {
+                if (modalId === 'createBillModal') {
+                    if (currentUserRole !== 'admin') {
+                        AppAlert.notify({
+                            type: 'error',
+                            title: 'Access Denied',
+                            message: 'You do not have permission to create new bills.'
+                        });
+                        return;
+                    }
+                    setupCreateBillForm();
+                }
+                openModal(document.getElementById(modalId));
+            });
+        });
+    
         overlay.addEventListener('click', closeModal);
         searchInput.addEventListener('input', filterAndRender);
         tabs.addEventListener('click', (e) => {
@@ -414,37 +551,56 @@ document.addEventListener('DOMContentLoaded', () => {
         billForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (createBillSubmitBtn.disabled) return;
-            const isEditMode = billForm.dataset.editMode === 'true';
             const lineItems = [...lineItemsContainer.querySelectorAll('.line-item')].map(item => ({ description: item.querySelector('[name="description"]').value, amount: parseFloat(item.querySelector('[name="lineAmount"]').value) }));
             const payload = { dueDate: billForm.dueDate.value, notes: billForm.notes.value, amount: calculateTotal(), lineItems };
             try {
-                if (isEditMode) {
-                    await api.put(`/bills/${billForm.dataset.billId}/edit`, payload);
-                    AppAlert.notify({ title: 'Success', message: 'Bill updated!', type: 'success' });
+                if (billForm.userType.value === 'existing') {
+                    if (!selectedUser) throw new Error("Please select an existing user.");
+                    payload.userId = selectedUser._id;
                 } else {
-                    if (billForm.userType.value === 'existing') {
-                        if (!selectedUser) throw new Error("Please select an existing user.");
-                        payload.userId = selectedUser._id;
-                    } else {
-                        payload.customerDetails = { name: billForm.fullName.value, email: billForm.email.value };
-                    }
-                    await api.post('/bills/manual', payload);
-                    AppAlert.notify({ title: 'Success', message: 'Bill created!', type: 'success' });
+                    payload.customerDetails = { name: billForm.fullName.value, email: billForm.email.value };
                 }
+                await api.post('/bills/manual', payload);
+                AppAlert.notify({ title: 'Success', message: 'Bill created!', type: 'success' });
                 closeModal();
                 fetchDataAndRender();
             } catch (error) {
                 AppAlert.notify({ title: 'Error', message: error.message, type: 'error' });
             }
         });
+
+        editBillForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const billId = editBillForm.billId.value;
+            
+            const payload = {
+                newAmount: parseFloat(editBillForm.newAmount.value),
+                reason: editBillForm.reason.value,
+            };
+
+            if (!payload.reason || payload.reason.trim() === '') {
+                return AppAlert.notify({ title: 'Validation Error', message: 'A reason for the change is required.', type: 'error' });
+            }
+
+            try {
+                await api.put(`/bills/${billId}/edit`, payload);
+                AppAlert.notify({ title: 'Success', message: 'Bill updated successfully!', type: 'success' });
+                closeModal();
+                fetchDataAndRender();
+            } catch (error) {
+                AppAlert.notify({ title: 'Update Failed', message: error.message, type: 'error' });
+            }
+        });
         
         billForm.addEventListener('input', validateBillForm);
-        userTypeRadios.forEach(radio => radio.addEventListener('change', () => {
-            const isExisting = radio.value === 'existing';
-            existingUserGroup.style.display = isExisting ? 'block' : 'none';
-            newUserGroup.style.display = isExisting ? 'none' : 'block';
-            validateBillForm();
-        }));
+        userTypeRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const isExisting = radio.value === 'existing';
+                document.getElementById('existingUser-group').style.display = isExisting ? 'block' : 'none';
+                document.getElementById('newUser-group').style.display = isExisting ? 'none' : 'block';
+                validateBillForm();
+            });
+        });
         userSearchInput.addEventListener('input', () => renderUserSearchResults(userSearchInput.value.toLowerCase()));
         userSearchResults.addEventListener('click', (e) => { if (e.target.closest('.user-result-item')) handleUserSelect(e.target.closest('.user-result-item').dataset.userId); });
         selectedUserPill.addEventListener('click', (e) => { if (e.target.classList.contains('clear-selection-btn')) clearUserSelection(); });
@@ -461,10 +617,17 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const billId = partialPaymentForm.billId.value;
             const amountPaid = parseFloat(partialPaymentForm.amountPaid.value);
+            const carryOver = document.querySelector('input[name="carryOverToNextMonth"]:checked').value === 'true';
+
             if (!amountPaid || amountPaid <= 0) return AppAlert.notify({ title: 'Invalid Amount', message: 'Please enter a valid amount.', type: 'warning' });
             if (amountPaid > (currentBill.balance ?? currentBill.amount)) return AppAlert.notify({ title: 'Invalid Amount', message: 'Amount cannot be greater than the balance.', type: 'warning' });
+            
             try {
-                await api.post(`/bills/${billId}/record-partial-payment`, { amountPaid, notes: partialPaymentForm.notes.value });
+                await api.post(`/bills/${billId}/record-partial-payment`, { 
+                    amountPaid, 
+                    notes: partialPaymentForm.notes.value,
+                    carryOverToNextMonth: carryOver
+                });
                 AppAlert.notify({ title: 'Success', message: 'Partial payment recorded.', type: 'success' });
                 closeModal();
                 fetchDataAndRender();
@@ -477,9 +640,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const initializePage = async () => {
         await loadHeader(); 
         if (window.setHeader) window.setHeader('Billing', 'Manage invoices, payments, and billing cycles.');
+        await fetchUsers(); 
         attachEventListeners();
         fetchDataAndRender();
-        fetchUsers();
     };
 
     initializePage();

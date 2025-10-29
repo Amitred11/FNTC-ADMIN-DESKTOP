@@ -1,6 +1,84 @@
-// scripts/inbox.js
+function renderAccessDenied() {
+    const layout = document.getElementById('layout');
+    if (layout) {
+        layout.style.display = 'none';
+    }
 
-document.addEventListener('DOMContentLoaded', () => {
+    document.body.style.backgroundColor = '#FFFFFF';
+    document.body.innerHTML = ''; 
+
+    if (!document.getElementById('access-denied-container')) {
+        const deniedContainer = document.createElement('div');
+        deniedContainer.id = 'access-denied-container';
+        deniedContainer.style.cssText = `
+            text-align: center;
+            padding: 40px 20px;
+            width: 100vw; /* Use viewport width */
+            height: 100vh; /* Use viewport height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #FFFFFF; /* White background */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99999; /* Higher z-index to be safe */
+            font-family: 'Poppins', sans-serif; /* Ensure consistent font */
+        `;
+
+        deniedContainer.innerHTML = `
+            <div style="font-size: 6rem; color: #E53935; margin-bottom: 1.5rem;">
+                <i class="ph-fill ph-hand-palm"></i>
+            </div>
+            <h1 style="color: #333; font-size: 3rem; margin: 0; font-weight: 600;">Access Denied</h1>
+            <p style="font-size: 1.25rem; color: #6c757d; max-width: 450px; margin-top: 1rem; line-height: 1.6;">
+                You do not have the required permissions to access this page.
+            </p>
+            <button id="go-back-btn" style="margin-top: 2.5rem; padding: 14px 28px; font-size: 1.1rem; cursor: pointer; border: none; background-color: #0A3D62; color: white; border-radius: 8px; font-weight: 500; transition: background-color 0.2s ease;">
+                Return to Previous Page
+            </button>
+        `;
+        document.body.appendChild(deniedContainer);
+
+        const goBackButton = document.getElementById('go-back-btn');
+        goBackButton.addEventListener('click', () => {
+            history.back(); 
+        });
+        goBackButton.onmouseover = () => { goBackButton.style.backgroundColor = '#08304f'; };
+        goBackButton.onmouseout = () => { goBackButton.style.backgroundColor = '#0A3D62'; };
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const ALLOWED_ROLES = ['admin'];
+    let currentUserRole = null;
+
+    try {
+        const response = await window.electronAPI.getUserProfile();
+        const user = response;
+
+        if (user && user.role) {
+            currentUserRole = user.role;
+        } else {
+            throw new Error("Role not found in profile.");
+        }
+    } catch (e) {
+        console.error("Critical security error: Could not fetch user profile.", e);
+        renderAccessDenied();
+        return;
+    }
+
+    if (!ALLOWED_ROLES.includes(currentUserRole)) {
+        console.warn(`SECURITY: User with role '${currentUserRole}' attempted to access the subscriptions page without permission.`);
+        renderAccessDenied();
+        return;
+    }
+    
+    console.log("Permission granted. Initializing subscription management page.");
+
+
     // --- 1. STATE MANAGEMENT ---
     let state = {
         messages: [],
@@ -14,14 +92,14 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshButton: document.querySelector('.inbox-header .btn'),
         headerContainer: document.getElementById('header-container')
     };
-
+    
     // --- 3. UTILITY FUNCTIONS ---
     const formatDate = (isoString, options = {}) => {
         const defaultOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         return new Date(isoString).toLocaleDateString('en-US', { ...defaultOptions, ...options });
     };
 
-    // --- 4. API CALLS (Using only the three available endpoints) ---
+    // --- 4. API CALLS ---
     const api = {
         getMessages: () => window.electronAPI.apiGet('/contact-messages'),
         getMessageById: (id) => window.electronAPI.apiGet(`/contact-messages/${id}`),
@@ -64,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 fragment.appendChild(item);
             });
-            dom.listContainer.innerHTML = ''; // Clear existing list
-            dom.listContainer.appendChild(fragment); // Render all at once
+            dom.listContainer.innerHTML = ''; 
+            dom.listContainer.appendChild(fragment); 
         },
         renderMessageDetails: (message) => {
             if (!message) {
@@ -73,15 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // --- UPDATED: Create a link to open Gmail's compose window ---
             const replySubject = `Re: ${message.subject}`;
             const replyBody = `\n\n---\nOn ${formatDate(message.createdAt)}, ${message.name} <${message.email}> wrote:\n\n${message.message}`;
-
-            // URL encode the components to handle special characters safely
             const encodedSubject = encodeURIComponent(replySubject);
             const encodedBody = encodeURIComponent(replyBody);
-
-            // Construct the Gmail compose URL
             const gmailComposeLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${message.email}&su=${encodedSubject}&body=${encodedBody}`;
 
             dom.viewPanel.innerHTML = `
@@ -200,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 7. INITIALIZATION ---
-    const init = async () => { // <-- FIX: Added 'async' here
+    const init = async () => {
         await loadHeader();
         if (window.setHeader) {
             window.setHeader('Inbox', 'View and manage your system notifications.');

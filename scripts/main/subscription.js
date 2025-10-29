@@ -1,21 +1,100 @@
-document.addEventListener('DOMContentLoaded', () => {
+function renderAccessDenied() {
+    const layout = document.getElementById('layout');
+    if (layout) {
+        layout.style.display = 'none';
+    }
+
+    document.body.style.backgroundColor = '#FFFFFF';
+    document.body.innerHTML = ''; 
+
+    if (!document.getElementById('access-denied-container')) {
+        const deniedContainer = document.createElement('div');
+        deniedContainer.id = 'access-denied-container';
+        deniedContainer.style.cssText = `
+            text-align: center;
+            padding: 40px 20px;
+            width: 100vw; /* Use viewport width */
+            height: 100vh; /* Use viewport height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #FFFFFF; /* White background */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99999; /* Higher z-index to be safe */
+            font-family: 'Inter', sans-serif; /* Ensure consistent font */
+        `;
+
+        deniedContainer.innerHTML = `
+            <div style="font-size: 6rem; color: #DC2626; margin-bottom: 1.5rem;">
+                <i class="ph-fill ph-hand-palm"></i>
+            </div>
+            <h1 style="color: #121212; font-size: 3rem; margin: 0; font-weight: 600;">Access Denied</h1>
+            <p style="font-size: 1.25rem; color: #5A6474; max-width: 450px; margin-top: 1rem; line-height: 1.6;">
+                You do not have the required permissions to access this page.
+            </p>
+            <button id="go-back-btn" style="margin-top: 2.5rem; padding: 14px 28px; font-size: 1.1rem; cursor: pointer; border: none; background-color: #3553E4; color: white; border-radius: 10px; font-weight: 500; transition: background-color 0.2s ease;">
+                Return to Previous Page
+            </button>
+        `;
+        document.body.appendChild(deniedContainer);
+
+        const goBackButton = document.getElementById('go-back-btn');
+        goBackButton.addEventListener('click', () => {
+            history.back();
+        });
+        goBackButton.onmouseover = () => { goBackButton.style.backgroundColor = '#4A6CFD'; };
+        goBackButton.onmouseout = () => { goBackButton.style.backgroundColor = '#3553E4'; };
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const ALLOWED_ROLES = ['admin'];
+    let currentUserRole = null;
+
+    try {
+        const response = await window.electronAPI.getUserProfile();
+        const user = response;
+
+        if (user && user.role) {
+            currentUserRole = user.role;
+        } else {
+            throw new Error("Role not found in profile.");
+        }
+    } catch (e) {
+        console.error("Critical security error: Could not fetch user profile.", e);
+        renderAccessDenied();
+        return;
+    }
+
+    if (!ALLOWED_ROLES.includes(currentUserRole)) {
+        console.warn(`SECURITY: User with role '${currentUserRole}' attempted to access the subscriptions page without permission.`);
+        renderAccessDenied();
+        return;
+    }
+    
+    console.log("Permission granted. Initializing subscription management page.");
     // --- CONFIG & STATE ---
-    const iconOptions = [
-        { label: 'None', value: 'none', svg: '' },
-        { label: 'Bronze', value: 'bronze', svg: '<svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#CD7F32"/><circle cx="12" cy="12" r="6" fill="#D2B48C"/></svg>' },
-        { label: 'Silver', value: 'silver', svg: '<svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#C0C0C0"/><circle cx="12" cy="12" r="6" fill="#e5e7eb"/></svg>' },
-        { label: 'Gold', value: 'gold', svg: '<svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFD700"/><circle cx="12" cy="12" r="6" fill="#fff200"/></svg>' },
-        { label: 'Platinum', value: 'platinum', svg: '<svg fill="currentColor" viewBox="0 0 24 24" style="color: #E5E4E2;"><path d="M12 2L15 9l7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>' },
-        { label: 'Diamond', value: 'diamond', svg: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #56DEFC;"><polygon points="12 2 22 9 12 22 2 9 12 2" stroke-linejoin="round"/><polyline points="2 9 12 9 22 9" stroke-linejoin="round"/><polyline points="12 2 12 22" stroke-linejoin="round"/></svg>' },
-    ];
     let allSubscribers = [], allPlans = [], currentSubscriberId = null, currentSubscriberDetails = null;
+
+    const iconOptions = [
+        { label: 'Bronze', id: 'bronze', svg: '<svg class="w-10 h-10 mb-2 text-yellow-700 animate-bounce" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" fill="#fbbf24"/></svg>' },
+        { label: 'Silver', id: 'silver', svg: '<svg class="w-10 h-10 mb-2 text-gray-300 animate-bounce" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" fill="#e5e7eb"/></svg>' },
+        { label: 'Gold', id: 'gold', svg: '<svg class="w-10 h-10 mb-2 text-yellow-400 animate-bounce" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" fill="#fff200"/></svg>' },
+        { label: 'Platinum', id: 'platinum', svg: '<svg class="w-10 h-10 mb-2 text-gray-200 drop-shadow-lg animate-bounce" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 9l7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>' },
+        { label: 'Diamond', id: 'diamond', svg: '<svg class="w-10 h-10 mb-2 text-[#56DEFC] animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 22 9 12 22 2 9 12 2" stroke-linejoin="round"/><polyline points="2 9 12 9 22 9" stroke-linejoin="round"/><polyline points="12 2 12 22" stroke-linejoin="round"/></svg>' },
+        { label: 'None', id: 'none', svg: '' } 
+    ];
 
     // --- DOM SELECTORS ---
     const headerContainer = document.getElementById('header-container');
     const listView = document.getElementById('list-view');
     const detailsView = document.getElementById('details-view');
     const clientListEl = document.getElementById('client-list');
-    const totalCountEl = document.getElementById('total-count');
     const searchInput = document.getElementById('search-input');
     const managePlansBtn = document.getElementById('manage-plans-btn');
     const addSubscriberBtn = document.getElementById('add-subscriber-btn');
@@ -43,20 +122,23 @@ document.addEventListener('DOMContentLoaded', () => {
             else { console.error("Header script not loaded or initializeHeader function not found."); }
         } catch (error) {
             console.error('Failed to load header component:', error);
-            headerContainer.innerHTML = `<p class="error-message" style="text-align: center; color: red;">Error: Header failed to load.</p>`;
         }
     };
 
     // --- API HELPER ---
     const apiRequest = async (method, url, data = null) => {
         try {
-            if (!window.electronAPI) throw new Error('API provider is not available.');
-            const response = await window.electronAPI[method](url, data);
-            if (!response || !response.ok) throw new Error(response.data?.message || `API call failed`);
+            const response = (method === 'apiGet' || method === 'apiDelete')
+                ? await window.electronAPI[method](url)
+                : await window.electronAPI[method](url, data);
+
+            if (!response || !response.ok) {
+                const errorMessage = response.data?.message || `API call failed with status ${response.status}`;
+                throw new Error(errorMessage);
+            }
             return { ok: true, data: response.data };
         } catch (error) {
-            console.error(`API Error (${method} ${url}):`, error);
-            // UPDATED: Use AppAlert for error notifications
+            console.error(`[API ERROR] An exception occurred for ${method} ${url}:`, error);
             AppAlert.notify({ type: 'error', title: 'API Error', message: error.message });
             return { ok: false, message: error.message };
         }
@@ -73,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDER FUNCTIONS ---
     const renderSubscriberList = (subscribers) => {
-        totalCountEl.textContent = subscribers.length;
         if (subscribers.length === 0) {
             clientListEl.innerHTML = `<div class="placeholder">No subscribers found.</div>`;
             return;
@@ -86,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<img src="${user.photoUrl}" alt="${user.displayName}" class="client-avatar">`
                 : `<div class="client-avatar">${initials}</div>`;
 
-            return `<article class="client-row" data-id="${user._id}" role="button">${avatarHtml}<div class="client-meta"><div class="client-name">${user.displayName}</div><div class="client-plan">${user.activePlanName || 'No Plan'}</div></div><div class="client-status ${statusClass}">${statusText}</div></article>`;
+            return `<article class="client-row" data-id="${user._id}" role="button">${avatarHtml}<div class="client-meta"><div class="client-name">${user.displayName}</div><div class="client-plan">${user.activePlanName || 'No Plan'}</div></div><div class="status-badge ${statusClass}">${statusText}</div></article>`;
         }).join('');
         clientListEl.querySelectorAll('.client-row').forEach(row => row.addEventListener('click', () => handleSubscriberSelect(row.dataset.id)));
     };
@@ -109,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (sub) {
             renderOverviewUI(details);
         } else {
-            overviewContentView.innerHTML = `<div style="text-align:center; padding: 4rem; color: var(--text-muted);">This user does not have an active or pending subscription.</div>`;
+            overviewContentView.innerHTML = `<div style="text-align:center; padding: 4rem; color: var(--text-secondary);">This user has no active subscription.</div>`;
             mainActionButtons.innerHTML = '';
         }
     };
@@ -123,17 +204,17 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'pending_verification':
                 title = "Pending Verification";
                 description = `User has applied for the "${plan?.name}" plan. Review their documents and approve or decline.`;
-                actionsHtml = `<button class="action-btn success btn-approve-verification" data-id="${subscription._id}"><span class="ph ph-check-circle"></span> Approve</button><button class="action-btn danger btn-decline-subscription" data-id="${subscription._id}"><span class="ph ph-x-circle"></span> Decline</button>`;
+                actionsHtml = `<button class="btn success btn-approve-verification" data-id="${subscription._id}"><span class="ph ph-check-circle"></span> Approve</button><button class="btn danger btn-decline-subscription" data-id="${subscription._id}"><span class="ph ph-x-circle"></span> Decline</button>`;
                 break;
             case 'pending_installation':
                 title = "Pending Installation";
-                description = `Application for the "${plan?.name}" plan is approved. Awaiting installation confirmation.`;
-                actionsHtml = `<button class="action-btn success btn-activate-installation" data-id="${subscription._id}"><span class="ph ph-play-circle"></span> Activate Service</button>`;
+                description = `Application for "${plan?.name}" is approved. Awaiting installation confirmation.`;
+                actionsHtml = `<button class="btn success btn-activate-installation" data-id="${subscription._id}"><span class="ph ph-play-circle"></span> Activate Service</button>`;
                 break;
             case 'pending_change':
                 title = "Pending Plan Change";
                 description = `User requested to change from "${plan?.name}" to "${pendingPlan?.name}".`;
-                actionsHtml = `<button class="action-btn primary btn-approve-change" data-id="${subscription._id}" data-schedule="false"><span class="ph ph-flash"></span> Apply Now</button><button class="action-btn secondary btn-approve-change" data-id="${subscription._id}" data-schedule="true"><span class="ph ph-calendar"></span> Schedule</button><button class="action-btn danger btn-decline-subscription" data-id="${subscription._id}"><span class="ph ph-x-circle"></span> Decline</button>`;
+                actionsHtml = `<button class="btn primary btn-approve-change" data-id="${subscription._id}" data-schedule="false"><span class="ph ph-flash"></span> Apply Now</button><button class="btn secondary btn-approve-change" data-id="${subscription._id}" data-schedule="true"><span class="ph ph-calendar"></span> Schedule</button><button class="btn danger btn-decline-subscription" data-id="${subscription._id}"><span class="ph ph-x-circle"></span> Decline</button>`;
                 break;
         }
         pendingStateView.innerHTML = `<div class="pending-card"><h3 class="pending-title">${title}</h3><p class="pending-description">${description}</p><div class="pending-actions">${actionsHtml}</div></div>`;
@@ -143,31 +224,60 @@ document.addEventListener('DOMContentLoaded', () => {
         const { activeSubscription, billingHistory, currentBalance } = details;
         detailsView.dataset.subscriptionId = activeSubscription?._id || '';
         document.getElementById('card-balance').textContent = `₱${currentBalance.toFixed(2)}`;
-        const plan = activeSubscription?.planId;
-        document.getElementById('card-active-plan').textContent = plan?.name || '--';
-        document.getElementById('card-active-plan-details').textContent = plan ? `Plan is ${plan.isActive ? 'active' : 'inactive'}` : 'No active plan';
-        document.getElementById('card-billing').textContent = `₱${plan?.price.toLocaleString() || 0}`;
+        document.getElementById('card-active-plan').textContent = activeSubscription?.planId?.name || '--';
         const status = activeSubscription?.status || 'N/A';
         const statusEl = document.getElementById('card-status');
         statusEl.textContent = status.replace('_', ' ');
         statusEl.className = `value ${status === 'active' ? 'green' : (status === 'suspended' ? 'red' : 'orange')}`;
-        const suspendBtnHtml = activeSubscription?.status === 'suspended' ? `<button id="unsuspend-plan-btn" class="btn-subtle green">Unsuspend Plan</button>` : `<button id="suspend-plan-btn" class="btn-subtle red">Suspend Plan</button>`;
-        mainActionButtons.innerHTML = `<button id="update-plan-btn" class="btn-subtle blue">Update Plan</button><button id="cancel-plan-btn" class="btn-subtle">Cancel Plan</button>${suspendBtnHtml}`;
-        document.getElementById('history-table-body').innerHTML = (!billingHistory || billingHistory.length === 0) ? `<tr><td colspan="6" style="text-align: center; padding: 2rem;">No billing history.</td></tr>` : billingHistory.map(item => `<tr class="billing-row-link" data-bill-id="${item._id}"><td>${new Date(item.dueDate).toLocaleDateString()}</td><td>${item.planName || 'Manual Bill'}</td><td>₱${item.amount.toLocaleString()}</td><td class="red-text">₱${(['due', 'overdue'].includes(item.status.toLowerCase())) ? item.amount.toFixed(2) : '0.00'}</td><td>₱${item.amount.toLocaleString()}</td><td><span class="status-text ${item.status.toLowerCase()}">${item.status}</span></td></tr>`).join('');
+        
+        const suspendBtnHtml = activeSubscription?.status === 'suspended' 
+            ? `<button id="unsuspend-plan-btn" class="btn-subtle green">Unsuspend</button>` 
+            : `<button id="suspend-plan-btn" class="btn-subtle red">Suspend</button>`;
+        mainActionButtons.innerHTML = `<button id="update-plan-btn" class="btn-subtle">Update Plan</button><button id="cancel-plan-btn" class="btn-subtle">Cancel Plan</button>${suspendBtnHtml}`;
+        
+        document.getElementById('history-table-body').innerHTML = (!billingHistory || billingHistory.length === 0) 
+            ? `<tr><td colspan="6" style="text-align: center; padding: 2rem;">No billing history.</td></tr>` 
+            : billingHistory.map(item => 
+                `<tr class="billing-row-link" data-bill-id="${item._id}">
+                    <td>${new Date(item.dueDate).toLocaleDateString()}</td>
+                    <td>${item.planName || 'Manual Bill'}</td>
+                    <td>₱${item.amount.toLocaleString()}</td>
+                    <td class="red-text">₱${(['due', 'overdue'].includes(item.status.toLowerCase())) ? item.amount.toFixed(2) : '0.00'}</td>
+                    <td>₱${item.amount.toLocaleString()}</td>
+                    <td><span class="status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
+                </tr>`
+            ).join('');
     };
 
     const renderPlanCards = (plans) => {
         const container = document.getElementById('plan-cards-container');
         container.innerHTML = (!plans || plans.length === 0) ? '<p style="text-align: center;">No plans found.</p>' :
-            plans.map(plan => `<div class="plan-card" data-plan-id="${plan._id}"><div class="plan-header"><div class="plan-title"><div class="plan-icon">${plan.iconSvg || '<span class="ph-fill ph-leaf"></span>'}</div><span class="plan-name">${plan.name.toUpperCase()}</span></div>${plan.isActive ? '<span class="plan-status">Active</span>' : ''}</div><p class="plan-price">₱${plan.price}<span class="plan-price-label">${plan.priceLabel || '/ month'}</span></p><ul class="plan-features">${(plan.features || []).map(f => `<li><span class="ph-fill ph-check-circle"></span>${f}</li>`).join('')}</ul>${plan.note ? `<div class="plan-description">${plan.note}</div>` : ''}<div class="plan-actions"><button class="action-btn secondary btn-edit-plan"><span class="ph ph-pencil-simple"></span> Edit</button><button class="action-btn danger btn-delete-plan"><span class="ph ph-trash"></span> Delete</button></div></div>`).join('');
+            plans.map(plan => {
+                const iconData = iconOptions.find(opt => opt.svg === plan.iconSvg) || iconOptions.find(opt => opt.id === plan.iconSvg);
+                const iconHtml = iconData ? iconData.svg : ''; 
+                return `
+                <div class="plan-card" data-plan-id="${plan._id}">
+                    <div class="plan-header">
+                        ${iconHtml ? `<span class="plan-icon-display">${iconHtml}</span>` : ''} <!-- Display looked-up SVG -->
+                        <span class="plan-name">${plan.name.toUpperCase()}</span>
+                        ${plan.isActive ? '<span class="status-badge active">Active</span>' : ''}
+                    </div>
+                    <p class="plan-price">₱${plan.price}<span class="plan-price-label">${plan.priceLabel || '/ month'}</span></p>
+                    <ul class="plan-features">${(plan.features || []).map(f => `<li><span class="ph-fill ph-check-circle"></span>${f}</li>`).join('')}</ul>
+                    ${plan.note ? `<div class="plan-description">${plan.note}</div>` : ''}
+                    <div class="plan-actions">
+                        <button class="btn secondary btn-edit-plan"><span class="ph ph-pencil-simple"></span> Edit</button>
+                    </div>
+                </div>`;
+            }).join('');
     };
     
     const renderPlansDropdown = (selectEl, plans, currentPlanId = null) => {
         const filteredPlans = plans.filter(p => p.isActive && p._id !== currentPlanId);
-        selectEl.innerHTML = filteredPlans.length === 0 ? `<option value="" disabled selected>No other plans</option>` : `<option value="" disabled selected>Select a plan</option>${filteredPlans.map(p => `<option value="${p._id}">${p.name} - ₱${p.price}/mo</option>`).join('')}`;
+        selectEl.innerHTML = filteredPlans.length === 0 ? `<option value="" disabled selected>No other plans available</option>` : `<option value="" disabled selected>Select a new plan...</option>${filteredPlans.map(p => `<option value="${p._id}">${p.name} - ₱${p.price}/mo</option>`).join('')}`;
     };
 
-    // --- API LOGIC & EVENT HANDLERS ---
+    // --- API & EVENT HANDLERS ---
     const handleSubscriberSelect = async (subscriberId) => {
         currentSubscriberId = subscriberId;
         listView.classList.add('hidden');
@@ -185,16 +295,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const submitAndRefresh = async (method, endpoint, data, modalKey, successMessage) => {
         const submitBtn = modals[modalKey].container.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true; submitBtn.textContent = 'Saving...';
+        if (!submitBtn) return;
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true; submitBtn.innerHTML = 'Saving...';
 
         const result = await apiRequest(method, endpoint, data);
         
         if (result.ok) {
-            const titleMap = {'created': 'Created Successfully', 'saved': 'Saved Successfully', 'submitted': 'Request Submitted', 'cancelled': 'Cancelled', 'suspended': 'Suspended'};
-            const action = Object.keys(titleMap).find(key => successMessage.toLowerCase().includes(key)) || 'success';
-            AppAlert.notify({ type: 'success', title: titleMap[action] || 'Success!', message: result.data?.message || successMessage });
-            
+            AppAlert.notify({ type: 'success', title: 'Success', message: result.data?.message || successMessage });
             toggleModal(modalKey, false);
             const listResult = await apiRequest('apiGet', '/subscribers/list');
             if(listResult.ok) { allSubscribers = listResult.data; renderSubscriberList(allSubscribers); }
@@ -202,39 +310,57 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modalKey.startsWith('plan')) await loadAllPlans();
         }
         
-        submitBtn.disabled = false; submitBtn.textContent = originalText;
+        submitBtn.disabled = false; submitBtn.innerHTML = originalText;
     };
     
     const openPlanUpsertModal = (planId = null) => {
         const plan = planId ? allPlans.find(p => p._id === planId) : null;
         if (planId && !plan) return AppAlert.notify({ type: 'error', title: 'Not Found', message: 'The selected plan could not be found.' });
-        
+
         modals.planUpsert.form.reset();
         document.getElementById('upsert-modal-title').textContent = plan ? 'Edit Plan' : 'Add New Plan';
-        ['planId', 'planName', 'planPrice', 'priceLabel', 'planFeatures', 'planNote'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.value = plan?.[id === 'planFeatures' ? 'features' : id] || '';
-            if(id === 'planFeatures' && plan?.features) el.value = plan.features.join('\n');
-        });
-        document.getElementById('planIsActive').checked = plan ? plan.isActive : true;
+        document.getElementById('delete-plan-btn-modal').classList.toggle('hidden', !plan);
+        document.getElementById('delete-plan-btn-modal').dataset.planId = planId || '';
 
-        const matchingIcon = iconOptions.find(opt => opt.svg === (plan?.iconSvg || ''));
-        document.getElementById('planIconSelect').value = matchingIcon?.value || 'none';
-        document.getElementById('icon-preview').innerHTML = matchingIcon?.svg || '';
-        document.getElementById('iconSvg').value = matchingIcon?.svg || '';
+        document.getElementById('planId').value = planId || '';
+        document.getElementById('planName').value = plan?.name || '';
+        document.getElementById('planPrice').value = plan?.price || '';
+        document.getElementById('priceLabel').value = plan?.priceLabel || '';
+        document.getElementById('planFeatures').value = plan?.features?.join('\n') || '';
+        document.getElementById('planNote').value = plan?.note || '';
+        
+        const planIconSelect = document.getElementById('planIcon');
+        planIconSelect.innerHTML = iconOptions.map(opt => {
+            const isSelected = plan?.iconSvg === opt.svg; 
+            return `<option value="${opt.id}" ${isSelected ? 'selected' : ''}>${opt.label}</option>`;
+        }).join('');
+
+        const currentIconDisplay = document.getElementById('currentIconDisplay');
+        if (currentIconDisplay) {
+            const selectedIconData = iconOptions.find(opt => opt.svg === plan?.iconSvg);
+            currentIconDisplay.innerHTML = selectedIconData?.svg || '';
+            currentIconDisplay.classList.toggle('hidden', !selectedIconData?.svg);
+        }
+
 
         toggleModal('planUpsert', true);
     };
 
-    const handleDeletePlan = async (planId) => {
+    const handleDeletePlan = async (planId, options = {}) => {
         try {
-            await AppAlert.confirm({ title: 'Delete Plan', message: 'Are you sure you want to permanently delete this plan? This action cannot be undone.', type: 'danger', confirmText: 'Yes, Delete It' });
+            await (options.useDialog ? AppAlert.confirmOnDialog : AppAlert.confirm)({
+                title: 'Delete Plan?',
+                message: 'This action cannot be undone. Are you sure?',
+                type: 'danger',
+                confirmText: 'Yes, Delete It'
+            });
             const result = await apiRequest('apiDelete', `/plans/${planId}`);
             if (result.ok) {
-                AppAlert.notify({ type: 'success', title: 'Plan Deleted', message: result.data?.message || 'The plan has been removed.' });
+                AppAlert.notify({ type: 'success', title: 'Plan Deleted', message: result.data?.message });
+                if (options.modalToClose) toggleModal(options.modalToClose, false);
                 await loadAllPlans();
             }
-        } catch { console.log('Plan deletion cancelled.'); }
+        } catch (err) { /* User cancelled */ }
     };
 
     const loadAllPlans = async () => {
@@ -242,19 +368,17 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = `<p style="text-align: center;">Loading plans...</p>`;
         const result = await apiRequest('apiGet', '/plans');
         if (result.ok) { allPlans = result.data; renderPlanCards(allPlans); }
-        else { container.innerHTML = `<p style="text-align: center; color: red;">Could not load plans.</p>`; }
+        else { container.innerHTML = `<p style="text-align: center; color: var(--status-suspended-text);">Could not load plans.</p>`; }
     };
 
     // --- INITIALIZATION ---
     const initializeApp = async () => {
         await loadHeader(); 
-        if (window.setHeader) { window.setHeader('Subscription Management', 'Manage user subscriptions, plans, and billing all in one place'); }
+        if (window.setHeader) { window.setHeader('Subscription Management', 'Manage user subscriptions, plans, and billing.'); }
         
         const result = await apiRequest('apiGet', '/subscribers/list');
         if (result.ok) { allSubscribers = result.data; renderSubscriberList(allSubscribers); }
         
-        document.getElementById('planIconSelect').innerHTML = iconOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
-
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
             renderSubscriberList(allSubscribers.filter(u => u.displayName.toLowerCase().includes(searchTerm) || u._id.includes(searchTerm)));
@@ -272,71 +396,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const subId = currentSubscriberDetails?.activeSubscription?._id;
 
             const actions = {
-                '#back-to-list-btn': () => {
-                    detailsView.classList.add('hidden');
-                    listView.classList.remove('hidden');
-                    currentSubscriberId = null; currentSubscriberDetails = null;
-                },
+                '#back-to-list-btn': () => { detailsView.classList.add('hidden'); listView.classList.remove('hidden'); currentSubscriberId = null; },
                 '.btn-approve-verification': async () => {
-                    try {
-                        await AppAlert.confirm({ title: 'Approve Verification?', message: 'This will create an installation job order. Proceed?', type: 'info', confirmText: 'Approve' });
-                        const result = await apiRequest('apiPost', `/subscriptions/${button.dataset.id}/approve-verification`);
-                        if(result.ok) await handleSubscriberSelect(currentSubscriberId);
-                    } catch {}
+                    await AppAlert.confirm({ title: 'Approve Verification?', message: 'This will create an installation job order.', type: 'info', confirmText: 'Approve' });
+                    const res = await apiRequest('apiPost', `/subscriptions/${button.dataset.id}/approve-verification`, {});
+                    if(res.ok) await handleSubscriberSelect(currentSubscriberId);
                 },
                 '.btn-activate-installation': async () => {
-                    try {
-                        await AppAlert.confirm({ title: 'Activate Subscription?', message: "This will activate the user's subscription and generate their first bill.", type: 'info', confirmText: 'Activate' });
-                        const result = await apiRequest('apiPost', `/subscriptions/${button.dataset.id}/activate`);
-                        if(result.ok) await handleSubscriberSelect(currentSubscriberId);
-                    } catch {}
+                    await AppAlert.confirm({ title: 'Activate Subscription?', message: "This will activate the subscription and generate the first bill.", type: 'info', confirmText: 'Activate' });
+                    const res = await apiRequest('apiPost', `/subscriptions/${button.dataset.id}/activate`, {});
+                    if(res.ok) await handleSubscriberSelect(currentSubscriberId);
                 },
                 '.btn-decline-subscription': () => {
                     toggleModal('declineReason', true);
                     modals.declineReason.form.onsubmit = async (event) => {
                         event.preventDefault();
                         const reason = new FormData(modals.declineReason.form).get('reason');
-                        if (reason) {
-                            const result = await apiRequest('apiPost', `/subscriptions/${button.dataset.id}/decline`, { reason });
-                            if(result.ok) {
-                                toggleModal('declineReason', false);
-                                await handleSubscriberSelect(currentSubscriberId);
-                            }
+                        const result = await apiRequest('apiPost', `/subscriptions/${button.dataset.id}/decline`, { reason });
+                        if(result.ok) {
+                            toggleModal('declineReason', false);
+                            await handleSubscriberSelect(currentSubscriberId);
                         }
                     };
                 },
-                '.btn-approve-change': async () => {
-                    const schedule = button.dataset.schedule === 'true';
-                    try {
-                        await AppAlert.confirm({ title: 'Approve Plan Change?', message: `This will be ${schedule ? 'scheduled for the next renewal' : 'effective immediately'}.`, type: 'info', confirmText: 'Approve' });
-                        const result = await apiRequest('apiPost', `/subscriptions/${button.dataset.id}/approve-change`, { scheduleForRenewal: schedule });
-                        if(result.ok) await handleSubscriberSelect(currentSubscriberId);
-                    } catch {}
-                },
                 '#update-plan-btn': async () => {
                     toggleModal('updatePlan', true);
-                    const planResult = await apiRequest('apiGet', '/plans');
-                    if(planResult.ok) { 
-                        allPlans = planResult.data;
-                        renderPlansDropdown(document.getElementById('newPlanSelect'), allPlans, subId ? currentSubscriberDetails.activeSubscription.planId._id : null);
-                    }
+                    const res = await apiRequest('apiGet', '/plans');
+                    if(res.ok) { allPlans = res.data; renderPlansDropdown(document.getElementById('newPlanSelect'), allPlans, subId ? currentSubscriberDetails.activeSubscription.planId._id : null); }
                 },
                 '#cancel-plan-btn': () => toggleModal('cancelPlan', true),
                 '#suspend-plan-btn': () => toggleModal('suspendPlan', true),
                 '#unsuspend-plan-btn': async () => {
-                    try {
-                        await AppAlert.confirm({ title: 'Reactivate Subscription?', message: 'Are you sure you want to reactivate this subscription?', type: 'info', confirmText: 'Reactivate' });
-                        const result = await apiRequest('apiPost', `/subscriptions/${subId}/unsuspend`);
-                        if(result.ok) {
-                            AppAlert.notify({ type: 'success', title: 'Subscription Reactivated', message: 'The user has been successfully reactivated.' });
-                            await handleSubscriberSelect(currentSubscriberId);
-                        }
-                    } catch {}
+                    await AppAlert.confirm({ title: 'Reactivate Subscription?', type: 'info', confirmText: 'Reactivate' });
+                    const res = await apiRequest('apiPost', `/subscriptions/${subId}/unsuspend`, {});
+                    if(res.ok) await handleSubscriberSelect(currentSubscriberId);
                 }
             };
-            
-            const actionKey = Object.keys(actions).find(key => button.matches(key));
-            if (actionKey) actions[actionKey]();
+            try {
+                const actionKey = Object.keys(actions).find(key => button.matches(key));
+                if (actionKey) await actions[actionKey]();
+            } catch (err) { /* User cancelled confirmation */ }
         });
 
         document.getElementById('history-table-body').addEventListener('click', (e) => {
@@ -346,10 +445,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         for (const key in modals) {
             const modal = modals[key];
-            const closeBtn = modal.container.querySelector('.close-modal-btn');
-            const cancelBtn = modal.container.querySelector('.action-btn.secondary');
-            if (closeBtn) closeBtn.addEventListener('click', () => toggleModal(key, false));
-            if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(key, false));
+            if (!modal.container) continue;
+
+            const closeButtons = modal.container.querySelectorAll('.close-modal-btn, .btn.secondary');
+            
+            closeButtons.forEach(btn => {
+                btn.addEventListener('click', () => toggleModal(key, false));
+            });
+            
             modal.overlay.addEventListener('click', () => toggleModal(key, false));
         }
 
@@ -358,19 +461,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const planCard = e.target.closest('.plan-card');
             if (!planCard) return;
             if (e.target.closest('.btn-edit-plan')) openPlanUpsertModal(planCard.dataset.planId);
-            if (e.target.closest('.btn-delete-plan')) handleDeletePlan(planCard.dataset.planId);
         });
-        document.getElementById('planIconSelect').addEventListener('change', (e) => {
-            const selectedIcon = iconOptions.find(opt => opt.value === e.target.value);
-            document.getElementById('icon-preview').innerHTML = selectedIcon?.svg || '';
-            document.getElementById('iconSvg').value = selectedIcon?.svg || '';
+        document.getElementById('delete-plan-btn-modal').addEventListener('click', (e) => {
+            if(e.target.dataset.planId) handleDeletePlan(e.target.dataset.planId, { useDialog: true, modalToClose: 'planUpsert' });
         });
 
-        modals.addSubscriber.form.addEventListener('submit', e => { e.preventDefault(); const data = new FormData(e.target); const addData = { planId: data.get('planId'), user: { displayName: data.get('fullName'), email: data.get('email'), password: data.get('password') }, installationAddress: {address: `${data.get('streetAddress')}, ${data.get('barangay')}`,city: 'Rodriguez', province: 'Rizal',zipCode: '1860' } }; submitAndRefresh('apiPost', '/subscriptions/manual', addData, 'addSubscriber', 'Subscription created successfully!'); });
-        modals.planUpsert.form.addEventListener('submit', e => { e.preventDefault(); const data = new FormData(e.target); const planId = data.get('planId'); const upsertData = { name: data.get('name'), price: parseFloat(data.get('price')), priceLabel: data.get('priceLabel'), iconSvg: data.get('iconSvg'), features: data.get('features').split('\n').filter(Boolean), note: data.get('note'), isActive: data.has('isActive') }; submitAndRefresh(planId ? 'apiPut' : 'apiPost', planId ? `/plans/${planId}` : '/plans', upsertData, 'planUpsert', 'Plan saved successfully!'); });
-        modals.updatePlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { newPlanId: new FormData(e.target).get('newPlanId') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/change-plan`, data, 'updatePlan', 'Plan change request submitted!'); });
-        modals.cancelPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; submitAndRefresh('apiPost', `/subscriptions/${subId}/cancel`, {}, 'cancelPlan', 'Subscription has been cancelled.'); });
-        modals.suspendPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { reason: new FormData(e.target).get('reason') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/suspend`, data, 'suspendPlan', 'Subscription has been suspended.'); });
+        modals.addSubscriber.form.addEventListener('submit', e => { e.preventDefault(); const data = new FormData(e.target); const addData = { planId: data.get('planId'), user: { displayName: data.get('fullName'), email: data.get('email'), password: data.get('password') }, installationAddress: {address: `${data.get('streetAddress')}, ${data.get('barangay')}`, city: 'Rodriguez', province: 'Rizal' } }; submitAndRefresh('apiPost', '/subscriptions/manual', addData, 'addSubscriber', 'Subscription created!'); });
+        modals.planUpsert.form.addEventListener('submit', e => { 
+            e.preventDefault(); 
+            const data = new FormData(e.target); 
+            const planId = data.get('planId'); 
+            
+            const selectedIconId = data.get('planIcon');
+            const selectedIconData = iconOptions.find(opt => opt.id === selectedIconId);
+            const iconSvgToSend = selectedIconData ? selectedIconData.svg : ''; 
+
+            const upsertData = { 
+                name: data.get('name'), 
+                price: parseFloat(data.get('price')), 
+                priceLabel: data.get('priceLabel'), 
+                features: data.get('features').split('\n').filter(Boolean), 
+                note: data.get('note'), 
+                isActive: true, 
+                iconSvg: iconSvgToSend
+            }; 
+            submitAndRefresh(planId ? 'apiPut' : 'apiPost', planId ? `/plans/${planId}` : '/plans', upsertData, 'planUpsert', 'Plan saved!'); 
+        });
+        modals.updatePlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { newPlanId: new FormData(e.target).get('newPlanId') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/change-plan`, data, 'updatePlan', 'Plan change submitted!'); });
+        modals.cancelPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { reason: new FormData(e.target).get('reason') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/cancel`, data, 'cancelPlan', 'Subscription cancelled.'); });
+        modals.suspendPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { reason: new FormData(e.target).get('reason') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/suspend`, data, 'suspendPlan', 'Subscription suspended.'); });
     };
 
     initializeApp();
