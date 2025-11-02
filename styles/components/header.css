@@ -236,7 +236,7 @@
 .notification-item.is-unread .title { font-weight: 700; }
 .empty-state { text-align: center; padding: 4rem 2rem; }
 .empty-state .icon { font-size: 4rem; color: #dee2e6; }
-.empty-state h3 { color: var(--text-dark); margin-top: 1.5rem; }
+.empty-state h3 { color: var(--text-light); margin-top: 1.5rem; }
 .empty-state p { color: var(--text-muted); max-width: 300px; margin: 0.5rem auto 0; }
 
 /* --- BROADCAST MODAL --- */

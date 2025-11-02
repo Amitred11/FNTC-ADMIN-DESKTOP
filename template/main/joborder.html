@@ -68,10 +68,10 @@
                     </div>
                     <div class="actions-right">
                         <button id="archiveBtn" class="btn ghost" type="button">
-                            <span class="icon">📦</span> Archive
+                            <i class="ph ph-archive-box"></i> Archive
                         </button>
                         <button id="createOrderBtn" class="btn primary" type="button">
-                            <span class="icon">＋</span> Create New Order
+                            <i class="ph ph-plus"></i> Create New Order
                         </button>
                     </div>
                 </section>
@@ -104,16 +104,16 @@
         <div class="dialog-inner">
             <header class="dialog-header">
                 <h3>Archived Job Orders</h3>
-                <button class="close" type="button" onclick="this.closest('dialog').close()">✕</button>
+                <button class="close" type="button" onclick="this.closest('dialog').close()"><i class="ph ph-x"></i></button>
             </header>
             <section class="dialog-body">
-                <p class="muted">List of previously completed and archived jobs. Archived jobs can be permanently deleted.</p>
+                <p>List of previously completed and archived jobs. Archived jobs can be permanently deleted.</p>
                 <ul class="archive-list" id="archive-list-container">
                     <!-- Archived jobs will be loaded here -->
                 </ul>
             </section>
             <footer class="dialog-actions">
-                <button class="btn outline" type="button" onclick="this.closest('dialog').close()">Close</button>
+                <button class="btn ghost" type="button" onclick="this.closest('dialog').close()">Close</button>
             </footer>
         </div>
     </dialog>
@@ -123,7 +123,7 @@
         <form class="dialog-inner" id="createOrderForm">
             <header class="dialog-header">
                 <h3>Create New Order</h3>
-                <button class="close" type="button" onclick="this.closest('dialog').close()">✕</button>
+                <button class="close" type="button" onclick="this.closest('dialog').close()"><i class="ph ph-x"></i></button>
             </header>
             <section class="dialog-body form-grid">
                 <label class="full">
@@ -181,7 +181,7 @@
                         </label>
                         <span class="toggle-label">Auto Assign Technician</span>
                     </div>
-                    <label class="full">
+                    <label class="full" id="manual-assign-container">
                         Manual Select Technician
                         <select name="agentId" id="manualTechCreate">
                             <!-- Technician options will be loaded here -->
@@ -190,40 +190,55 @@
                 </fieldset>
             </section>
             <footer class="dialog-actions">
-                 <button class="btn outline" type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                 <button class="btn ghost" type="button" onclick="this.closest('dialog').close()">Cancel</button>
                 <button class="btn primary" type="submit">Create</button>
             </footer>
         </form>
     </dialog>
 
-    <!-- VIEW DETAILS DIALOG -->
-    <dialog id="viewDetailDialog" class="dialog">
+    <!-- VIEW DETAILS DIALOG (CORRECTED) -->
+    <dialog id="viewDetailDialog" class="dialog wide">
         <article class="dialog-inner">
             <header class="dialog-header">
-                <h3>Job Details</h3>
-                <button class="close" type="button" onclick="this.closest('dialog').close()">✕</button>
+                <div class="header-left">
+                    <h3>Job Details</h3>
+                    <strong id="modal-header-job-id"></strong>
+                    <div id="modal-header-status"></div>
+                </div>
+                <button class="close" type="button" onclick="this.closest('dialog').close()"><i class="ph ph-x"></i></button>
             </header>
-            <section class="dialog-body two-col">
-                <div>
-                    <p><strong>Job ID:</strong> <span id="detail_jobid"></span></p>
-                    <p><strong>Job Type:</strong> <span id="detail_type"></span></p>
-                    <p><strong>Status:</strong> <span id="detail_status"></span></p>
-                </div>
-                <div>
-                    <p><strong>Customer:</strong> <span id="detail_customer"></span></p>
-                    <p id="detail_customer_contact_wrapper" style="display: none;">
-                        <strong>Contact:</strong> <span id="detail_customer_contact"></span>
-                    </p>
-                    <p><strong>Description:</strong> <span id="detail_description"></span></p>
-                    <p><strong>Created Date:</strong> <span id="detail_date"></span></p>
-                </div>
-            </section>
+
             <section class="dialog-body">
-                <h4>Assigned Technician</h4>
-                <p id="detail_assign_status"></p>
+                <div class="details-grid-container">
+                    <!-- Job & Customer Info Section -->
+                    <div class="info-section">
+                        <div class="info-column">
+                            <h4 class="details-subtitle">Job Information</h4>
+                            <p><strong>Type:</strong> <span id="detail-type">--</span></p>
+                            <p><strong>Created:</strong> <span id="detail-created">--</span></p>
+                            <h4 class="details-subtitle" style="margin-top: 1rem;">Description</h4>
+                            <p id="detail-description" class="description-box">--</p>
+                        </div>
+                        <div class="info-column">
+                            <h4 class="details-subtitle">Customer Details</h4>
+                            <p><strong>Name:</strong> <span id="detail-customer-name">--</span></p>
+                            <p><strong>Contact:</strong> <span id="detail-contact">--</span></p>
+                            <p><strong>Address:</strong> <span id="detail-address">--</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Notes & History Section -->
+                    <div class="notes-section">
+                        <h4 class="details-subtitle">History &amp; Notes</h4>
+                        <div id="detail-notes-container">
+                            <!-- Notes and evidence will be rendered here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
             </section>
+
             <footer class="dialog-actions">
-                <button class="btn outline" type="button" onclick="this.closest('dialog').close()">Close</button>
+                <button class="btn ghost" type="button" onclick="this.closest('dialog').close()">Close</button>
             </footer>
         </article>
     </dialog>
@@ -233,7 +248,7 @@
         <form class="dialog-inner" id="assignForm">
             <header class="dialog-header">
                 <h3>Assign Technician</h3>
-                <button class="close" type="button" onclick="this.closest('dialog').close()">✕</button>
+                <button class="close" type="button" onclick="this.closest('dialog').close()"><i class="ph ph-x"></i></button>
             </header>
             <section class="dialog-body">
                 <p>Assign a technician to Job ID: <strong id="assign-job-id"></strong></p>
@@ -246,7 +261,7 @@
                 </label>
             </section>
             <footer class="dialog-actions">
-                 <button class="btn outline" type="reset" onclick="this.closest('dialog').close()">Cancel</button>
+                 <button class="btn ghost" type="reset" onclick="this.closest('dialog').close()">Cancel</button>
                 <button class="btn primary" type="submit">Save Changes</button>
             </footer>
         </form>

@@ -20,6 +20,18 @@
             <!-- VIEW 1: SUBSCRIBER LIST -->
             <div id="list-view">
                 <div class="top-actions">
+                    <div class="filter-dropdown-container">
+                        <button class="filter-dropdown-btn" id="filter-dropdown-btn">
+                             <span class="active-filter-text" id="active-filter-text">All</span>
+                             <span class="ph ph-caret-down"></span>
+                        </button>
+                    <div class="filter-dropdown-menu" id="filter-dropdown-menu">
+                        <a href="#" data-filter="all" class="active">All</a>
+                        <a href="#" data-filter="pending">Pending</a>
+                        <a href="#" data-filter="active">Active</a>
+                        <a href="#" data-filter="suspended">Suspended</a>
+                    </div>
+                </div>
                     <div class="search-wrapper">
                         <span class="ph ph-magnifying-glass"></span>
                         <input id="search-input" class="search-input" type="text" placeholder="Search by Name or ID..." />

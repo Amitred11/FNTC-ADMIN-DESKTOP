@@ -52,269 +52,268 @@ window.initializeHeader = async () => {
         console.error("Header initialization failed: Critical elements not found after HTML injection.");
         return;
     }
-const permissions = {
-    'view_notifications': ['admin', 'collector', 'field_agent'],
-    'delete_notifications': ['admin'],
-    'mark_all_read': ['admin', 'collector', 'field_agent'],
-    'send_broadcast': ['admin'],
-};
+    
+    // [FIXED] Aligned permissions to allow all roles to delete notifications.
+    const permissions = {
+        'view_notifications': ['admin', 'collector', 'field_agent'],
+        'delete_notifications': ['admin', 'collector', 'field_agent'], 
+        'mark_all_read': ['admin', 'collector', 'field_agent'],
+        'send_broadcast': ['admin'],
+    };
 
-let currentUserRole = null;
-let selectedNotificationIds = new Set();
-let broadcastRecipientType = 'all';
-let broadcastSelectedUsers = new Map();
+    let currentUserRole = null;
+    let selectedNotificationIds = new Set();
+    let broadcastRecipientType = 'all';
+    let broadcastSelectedUsers = new Map();
 
-// --- PART 2: API & HELPERS ---
-const api = {
-    _request: async (method, ...args) => {
-        if (!window.electronAPI) {
-            console.error("Electron API is not available. Check preload script.");
+    // --- API & HELPERS ---
+    const api = {
+        _request: async (method, ...args) => {
+            if (!window.electronAPI) {
+                console.error("Electron API is not available. Check preload script.");
+                if (AppAlert) {
+                    AppAlert.notify({ type: 'error', title: 'Connection Error', message: 'Cannot connect to the main process.' });
+                }
+                throw new Error("Electron API not found.");
+            }
+            const response = await window.electronAPI[method](...args);
+            if (!response.ok) {
+                const errorMessage = response.data?.message || response.message || `API Error`;
+                throw new Error(errorMessage);
+            }
+            return response.data;
+        },
+        get: (path) => api._request('apiGet', path),
+        post: (path, body) => api._request('apiPost', path, body),
+        put: (path, body) => api._request('apiPut', path, body),
+        // [FIXED] Correctly format the body for DELETE requests by wrapping it in a 'data' object.
+        // This is necessary because many HTTP clients (like axios) require this structure for DELETE request bodies.
+        delete: (path, body = {}) => api._request('apiDelete', path, { data: body }),
+    };
+
+    const hasPermission = (action) => {
+        if (!currentUserRole || !permissions[action]) {
+            return false;
+        }
+        return permissions[action].includes(currentUserRole);
+    };
+
+    const AppCommon = {
+        openModal: (modal) => {
+            if (modal) {
+                modalOverlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+        },
+        closeModal: (modal) => {
+            if (modal) {
+                modal.classList.add('hidden');
+                const anyModalVisible = document.querySelector('.fullscreen-modal:not(.hidden), .modal-dialog:not(.hidden)');
+                if (!anyModalVisible) {
+                    modalOverlay.classList.add('hidden');
+                }
+            }
+        }
+    };
+
+    // --- PERMISSIONS & UI SETUP ---
+    const fetchUserRole = async () => {
+        try {
+            const user = await api.get('/me');
+            currentUserRole = user.role;
+        } catch (error) {
+            console.error("CRITICAL: Could not fetch user profile for permissions.", error.message);
+            currentUserRole = 'guest';
             if (AppAlert) {
-                AppAlert.notify({ type: 'error', title: 'Connection Error', message: 'Cannot connect to the main process.' });
-            }
-            throw new Error("Electron API not found.");
-        }
-        const response = await window.electronAPI[method](...args);
-        if (!response.ok) {
-            const errorMessage = response.data?.message || response.message || `API Error`;
-            throw new Error(errorMessage);
-        }
-        return response.data;
-    },
-    get: (path) => api._request('apiGet', path),
-    post: (path, body) => api._request('apiPost', path, body),
-    put: (path, body) => api._request('apiPut', path, body),
-    delete: (path, body = {}) => api._request('apiDelete', path, body),
-};
-
-const hasPermission = (action) => {
-    if (!currentUserRole || !permissions[action]) {
-        return false;
-    }
-    return permissions[action].includes(currentUserRole);
-};
-
-if (!broadcastBtn || !notificationBell || !modalOverlay) {
-    console.error("Header initialization failed: Critical elements (buttons or overlay) not found.");
-    return;
-}
-
-const AppCommon = {
-    openModal: (modal) => {
-        if (modal) {
-            modalOverlay.classList.remove('hidden');
-            modal.classList.remove('hidden');
-        }
-    },
-    closeModal: (modal) => {
-        if (modal) {
-            modal.classList.add('hidden');
-            const anyModalVisible = document.querySelector('.fullscreen-modal:not(.hidden), .modal-dialog:not(.hidden)');
-            if (!anyModalVisible) {
-                modalOverlay.classList.add('hidden');
+                AppAlert.notify({ type: 'error', title: 'Authentication Error', message: 'Could not verify user role. Access is restricted.' });
             }
         }
-    }
-};
+    };
 
-// --- PART 4: PERMISSIONS & UI SETUP ---
-const fetchUserRole = async () => {
-    try {
-        const user = await api.get('/me');
-        currentUserRole = user.role;
-    } catch (error) {
-        console.error("CRITICAL: Could not fetch user profile for permissions.", error.message);
-        currentUserRole = 'guest';
-         if (AppAlert) {
-            AppAlert.notify({ type: 'error', title: 'Authentication Error', message: 'Could not verify user role. Access is restricted.' });
+    const applyUIPermissions = () => {
+        if (!hasPermission('send_broadcast')) broadcastBtn.style.display = 'none';
+        if (!hasPermission('view_notifications')) notificationBell.style.display = 'none';
+        if (!hasPermission('mark_all_read')) markAllReadBtn.style.display = 'none';
+    };
+
+    // --- HEADER UI & PROFILE LOGIC ---
+    const updateNotificationBadge = (count) => {
+        if (!notificationBadge) return;
+        notificationBadge.textContent = count > 9 ? '9+' : count;
+        notificationBadge.classList.toggle('hidden', count === 0);
+    };
+
+    const loadAdminProfile = async () => {
+        try {
+            const data = await api.get('/me');
+            if (adminName) adminName.textContent = data.displayName || 'Admin';
+            if (adminPhoto && data.photoUrl) adminPhoto.src = data.photoUrl;
+        } catch (error) {
+            console.error("Failed to load admin profile:", error);
         }
-    }
-};
+    };
 
-const applyUIPermissions = () => {
-    if (!hasPermission('send_broadcast')) broadcastBtn.style.display = 'none';
-    if (!hasPermission('view_notifications')) notificationBell.style.display = 'none';
-    if (!hasPermission('mark_all_read')) markAllReadBtn.style.display = 'none';
-};
+    const fetchInitialUnreadCount = async () => {
+        try {
+            const data = await api.get('/notifications/unread-count');
+            updateNotificationBadge(data.unreadCount);
+        } catch (error) {
+            console.error("Failed to fetch unread count:", error);
+        }
+    };
 
+    // --- NOTIFICATION MODAL LOGIC ---
+    const updateNotificationSelectionUI = () => {
+        const selectionCount = selectedNotificationIds.size;
+        const canDelete = hasPermission('delete_notifications');
+        notificationActionHeader.classList.toggle('hidden', selectionCount === 0 || !canDelete);
+        selectionCountLabel.textContent = `${selectionCount} selected`;
+        deleteSelectedBtn.disabled = selectionCount === 0;
+        const allCheckboxes = notificationList.querySelectorAll('.notification-select-checkbox');
+        selectAllCheckbox.checked = allCheckboxes.length > 0 && selectionCount === allCheckboxes.length;
+    };
 
-// --- PART 5: HEADER UI & PROFILE LOGIC ---
-const updateNotificationBadge = (count) => {
-    if (!notificationBadge) return;
-    notificationBadge.textContent = count > 9 ? '9+' : count;
-    notificationBadge.classList.toggle('hidden', count === 0);
-};
+    const createNotificationElement = (notif) => {
+        const canDelete = hasPermission('delete_notifications');
+        const li = document.createElement('li');
+        li.className = `notification-item ${!notif.isRead ? 'is-unread' : ''}`;
+        li.dataset.id = notif._id;
+        li.innerHTML = `
+            <div class="icon-col type-${notif.type || 'info'}"><span class="icon ph-fill ph-${notif.type || 'info'}"></span></div>
+            <div class="content-col">
+                <p class="title">${notif.title}</p>
+                <p class="message">${notif.message}</p>
+                <p class="timestamp">${new Date(notif.createdAt).toLocaleString()}</p>
+            </div>
+            <div class="actions-col">
+                <input type="checkbox" class="form-checkbox notification-select-checkbox" data-id="${notif._id}">
+                ${canDelete ? `<button class="delete-btn" title="Delete notification"><span class="ph-fill ph-x-circle"></span></button>` : ''}
+            </div>
+        `;
+        return li;
+    };
 
-const loadAdminProfile = async () => {
-    try {
-        const data = await api.get('/me');
-        if (adminName) adminName.textContent = data.displayName || 'Admin';
-        if (adminPhoto && data.photoUrl) adminPhoto.src = data.photoUrl;
-    } catch (error) {
-        console.error("Failed to load admin profile:", error);
-    }
-};
+    const fetchAndDisplayNotifications = async () => {
+        try {
+            const data = await api.get('/notifications?limit=50');
+            updateNotificationBadge(data.totalUnread);
+            notificationList.innerHTML = '';
+            if (data.notifications.length === 0) {
+                notificationList.innerHTML = `<li class="empty-state"><i class="ph ph-bell-simple-slash icon"></i><h3>All Caught Up!</h3><p>You don't have any new notifications right now.</p></li>`;
+                return;
+            }
+            data.notifications.forEach(notif => {
+                const element = createNotificationElement(notif);
+                notificationList.appendChild(element);
+            });
+        } catch (error) {
+            notificationList.innerHTML = `<li class="empty-state"><i class="ph ph-wifi-slash icon"></i><h3>Oops!</h3><p>Could not load your notifications. Please try again later.</p></li>`;
+            updateNotificationBadge(0);
+        }
+    };
 
-const fetchInitialUnreadCount = async () => {
-    try {
-        const data = await api.get('/notifications/unread-count');
-        updateNotificationBadge(data.unreadCount);
-    } catch (error) {
-        console.error("Failed to fetch unread count:", error);
-    }
-};
-
-// --- PART 6: NOTIFICATION MODAL LOGIC ---
-const updateNotificationSelectionUI = () => {
-    const selectionCount = selectedNotificationIds.size;
-    const canDelete = hasPermission('delete_notifications');
-    notificationActionHeader.classList.toggle('hidden', selectionCount === 0 || !canDelete);
-    selectionCountLabel.textContent = `${selectionCount} selected`;
-    deleteSelectedBtn.disabled = selectionCount === 0;
-    const allCheckboxes = notificationList.querySelectorAll('.notification-select-checkbox');
-    selectAllCheckbox.checked = allCheckboxes.length > 0 && selectionCount === allCheckboxes.length;
-};
-
-const createNotificationElement = (notif) => {
-    const canDelete = hasPermission('delete_notifications');
-    const li = document.createElement('li');
-    li.className = `notification-item ${!notif.isRead ? 'is-unread' : ''}`;
-    li.dataset.id = notif._id;
-    li.innerHTML = `
-        <div class="icon-col type-${notif.type || 'info'}"><span class="icon ph-fill ph-${notif.type || 'info'}"></span></div>
-        <div class="content-col">
-            <p class="title">${notif.title}</p>
-            <p class="message">${notif.message}</p>
-            <p class="timestamp">${new Date(notif.createdAt).toLocaleString()}</p>
-        </div>
-        <div class="actions-col">
-            <input type="checkbox" class="form-checkbox notification-select-checkbox" data-id="${notif._id}">
-            ${canDelete ? `<button class="delete-btn" title="Delete notification"><span class="ph-fill ph-x-circle"></span></button>` : ''}
-        </div>
-    `;
-    return li;
-};
-
-const fetchAndDisplayNotifications = async () => {
-    try {
-        const data = await api.get('/notifications?limit=50');
-        updateNotificationBadge(data.totalUnread);
-        notificationList.innerHTML = '';
-        if (data.notifications.length === 0) {
-            notificationList.innerHTML = `<li class="empty-state"><i class="ph ph-bell-simple-slash icon"></i><h3>All Caught Up!</h3><p>You don't have any new notifications right now.</p></li>`;
+    const markAllAsRead = async () => {
+        const unreadItems = Array.from(notificationList.querySelectorAll('.notification-item.is-unread'));
+        if (unreadItems.length === 0) {
+            if(AppAlert) AppAlert.notify({type: 'info', title: 'Already Done', message: 'There are no unread notifications.'});
             return;
         }
-        data.notifications.forEach(notif => {
-            const element = createNotificationElement(notif);
-            notificationList.appendChild(element);
-        });
-    } catch (error) {
-         notificationList.innerHTML = `<li class="empty-state"><i class="ph ph-wifi-slash icon"></i><h3>Oops!</h3><p>Could not load your notifications. Please try again later.</p></li>`;
-         updateNotificationBadge(0);
-    }
-};
 
-const markAllAsRead = async () => {
-    const unreadItems = Array.from(notificationList.querySelectorAll('.notification-item.is-unread'));
-    if (unreadItems.length === 0) {
-        if(AppAlert) AppAlert.notify({type: 'info', title: 'Already Done', message: 'There are no unread notifications.'});
-        return;
-    }
-
-    try {
-        await AppAlert.confirm({
-            type: 'info',
-            title: 'Mark All as Read?',
-            message: `Are you sure you want to mark ${unreadItems.length} notifications as read?`,
-            confirmText: 'Yes, Mark All'
-        });
-
-        unreadItems.forEach(item => item.classList.remove('is-unread'));
-        updateNotificationBadge(0);
-
-        await api.post('/notifications/mark-all-read', {});
-        
-        if(AppAlert) AppAlert.notify({type: 'success', title: 'Success', message: 'All notifications marked as read.'});
-        
-        selectedNotificationIds.clear();
-        updateNotificationSelectionUI();
-
-    } catch(error) {
-        if (error && error.message !== 'Confirmation cancelled.') {
-            console.error("Failed to mark all as read:", error.message);
-            unreadItems.forEach(item => item.classList.add('is-unread'));
-            fetchInitialUnreadCount();
-            if(AppAlert) AppAlert.notify({type: 'error', title: 'Error', message: 'Could not mark notifications as read.'});
-        }
-    }
-};
-
-const deleteSingleNotification = async (id) => {
-    const item = notificationList.querySelector(`.notification-item[data-id="${id}"]`);
-    if (!item) return;
-
-    try {
-        await AppAlert.confirm({
-            type: 'danger',
-            title: 'Delete Notification?',
-            message: 'This action is permanent and cannot be undone. Are you sure?',
-            confirmText: 'Delete'
-        });
-        
-        item.classList.add('is-deleting');
-        await api.delete(`/notifications/${id}`);
-        
-        item.addEventListener('transitionend', () => item.remove());
-        selectedNotificationIds.delete(id);
-        updateNotificationSelectionUI();
-        fetchInitialUnreadCount();
-        
-        if(AppAlert) AppAlert.notify({type: 'success', title: 'Notification Deleted', message: 'The notification has been removed.'});
-
-    } catch(error) {
-        if (error && error.message !== 'Confirmation cancelled.') {
-            console.error(`Failed to delete notification ${id}:`, error.message);
-            item.classList.remove('is-deleting');
-            if(AppAlert) AppAlert.notify({type: 'error', title: 'Error', message: `Could not delete notification: ${error.message}`});
-        }
-    }
-};
-
-const deleteSelectedNotifications = async () => {
-    const idsToDelete = Array.from(selectedNotificationIds);
-    if (idsToDelete.length === 0) return;
-
-    try {
-        await AppAlert.confirm({
-            type: 'danger',
-            title: `Delete ${idsToDelete.length} Notifications?`,
-            message: 'This action is permanent. Are you sure?',
-            confirmText: 'Delete Selected'
-        });
-
-        const itemsToDelete = idsToDelete.map(id => notificationList.querySelector(`.notification-item[data-id="${id}"]`)).filter(Boolean);
-        itemsToDelete.forEach(item => item.classList.add('is-deleting'));
-        
-        await api.delete('/notifications', { notificationIds: idsToDelete });
-        
-        itemsToDelete.forEach(item => item.addEventListener('transitionend', () => item.remove()));
-        selectedNotificationIds.clear();
-        updateNotificationSelectionUI();
-        fetchInitialUnreadCount();
-
-        if(AppAlert) AppAlert.notify({type: 'success', title: 'Notifications Deleted', message: `${idsToDelete.length} notifications have been removed.`});
-
-    } catch(error) {
-        if (error && error.message !== 'Confirmation cancelled.') {
-            console.error("Failed to delete selected notifications:", error.message);
-            idsToDelete.forEach(id => {
-                const item = notificationList.querySelector(`.notification-item[data-id="${id}"]`);
-                if (item) item.classList.remove('is-deleting');
+        try {
+            await AppAlert.confirm({
+                type: 'info',
+                title: 'Mark All as Read?',
+                message: `Are you sure you want to mark ${unreadItems.length} notifications as read?`,
+                confirmText: 'Yes, Mark All'
             });
-            if(AppAlert) AppAlert.notify({type: 'error', title: 'Deletion Failed', message: `Could not delete notifications: ${error.message}`});
+
+            unreadItems.forEach(item => item.classList.remove('is-unread'));
+            updateNotificationBadge(0);
+
+            await api.post('/notifications/mark-all-read', {});
+            
+            if(AppAlert) AppAlert.notify({type: 'success', title: 'Success', message: 'All notifications marked as read.'});
+            
+            selectedNotificationIds.clear();
+            updateNotificationSelectionUI();
+
+        } catch(error) {
+            if (error && error.message !== 'Confirmation cancelled.') {
+                console.error("Failed to mark all as read:", error.message);
+                unreadItems.forEach(item => item.classList.add('is-unread'));
+                fetchInitialUnreadCount();
+                if(AppAlert) AppAlert.notify({type: 'error', title: 'Error', message: 'Could not mark notifications as read.'});
+            }
         }
-    }
-};
+    };
+
+    const deleteSingleNotification = async (id) => {
+        const item = notificationList.querySelector(`.notification-item[data-id="${id}"]`);
+        if (!item) return;
+
+        try {
+            await AppAlert.confirm({
+                type: 'danger',
+                title: 'Delete Notification?',
+                message: 'This action is permanent and cannot be undone. Are you sure?',
+                confirmText: 'Delete'
+            });
+            
+            item.classList.add('is-deleting');
+            await api.delete(`/notifications/${id}`);
+            
+            item.addEventListener('transitionend', () => item.remove());
+            selectedNotificationIds.delete(id);
+            updateNotificationSelectionUI();
+            fetchInitialUnreadCount();
+            
+            if(AppAlert) AppAlert.notify({type: 'success', title: 'Notification Deleted', message: 'The notification has been removed.'});
+
+        } catch(error) {
+            if (error && error.message !== 'Confirmation cancelled.') {
+                console.error(`Failed to delete notification ${id}:`, error.message);
+                item.classList.remove('is-deleting');
+                if(AppAlert) AppAlert.notify({type: 'error', title: 'Error', message: `Could not delete notification: ${error.message}`});
+            }
+        }
+    };
+
+    const deleteSelectedNotifications = async () => {
+        const idsToDelete = Array.from(selectedNotificationIds);
+        if (idsToDelete.length === 0) return;
+
+        try {
+            await AppAlert.confirm({
+                type: 'danger',
+                title: `Delete ${idsToDelete.length} Notifications?`,
+                message: 'This action is permanent. Are you sure?',
+                confirmText: 'Delete Selected'
+            });
+
+            const itemsToDelete = idsToDelete.map(id => notificationList.querySelector(`.notification-item[data-id="${id}"]`)).filter(Boolean);
+            itemsToDelete.forEach(item => item.classList.add('is-deleting'));
+            
+            await api.delete('/notifications', { notificationIds: idsToDelete });
+            
+            itemsToDelete.forEach(item => item.addEventListener('transitionend', () => item.remove()));
+            selectedNotificationIds.clear();
+            updateNotificationSelectionUI();
+            fetchInitialUnreadCount();
+
+            if(AppAlert) AppAlert.notify({type: 'success', title: 'Notifications Deleted', message: `${idsToDelete.length} notifications have been removed.`});
+
+        } catch(error) {
+            if (error && error.message !== 'Confirmation cancelled.') {
+                console.error("Failed to delete selected notifications:", error.message);
+                idsToDelete.forEach(id => {
+                    const item = notificationList.querySelector(`.notification-item[data-id="${id}"]`);
+                    if (item) item.classList.remove('is-deleting');
+                });
+                if(AppAlert) AppAlert.notify({type: 'error', title: 'Deletion Failed', message: `Could not delete notifications: ${error.message}`});
+            }
+        }
+    };
+
 
 // --- PART 7: BROADCAST MODAL LOGIC ---
 const renderSelectedUserPills = () => {

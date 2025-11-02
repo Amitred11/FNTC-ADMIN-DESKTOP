@@ -47,36 +47,64 @@
                             <div class="stat-icon green"><i class="ph-fill ph-check-circle"></i></div>
                             <div class="stat-meta">
                                 <div class="stat-value">0</div>
-                                <div class="stat-label">Completed Today</div>
+                                <div class="stat-label">Completed</div>
                             </div>
                         </div>
                     </div>
 
-                    <h2 class="section-title">Active Assignments</h2>
-                    <div id="job-list-container">
-                        <div class="placeholder">Loading jobs...</div>
-                    </div>
-                </section>
-            </main>
+                   <section class="content-section">
+        <div class="list-header">
+            <h2 class="section-title">Job Orders</h2>
+            <!-- NEW: Filter button -->
+            <button id="filter-toggle-btn" class="filter-btn">
+                <i class="ph ph-funnel"></i>
+                <span>Show Completed</span>
+            </button>
         </div>
-    </div>
+        
+        <!-- This is now the ONLY container for all jobs -->
+        <div id="job-list-container" class="job-list-grid">
+            <div class="placeholder">Loading jobs...</div>
+        </div>
+    </section>
+</main>
 
     <!-- MODAL for Status Updates -->
-    <div id="status-update-modal-overlay" class="modal-overlay hidden">
-        <div id="status-update-modal" class="modal-container hidden">
-            <div class="modal-header">
-                <div class="modal-icon"><i class="ph-fill ph-pencil-line"></i></div>
-                <h3 class="modal-title" id="modal-title">Update Status</h3>
-                <button class="close-modal-btn"><i class="ph ph-x"></i></button>
-            </div>
-            <div class="modal-body">
-                <form id="status-update-form">
-                    <div class="form-group"><label for="note">Add a Note (Required)</label><textarea id="note" name="note" rows="4" placeholder="e.g., 'Customer not home, will reschedule.'" required></textarea></div>
-                    <div class="form-actions"><button type="button" class="action-btn secondary close-modal-btn">Cancel</button><button type="submit" class="action-btn primary">Confirm Update</button></div>
-                </form>
-            </div>
+<div id="status-update-modal-overlay" class="modal-overlay hidden">
+    <div id="status-update-modal" class="modal-container hidden">
+        <div class="modal-header">
+            <div class="modal-icon"><i class="ph-fill ph-pencil-line"></i></div>
+            <h3 class="modal-title" id="modal-title">Update Status</h3>
+            <button class="close-modal-btn"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="status-update-form">
+                <!-- This section will be for "Completed" -->
+                <div id="completed-evidence-group" style="display: none;">
+                    <div class="form-group">
+                        <label for="photo-evidence">Photo Evidence (Required)</label>
+                        <label for="photo-evidence" class="file-input-label">
+                            <i class="ph ph-upload-simple"></i> Choose Images...
+                        </label>
+                        <input type="file" id="photo-evidence" name="photoEvidence" multiple accept="image/*" class="file-input-hidden">
+                        <div id="image-preview-container" class="image-preview-grid"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="completed-note">Add a Note (Optional)</label>
+                        <textarea id="completed-note" name="completedNote" rows="3" placeholder="e.g., 'Replaced the main filter and tested the unit.'"></textarea>
+                    </div>
+                </div>
+
+                <!-- FIX: Removed the generic-note-group div entirely -->
+
+                <div class="form-actions">
+                    <button type="button" class="action-btn secondary close-modal-btn">Cancel</button>
+                    <button type="submit" class="action-btn primary">Confirm Update</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
     <!-- MODAL for Job Details -->
 <div id="details-view-overlay" class="modal-overlay hidden">
@@ -142,6 +170,12 @@
         </div>
     </div>
 </div>
+
+    <!-- MODAL for Image Lightbox -->
+    <div id="image-lightbox-overlay" class="lightbox-overlay hidden">
+        <button class="lightbox-close-btn"><i class="ph ph-x"></i></button>
+        <img src="" alt="Enlarged Evidence Photo" id="lightbox-image">
+    </div>
     
     <div id="app-alert-container">
         <div id="app-alert-overlay" class="app-alert-overlay"></div>

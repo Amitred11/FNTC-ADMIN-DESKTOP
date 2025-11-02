@@ -80,7 +80,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("Permission granted. Initializing subscription management page.");
     // --- CONFIG & STATE ---
     let allSubscribers = [], allPlans = [], currentSubscriberId = null, currentSubscriberDetails = null;
-
+    const filterDropdownBtn = document.getElementById('filter-dropdown-btn');
+    const filterDropdownMenu = document.getElementById('filter-dropdown-menu');
+    const activeFilterText = document.getElementById('active-filter-text');
+    let currentFilter = 'all';
     const iconOptions = [
         { label: 'Bronze', id: 'bronze', svg: '<svg class="w-10 h-10 mb-2 text-yellow-700 animate-bounce" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" fill="#fbbf24"/></svg>' },
         { label: 'Silver', id: 'silver', svg: '<svg class="w-10 h-10 mb-2 text-gray-300 animate-bounce" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" fill="#e5e7eb"/></svg>' },
@@ -372,24 +375,84 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // --- INITIALIZATION ---
+    function applySubscriberFilter(filter) {
+        let filteredSubscribers = allSubscribers;
+
+        if (filter !== 'all') {
+            filteredSubscribers = allSubscribers.filter(subscriber => {
+                const status = (subscriber.status || 'inactive').toLowerCase();
+                if (filter === 'pending') {
+                    // Consider statuses like 'pending_verification', 'pending_installation', 'pending_change' as pending
+                    return status.startsWith('pending');
+                }
+                return status === filter;
+            });
+        }
+        renderSubscriberList(filteredSubscribers);
+    }
+
+    // --- INITIALIZATION ---
     const initializeApp = async () => {
-        await loadHeader(); 
+        await loadHeader();
         if (window.setHeader) { window.setHeader('Subscription Management', 'Manage user subscriptions, plans, and billing.'); }
-        
+
         const result = await apiRequest('apiGet', '/subscribers/list');
-        if (result.ok) { allSubscribers = result.data; renderSubscriberList(allSubscribers); }
-        
+        if (result.ok) {
+            allSubscribers = result.data;
+            renderSubscriberList(allSubscribers); // Initial render
+        }
+
+        // --- Event Listeners ---
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
-            renderSubscriberList(allSubscribers.filter(u => u.displayName.toLowerCase().includes(searchTerm) || u._id.includes(searchTerm)));
+            // Apply current filter when searching
+            const filteredAndSearched = allSubscribers.filter(u =>
+                (u.displayName.toLowerCase().includes(searchTerm) || u._id.includes(searchTerm))
+            );
+            applySubscriberFilter(currentFilter); // Re-apply filter to the search results
         });
+
+        // Toggle dropdown menu on button click
+        filterDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent click from closing immediately
+            filterDropdownMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!filterDropdownBtn.contains(e.target)) {
+                filterDropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Handle filter selection
+        filterDropdownMenu.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                e.preventDefault(); // Prevent default link behavior
+
+                const filter = e.target.dataset.filter;
+                currentFilter = filter; // Update current filter
+
+                // Update active filter text and styling
+                activeFilterText.textContent = e.target.textContent;
+                filterDropdownMenu.querySelectorAll('a').forEach(link => link.classList.remove('active'));
+                e.target.classList.add('active');
+
+                // Apply the filter to the subscriber list
+                applySubscriberFilter(currentFilter);
+
+                // Close the dropdown
+                filterDropdownMenu.classList.remove('show');
+            }
+        });
+
         managePlansBtn.addEventListener('click', () => { toggleModal('planList', true); loadAllPlans(); });
-        addSubscriberBtn.addEventListener('click', async () => { 
+        addSubscriberBtn.addEventListener('click', async () => {
             toggleModal('addSubscriber', true);
             const planResult = await apiRequest('apiGet', '/plans');
             if(planResult.ok) { allPlans = planResult.data; renderPlansDropdown(document.getElementById('plan'), allPlans); }
         });
-        
+
         detailsView.addEventListener('click', async (e) => {
             const button = e.target.closest('button');
             if (!button) return;
@@ -442,17 +505,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const row = e.target.closest('.billing-row-link');
             if (row?.dataset.billId) window.location.href = `billing.html?billId=${row.dataset.billId}`;
         });
-        
+
         for (const key in modals) {
             const modal = modals[key];
             if (!modal.container) continue;
 
             const closeButtons = modal.container.querySelectorAll('.close-modal-btn, .btn.secondary');
-            
+
             closeButtons.forEach(btn => {
                 btn.addEventListener('click', () => toggleModal(key, false));
             });
-            
+
             modal.overlay.addEventListener('click', () => toggleModal(key, false));
         }
 
@@ -467,29 +530,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         modals.addSubscriber.form.addEventListener('submit', e => { e.preventDefault(); const data = new FormData(e.target); const addData = { planId: data.get('planId'), user: { displayName: data.get('fullName'), email: data.get('email'), password: data.get('password') }, installationAddress: {address: `${data.get('streetAddress')}, ${data.get('barangay')}`, city: 'Rodriguez', province: 'Rizal' } }; submitAndRefresh('apiPost', '/subscriptions/manual', addData, 'addSubscriber', 'Subscription created!'); });
-        modals.planUpsert.form.addEventListener('submit', e => { 
-            e.preventDefault(); 
-            const data = new FormData(e.target); 
-            const planId = data.get('planId'); 
-            
+        modals.planUpsert.form.addEventListener('submit', e => {
+            e.preventDefault();
+            const data = new FormData(e.target);
+            const planId = data.get('planId');
+
             const selectedIconId = data.get('planIcon');
             const selectedIconData = iconOptions.find(opt => opt.id === selectedIconId);
-            const iconSvgToSend = selectedIconData ? selectedIconData.svg : ''; 
+            const iconSvgToSend = selectedIconData ? selectedIconData.svg : '';
 
-            const upsertData = { 
-                name: data.get('name'), 
-                price: parseFloat(data.get('price')), 
-                priceLabel: data.get('priceLabel'), 
-                features: data.get('features').split('\n').filter(Boolean), 
-                note: data.get('note'), 
-                isActive: true, 
+            const upsertData = {
+                name: data.get('name'),
+                price: parseFloat(data.get('price')),
+                priceLabel: data.get('priceLabel'),
+                features: data.get('features').split('\n').filter(Boolean),
+                note: data.get('note'),
+                isActive: true,
                 iconSvg: iconSvgToSend
-            }; 
-            submitAndRefresh(planId ? 'apiPut' : 'apiPost', planId ? `/plans/${planId}` : '/plans', upsertData, 'planUpsert', 'Plan saved!'); 
+            };
+            submitAndRefresh(planId ? 'apiPut' : 'apiPost', planId ? `/plans/${planId}` : '/plans', upsertData, 'planUpsert', 'Plan saved!');
         });
-        modals.updatePlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { newPlanId: new FormData(e.target).get('newPlanId') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/change-plan`, data, 'updatePlan', 'Plan change submitted!'); });
+        modals.updatePlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { newPlanId: new FormData(e.target).get('newPlanSelect') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/change-plan`, data, 'updatePlan', 'Plan change submitted!'); });
         modals.cancelPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { reason: new FormData(e.target).get('reason') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/cancel`, data, 'cancelPlan', 'Subscription cancelled.'); });
         modals.suspendPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { reason: new FormData(e.target).get('reason') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/suspend`, data, 'suspendPlan', 'Subscription suspended.'); });
+
+        applySubscriberFilter(currentFilter);
     };
 
     initializeApp();

@@ -2,9 +2,10 @@ const { app, BrowserWindow, ipcMain, safeStorage, shell } = require('electron');
 const path = require('path');
 const FormData = require('form-data');
 const { Readable } = require('stream');
+const fs = require('fs');
 
 // --- Global Variables & Constants ---
-const API_BASE_URL = 'https://nodefibear.onrender.com/api/admin';
+const API_BASE_URL = 'http://192.168.100.12:5000/api/admin';
 const IDLE_TIMEOUT_MS = 8 * 60 * 60 * 1000; 
 let mainWindow;
 let store;
@@ -187,7 +188,6 @@ async function handleTokenRefresh() {
 }
 
 async function makeApiRequest(endpoint, options = {}) {
-    console.log(`[API] makeApiRequest: Preparing request for ${endpoint}`);
     if (!store) {
         console.error('[API] makeApiRequest: Store not initialized. Forcing logout.');
         await forceLogoutAndClear(); 
@@ -201,24 +201,18 @@ async function makeApiRequest(endpoint, options = {}) {
       return { ok: false, status: 401, data: { message: 'No access token found. Please log in again.' }};
     }
 
-    const headers = {
+    const finalHeaders = {
         'Authorization': `Bearer ${accessToken}`,
-        ...options.headers
+        ...options.headers, 
     };
-
-    if (options.body && !(options.body instanceof FormData)) {
-        headers['Content-Type'] = 'application/json';
-    }
     
-    let requestBody = options.body;
-    if (options.body instanceof FormData) {
-        delete headers['Content-Type'];
-        requestBody = options.body;
-    } else if (options.body) {
-        requestBody = JSON.stringify(options.body);
-    }
+    const finalBody = options.body; 
 
-    const requestOptions = { ...options, headers, body: requestBody };
+    let requestOptions = { 
+        method: options.method || 'GET',
+        headers: finalHeaders, 
+        body: finalBody 
+    };
 
     try {
         let response = await fetch(`${API_BASE_URL}${endpoint}`, requestOptions);
@@ -231,7 +225,6 @@ async function makeApiRequest(endpoint, options = {}) {
             try {
                 const newAccessToken = await refreshPromise;
                 requestOptions.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                console.log(`[API] makeApiRequest: Retrying request to ${endpoint} with refreshed token.`);
                 response = await fetch(`${API_BASE_URL}${endpoint}`, requestOptions);
             } catch (refreshError) {
                 console.error(`❌ [API] makeApiRequest: Failed to get a new access token after refresh attempt for ${endpoint}:`, refreshError.message);
@@ -318,14 +311,12 @@ async function forceLogoutAndClear() {
 // --- IPC Handlers ---
 ipcMain.handle('auth:login', async (event, credentials) => {
     try {
-        console.log('[IPC] auth:login: Received login attempt.');
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials),
         });
         const data = await response.json();
-        console.log(`[IPC] auth:login: Login response status: ${response.status}, ok: ${response.ok}`);
         return { ok: response.ok, status: response.status, data };
     } catch (error) {
         console.error('❌ [IPC] auth:login: Failed to connect to login server:', error.message);
@@ -334,7 +325,6 @@ ipcMain.handle('auth:login', async (event, credentials) => {
 });
 
 ipcMain.handle('tokens:save', (event, { accessToken, refreshToken, rememberMe, user, credentials }) => {
-    console.log(`[IPC] tokens:save: Called with: refreshToken=${refreshToken ? 'RECEIVED' : 'NOT RECEIVED'}, rememberMe=${rememberMe}`);
     if (!store || !user) {
         console.error('❌ [IPC] tokens:save: Store not initialized or user data missing. Cannot save tokens.');
         return { ok: false };
@@ -348,7 +338,6 @@ ipcMain.handle('tokens:save', (event, { accessToken, refreshToken, rememberMe, u
         if (refreshToken) {
             const encryptedRefreshToken = safeStorage.encryptString(refreshToken);
             store.set('adminRefreshTokenEncrypted', encryptedRefreshToken.toString('base64'));
-            console.log('ⓘ [IPC] tokens:save: Refresh token encrypted and stored (always, for session management).');
         } else {
             store.delete('adminRefreshTokenEncrypted');
             console.warn('⚠️ [IPC] tokens:save: No refreshToken provided by server, ensuring adminRefreshTokenEncrypted is cleared from store.');
@@ -362,10 +351,8 @@ ipcMain.handle('tokens:save', (event, { accessToken, refreshToken, rememberMe, u
                 email: encryptedEmail.toString('base64'),
                 password: encryptedPassword.toString('base64')
             });
-            console.log('ⓘ [IPC] tokens:save: User credentials encrypted for pre-fill (rememberMe active).');
         } else {
             store.delete('userCredentials');
-            console.log('ⓘ [IPC] tokens:save: User credentials cleared (rememberMe not active).');
         }
         return { ok: true };
     } catch (error) {
@@ -377,11 +364,9 @@ ipcMain.handle('tokens:save', (event, { accessToken, refreshToken, rememberMe, u
 ipcMain.handle('auth:logout', () => handleUserInitiatedLogout());
 ipcMain.handle('user:get-profile', () => {
     if (!store) {
-        console.warn('⚠️ [IPC] user:get-profile: Store not initialized.');
         return null;
     }
     const user = store.get('user');
-    console.log(`[IPC] user:get-profile: User profile retrieved. User exists: ${!!user}`);
     return user;
 });
 
@@ -398,8 +383,47 @@ ipcMain.handle('login:get-prefill-credentials', () => {
 });
 
 ipcMain.handle('api:get', (event, endpoint) => makeApiRequest(endpoint, { method: 'GET' }));
-ipcMain.handle('api:post', (event, endpoint, body) => makeApiRequest(endpoint, { method: 'POST', body }));
-ipcMain.handle('api:put', (event, endpoint, body) => makeApiRequest(endpoint, { method: 'PUT', body }));
+ipcMain.handle('api:post', (event, endpoint, body) => makeApiRequest(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+}));ipcMain.handle('api:put', (event, endpoint, body, options) => {
+
+    if (options && options.isFormData) {
+        const form = new FormData();
+        
+        for (const key in body) {
+            if (key === 'evidences' && Array.isArray(body[key])) {
+                body[key].forEach((fileInfo) => {
+                    if (fileInfo && fileInfo.base64) {
+                        const nodeBuffer = Buffer.from(fileInfo.base64, 'base64');
+                        form.append('evidences', nodeBuffer, { filename: fileInfo.name });
+                    }
+                });
+            } else {
+                form.append(key, String(body[key]));
+            }
+        }
+
+        // Prepare the body and headers for makeApiRequest
+        const formHeaders = form.getHeaders();
+        const requestBodyBuffer = form.getBuffer();
+        
+        return makeApiRequest(endpoint, {
+            method: 'PUT',
+            body: requestBodyBuffer,
+            headers: formHeaders 
+        });
+
+    } else {
+        return makeApiRequest(endpoint, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body) 
+        });
+    }
+});
+
 ipcMain.handle('api:delete', (event, endpoint, body) => makeApiRequest(endpoint, { method: 'DELETE', body }));
 
 

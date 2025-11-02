@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Standard API Requests
   apiPost: (endpoint, body) => ipcRenderer.invoke('api:post', endpoint, body),
   apiGet: (endpoint) => ipcRenderer.invoke('api:get', endpoint),
-  apiPut: (endpoint, body) => ipcRenderer.invoke('api:put', endpoint, body),
+  apiPut: (endpoint, body, options) => ipcRenderer.invoke('api:put', endpoint, body, options),
   apiDelete: (endpoint, body) => ipcRenderer.invoke('api:delete', endpoint, body),
   uploadFile: (uploadData) => ipcRenderer.invoke('api:upload', uploadData),
 

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const options = {
             series, labels,
             chart: { type: 'donut', height: '70%', foreColor: '#333333' },
-            colors: ['#0A3D62', '#3C8CE7', '#A5D6A7', '#64B5F6', '#81D4FA'],
+            colors: ['#A3A2A1', '#B9F2FF', '#706F6D', '#CD7F32', '#FFD700'],
             plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: '', fontSize: '1.75rem', fontWeight: '700', color: '#E53935', formatter: () => totalSubscribers } } } } },
             legend: { position: 'bottom' }
         };
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             xaxis: { categories: monthLabels },
             yaxis: { labels: { style: { colors: '#333333' } } },
             fill: { opacity: 1 },
-            colors: ['#0A3D62', '#3C8CE7', '#A5D6A7', '#64B5F6', '#81D4FA'],
+            colors: ['#706F6D', '#B9F2FF','#A3A2A1','#FFD700' , '#CD7F32'],
             tooltip: { y: { formatter: (val) => val + " subscribers" }, theme: 'dark' },
             legend: { position: 'top', horizontalAlign: 'left' }
         };
