@@ -81,7 +81,7 @@
                             <div class="history-table-wrap">
                                 <h4>Billing History</h4>
                                 <table class="history-table" id="history-table">
-                                    <thead><tr><th>Date</th><th>Details</th><th>Price</th><th>Amount Due</th><th>Total</th><th>Status</th></tr></thead>
+                                    <thead><tr><th>Date</th><th>Details</th><th>Price</th><th>Amount Due</th><th>Total</th><th>Status</th><th>Invoice</th></tr></thead>
                                     <tbody id="history-table-body"></tbody>
                                 </table>
                             </div>
@@ -202,8 +202,25 @@
             <button type="submit" form="decline-reason-form" class="btn primary">Submit</button>
         </footer>
     </div>
+
+<div class="modal-overlay hidden" id="invoiceDetailModal-overlay"></div>
+<div class="modal-container hidden" id="invoiceDetailModal" style="max-width: 900px; padding: 0;">
+    <div class="modal-header" style="justify-content: flex-end; border-bottom: none;">
+        <button class="close-modal-btn"><span class="ph ph-x"></span></button>
+    </div>
+    <main class="modal-body modal-content-area" style="padding: 0; background-color: #F4F7FC;"></main>
+</div>
+
+<!-- MODAL FOR DISPLAYING RECEIPT -->
+<div class="modal-overlay hidden" id="receiptDetailModal-overlay"></div>
+<div class="modal-container hidden" id="receiptDetailModal" style="max-width: 500px; padding: 0;">
+    <div class="modal-header" style="justify-content: flex-end; border-bottom: none;">
+        <button class="close-modal-btn"><span class="ph ph-x"></span></button>
+    </div>
+    <main class="modal-body modal-content-area" style="padding: 0; background-color: #F4F7FC;"></main>
+</div>
     
-    <!-- App Alert Component and Scripts remain unchanged -->
+    <!-- App Alert Component and Scripts -->
     <div id="app-alert-container">
         <div id="app-alert-overlay" class="app-alert-overlay"></div>
         <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true"><div class="app-alert-icon-wrapper"><i id="app-alert-icon" class="ph-fill"></i></div><h2 id="app-alert-title" class="app-alert-title"></h2><p id="app-alert-message" class="app-alert-message"></p><div class="app-alert-buttons"><button id="app-alert-cancel-btn" class="app-alert-button cancel"></button><button id="app-alert-confirm-btn" class="app-alert-button confirm"></button></div></div>

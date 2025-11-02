@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
     let allJobs = [];
-    let showCompleted = false; // State for our filter
+    let showCompleted = false;
     let currentJobId = null;
     let currentJobDetails = null;
     let evidenceFiles = [];
@@ -61,10 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeLightbox = () => {
         lightboxOverlay.classList.add('hidden');
-        lightboxImage.src = ''; // Clear src
+        lightboxImage.src = ''; 
     };
 
-    // --- RENDER FUNCTIONS (Updating the UI) ---
+    // --- RENDER FUNCTIONS ---
     const renderStats = (jobs) => {
         const today = new Date().toISOString().split('T')[0];
         document.querySelector('#stat-today .stat-value').textContent = jobs.filter(j => j.scheduledDate?.startsWith(today) && j.status !== 'Completed').length;
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 payload.evidences = await Promise.all(
                     evidenceFiles.map(async (file) => {
                         const buffer = await file.arrayBuffer();
-                        const base64String = arrayBufferToBase64(buffer); // Convert to Base64
+                        const base64String = arrayBufferToBase64(buffer); 
                         console.log(`[Renderer] Encoded ${file.name} to Base64 string of length ${base64String.length}.`);
                         return {
                             name: file.name,
@@ -362,8 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         evidenceFiles = [];
         renderImagePreviews();
 
-        // ================== START OF FIX ==================
-        // Before trying to change the style of an element, first check if it exists.
+
         const onHoldGroup = document.getElementById('on-hold-reason-group');
         if (onHoldGroup) {
             onHoldGroup.style.display = targetStatus === 'On Hold' ? 'block' : 'none';
@@ -374,7 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const showEvidence = (targetStatus === 'On Hold' || targetStatus === 'Completed');
             evidenceGroup.style.display = showEvidence ? 'block' : 'none';
         }
-        // ================== END OF FIX ==================
         
         toggleModal('statusUpdate', true);
     };
@@ -385,7 +383,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.ok) {
             allJobs = result.data;
             renderStats(allJobs);
-            // MODIFIED: Initial render is now handled by the filter function
             renderFilteredJobList(); 
         } else {
             jobListContainer.innerHTML = `<div class="placeholder error">Could not load jobs. Please try again later.</div>`;
@@ -412,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
         jobListContainer.addEventListener('click', (e) => {
             const card = e.target.closest('.job-card');
             if (card) {
-                // Check if the click was on a button inside the card actions
                 const actionButton = e.target.closest('.action-btn');
                 if (actionButton) {
                     handleJobCardClick(card.dataset.jobId);

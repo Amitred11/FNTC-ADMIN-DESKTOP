@@ -92,9 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // =================================================================
-        // --- LOGOUT LOGIC USING APPALERT (UPDATED) ---
-        // =================================================================
         if (logoutButton) {
             logoutButton.addEventListener('click', async (event) => {
                 event.preventDefault();

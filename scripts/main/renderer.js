@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 return `
                     <li class="notice-item">
-                        <a href="../settings/user-management.html?userId=${user.id || ''}">
+                        <a href="./subscription.html?userId=${user.id || ''}">
                             <div class="notice-info">
                                 ${userAvatar}
                                 <div>

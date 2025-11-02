@@ -52,7 +52,6 @@ function renderAccessDenied() {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-
     const ALLOWED_ROLES = ['admin'];
     let currentUserRole = null;
 
@@ -101,7 +100,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search-input');
     const managePlansBtn = document.getElementById('manage-plans-btn');
     const addSubscriberBtn = document.getElementById('add-subscriber-btn');
-    
     const pendingStateView = document.getElementById('pending-state-view');
     const overviewContentView = document.getElementById('overview-content-view');
     const mainActionButtons = document.getElementById('main-action-buttons');
@@ -113,7 +111,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         updatePlan: { overlay: document.getElementById('update-plan-modal-overlay'), container: document.getElementById('update-plan-modal'), form: document.getElementById('update-plan-form') },
         cancelPlan: { overlay: document.getElementById('cancel-plan-modal-overlay'), container: document.getElementById('cancel-plan-modal'), form: document.getElementById('cancel-plan-form') },
         suspendPlan: { overlay: document.getElementById('suspend-plan-modal-overlay'), container: document.getElementById('suspend-plan-modal'), form: document.getElementById('suspend-plan-form') },
-        declineReason: { overlay: document.getElementById('decline-reason-modal-overlay'), container: document.getElementById('decline-reason-modal'), form: document.getElementById('decline-reason-form') }
+        declineReason: { overlay: document.getElementById('decline-reason-modal-overlay'), container: document.getElementById('decline-reason-modal'), form: document.getElementById('decline-reason-form') },
+        // Added invoice and receipt modals
+        invoiceDetail: { overlay: document.getElementById('invoiceDetailModal-overlay'), container: document.getElementById('invoiceDetailModal') },
+        receiptDetail: { overlay: document.getElementById('receiptDetailModal-overlay'), container: document.getElementById('receiptDetailModal') }
     };
 
     const loadHeader = async () => {
@@ -154,6 +155,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.overlay.classList.toggle('hidden', !show);
         modal.container.classList.toggle('hidden', !show);
         if (!show && modal.form) modal.form.reset();
+    };
+
+    // --- HELPER FUNCTIONS  ---
+    const formatDate = (dateString, includeTime = false) => {
+        if (!dateString) return 'N/A';
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        if (includeTime) { options.hour = '2-digit'; options.minute = '2-digit'; options.hour12 = true; }
+        return new Date(dateString).toLocaleString('en-US', options);
+    };
+
+    const formatPeriod = (start, end) => {
+        if (!start || !end) return 'N/A';
+        const startDate = new Date(start).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+        const endDate = new Date(end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        return `${startDate} - ${endDate}`;
     };
 
     // --- RENDER FUNCTIONS ---
@@ -239,19 +255,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         mainActionButtons.innerHTML = `<button id="update-plan-btn" class="btn-subtle">Update Plan</button><button id="cancel-plan-btn" class="btn-subtle">Cancel Plan</button>${suspendBtnHtml}`;
         
         document.getElementById('history-table-body').innerHTML = (!billingHistory || billingHistory.length === 0) 
-            ? `<tr><td colspan="6" style="text-align: center; padding: 2rem;">No billing history.</td></tr>` 
-            : billingHistory.map(item => 
-                `<tr class="billing-row-link" data-bill-id="${item._id}">
+            ? `<tr><td colspan="7" style="text-align: center; padding: 2rem;">No billing history.</td></tr>`
+            : billingHistory.map(item => {
+                let actionButton = '';
+                if (item.status.toLowerCase() === 'paid') {
+                    actionButton = `<button class="btn-subtle green" data-action="view-receipt" data-bill-id="${item._id}">View Receipt</button>`;
+                } else {
+                    actionButton = `<button class="btn-subtle" data-action="view-invoice" data-bill-id="${item._id}">View Invoice</button>`;
+                }
+    
+                return `<tr data-bill-id="${item._id}">
                     <td>${new Date(item.dueDate).toLocaleDateString()}</td>
                     <td>${item.planName || 'Manual Bill'}</td>
                     <td>₱${item.amount.toLocaleString()}</td>
                     <td class="red-text">₱${(['due', 'overdue'].includes(item.status.toLowerCase())) ? item.amount.toFixed(2) : '0.00'}</td>
                     <td>₱${item.amount.toLocaleString()}</td>
                     <td><span class="status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
+                    <td>${actionButton}</td>
                 </tr>`
-            ).join('');
+            }).join('');
     };
 
+    const setupAndOpenDocumentModal = (type, bill) => {
+        const modal = modals[`${type}Detail`];
+        if (!modal) return console.error(`Modal for type '${type}' not found.`);
+        
+        const contentEl = modal.container.querySelector('.modal-content-area');
+        if (!contentEl) return console.error(`Content area for modal '${type}' not found.`);
+        
+        const user = bill.userId || { displayName: 'N/A', email: 'N/A' };
+        const lineItems = bill.lineItems?.length ? bill.lineItems : [{ description: 'Service Charge', amount: bill.amount }];
+        const totalAmount = lineItems.reduce((acc, item) => acc + item.amount, 0).toFixed(2);
+        
+        contentEl.innerHTML = (type === 'receipt') ? `
+            <style>.receipt-body{font-family:'Poppins',sans-serif;color:#333;background-color:#f4f7fc;padding:2rem}.receipt-container{max-width:450px;margin:auto;background-color:#fff;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,.1);overflow:hidden}.receipt-header{background-color:#2c3e50;color:#fff;padding:25px;text-align:center}.receipt-header h1{margin:0;font-size:24px;text-transform:uppercase;letter-spacing:1px}.receipt-header p{margin:5px 0 0;font-size:14px;color:#bdc3c7}.receipt-content{padding:25px}.success-section{text-align:center;margin-bottom:25px}.success-icon{width:50px;height:50px;border-radius:50%;background-color:#2ecc71;display:inline-flex;justify-content:center;align-items:center;margin-bottom:10px}.success-icon::after{content:'';display:block;width:12px;height:24px;border:solid #fff;border-width:0 5px 5px 0;transform:rotate(45deg)}.success-section h2{font-size:18px;color:#2c3e50;margin:0}.details-section{display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px}.label{color:#7f8c8d}.value{font-weight:700;text-align:right}.separator{border:0;border-top:1px dashed #ccc;margin:20px 0}.total-section{display:flex;justify-content:space-between;align-items:center;background-color:#2ecc71;color:#fff;padding:15px;border-radius:10px;margin-top:10px}.total-label{font-size:16px;font-weight:700;text-transform:uppercase}.total-value{font-size:22px;font-weight:700}.footer{text-align:center;margin-top:25px;font-size:12px;color:#95a5a6}</style>
+            <div class="receipt-body"><div class="receipt-container"><div class="receipt-header"><h1>Payment Receipt</h1><p>FiBear Network Technologies Corp.</p></div><div class="receipt-content"><div class="success-section"><div class="success-icon"></div><h2>Payment Confirmed</h2></div><div class="details-section"><span class="label">Receipt No:</span><span class="value">${bill._id.slice(-6).toUpperCase()}</span></div><div class="details-section"><span class="label">Payment Date:</span><span class="value">${formatDate(bill.paymentDate, true)}</span></div><div class="details-section"><span class="label">Customer:</span><span class="value">${user.displayName}</span></div><hr class="separator" /><div class="details-section"><span class="label">Service/Plan:</span><span class="value">${bill.planName||'N/A'}</span></div><div class="details-section"><span class="label">Period Covered:</span><span class="value">${formatPeriod(bill.statementDate, bill.dueDate)}</span></div><div class="total-section"><span class="total-label">Amount Paid</span><span class="total-value">₱${totalAmount}</span></div><div class="footer">Thank you for your payment!</div></div></div></div>`
+        : `
+            <style>.invoice-wrapper{font-family:'Poppins',sans-serif;padding:2rem;color:#333;position:relative;background-color:#F4F7FC}.invoice-wrapper .invoice-container{max-width:800px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.07);overflow:hidden}.invoice-wrapper .invoice-header{display:flex;justify-content:space-between;align-items:flex-start;padding:2.5rem;background-color:#2c3e50;color:#fff}.invoice-wrapper .header-left h1{margin:0;font-size:2rem;text-transform:uppercase;letter-spacing:1.5px}.invoice-wrapper .header-left p{margin:5px 0 0;color:#bdc3c7}.invoice-wrapper .header-right{text-align:right}.invoice-wrapper .header-right h2{margin:0;font-size:1rem;text-transform:uppercase}.invoice-wrapper .header-right p{margin:5px 0 0;font-size:.9rem}.invoice-wrapper .invoice-details{display:flex;justify-content:space-between;padding:2rem 2.5rem;background-color:#F9FAFB;border-bottom:1px solid #E5E7EB}.invoice-wrapper .detail-box h3{margin:0 0 10px;font-size:.8rem;color:#6B7280;text-transform:uppercase;letter-spacing:.5px}.invoice-wrapper .detail-box p{margin:4px 0;font-size:.9rem}.invoice-wrapper .invoice-body{padding:2.5rem;position:relative}.invoice-wrapper .line-items-table{width:100%;border-collapse:collapse}.invoice-wrapper .line-items-table th,.invoice-wrapper .line-items-table td{padding:1rem;text-align:left;border-bottom:1px solid #E5E7EB}.invoice-wrapper .line-items-table th{font-size:.8rem;text-transform:uppercase;color:#6B7280;background-color:#F9FAFB}.invoice-wrapper .line-items-table .align-right{text-align:right}.invoice-wrapper .invoice-summary{display:flex;justify-content:flex-end;padding:0 2.5rem 2.5rem}.invoice-wrapper .summary-table{width:50%;max-width:300px}.invoice-wrapper .summary-table td{padding:.75rem 1rem}.invoice-wrapper .summary-table .total-row td{font-size:1.25rem;font-weight:700;background-color:#F9FAFB}.invoice-wrapper .invoice-footer{text-align:center;padding:2rem;font-size:.8rem;color:#6B7280;background-color:#F9FAFB;border-top:1px solid #E5E7EB}.invoice-wrapper .paid-stamp{position:absolute;top:20px;right:-25px;transform:rotate(15deg);border:3px solid #27AE60;color:#27AE60;font-size:1.5rem;font-weight:600;padding:5px 25px;text-transform:uppercase;letter-spacing:1px;opacity:.3}</style>
+            <div class="invoice-wrapper"><div class="invoice-container">${bill.status.toLowerCase()==='paid'?'<div class="paid-stamp">Paid</div>':''}<div class="invoice-header"><div class="header-left"><h1>Invoice</h1><p>FiBear Network Technologies Corp.</p></div><div class="header-right"><h2>Invoice #${bill._id.slice(-6).toUpperCase()}</h2><p>${formatDate(bill.statementDate)}</p></div></div><div class="invoice-details"><div class="detail-box"><h3>Billed To</h3><p><strong>${user.displayName}</strong></p><p>${user.email}</p></div><div class="detail-box" style="text-align:right"><h3>Payment Details</h3><p><strong>Due Date:</strong> ${formatDate(bill.dueDate)}</p><p><strong>Period:</strong> ${formatPeriod(bill.statementDate,bill.dueDate)}</p></div></div><div class="invoice-body"><table class="line-items-table"><thead><tr><th>Description</th><th class="align-right">Amount</th></tr></thead><tbody>${lineItems.map(item=>`<tr><td>${item.description}</td><td class="align-right">₱${item.amount.toFixed(2)}</td></tr>`).join('')}</tbody></table></div><div class="invoice-summary"><table class="summary-table"><tbody><tr class="total-row"><td>Total Due</td><td class="align-right">₱${totalAmount}</td></tr></tbody></table></div><div class="invoice-footer"><p>Thank you for your business! For inquiries, please contact our support team.</p></div></div></div>`;
+        
+        toggleModal(`${type}Detail`, true);
+    };
+        
     const renderPlanCards = (plans) => {
         const container = document.getElementById('plan-cards-container');
         container.innerHTML = (!plans || plans.length === 0) ? '<p style="text-align: center;">No plans found.</p>' :
@@ -261,7 +306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `
                 <div class="plan-card" data-plan-id="${plan._id}">
                     <div class="plan-header">
-                        ${iconHtml ? `<span class="plan-icon-display">${iconHtml}</span>` : ''} <!-- Display looked-up SVG -->
+                        ${iconHtml ? `<span class="plan-icon-display">${iconHtml}</span>` : ''}
                         <span class="plan-name">${plan.name.toUpperCase()}</span>
                         ${plan.isActive ? '<span class="status-badge active">Active</span>' : ''}
                     </div>
@@ -345,7 +390,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentIconDisplay.classList.toggle('hidden', !selectedIconData?.svg);
         }
 
-
         toggleModal('planUpsert', true);
     };
 
@@ -382,7 +426,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             filteredSubscribers = allSubscribers.filter(subscriber => {
                 const status = (subscriber.status || 'inactive').toLowerCase();
                 if (filter === 'pending') {
-                    // Consider statuses like 'pending_verification', 'pending_installation', 'pending_change' as pending
                     return status.startsWith('pending');
                 }
                 return status === filter;
@@ -391,7 +434,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderSubscriberList(filteredSubscribers);
     }
 
-    // --- INITIALIZATION ---
     const initializeApp = async () => {
         await loadHeader();
         if (window.setHeader) { window.setHeader('Subscription Management', 'Manage user subscriptions, plans, and billing.'); }
@@ -399,49 +441,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         const result = await apiRequest('apiGet', '/subscribers/list');
         if (result.ok) {
             allSubscribers = result.data;
-            renderSubscriberList(allSubscribers); // Initial render
+            renderSubscriberList(allSubscribers);
         }
 
         // --- Event Listeners ---
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase();
-            // Apply current filter when searching
-            const filteredAndSearched = allSubscribers.filter(u =>
-                (u.displayName.toLowerCase().includes(searchTerm) || u._id.includes(searchTerm))
+            const filteredBySearch = allSubscribers.filter(u =>
+                u.displayName.toLowerCase().includes(searchTerm) || u._id.includes(searchTerm)
             );
-            applySubscriberFilter(currentFilter); // Re-apply filter to the search results
+            
+            let finalFiltered = filteredBySearch;
+            if (currentFilter !== 'all') {
+                finalFiltered = filteredBySearch.filter(subscriber => {
+                    const status = (subscriber.status || 'inactive').toLowerCase();
+                    if (currentFilter === 'pending') return status.startsWith('pending');
+                    return status === currentFilter;
+                });
+            }
+            renderSubscriberList(finalFiltered);
         });
 
-        // Toggle dropdown menu on button click
         filterDropdownBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent click from closing immediately
+            e.stopPropagation();
             filterDropdownMenu.classList.toggle('show');
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!filterDropdownBtn.contains(e.target)) {
                 filterDropdownMenu.classList.remove('show');
             }
         });
 
-        // Handle filter selection
         filterDropdownMenu.addEventListener('click', (e) => {
             if (e.target.tagName === 'A') {
-                e.preventDefault(); // Prevent default link behavior
-
-                const filter = e.target.dataset.filter;
-                currentFilter = filter; // Update current filter
-
-                // Update active filter text and styling
+                e.preventDefault();
+                currentFilter = e.target.dataset.filter;
                 activeFilterText.textContent = e.target.textContent;
                 filterDropdownMenu.querySelectorAll('a').forEach(link => link.classList.remove('active'));
                 e.target.classList.add('active');
-
-                // Apply the filter to the subscriber list
                 applySubscriberFilter(currentFilter);
-
-                // Close the dropdown
                 filterDropdownMenu.classList.remove('show');
             }
         });
@@ -500,22 +539,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (actionKey) await actions[actionKey]();
             } catch (err) { /* User cancelled confirmation */ }
         });
-
-        document.getElementById('history-table-body').addEventListener('click', (e) => {
-            const row = e.target.closest('.billing-row-link');
-            if (row?.dataset.billId) window.location.href = `billing.html?billId=${row.dataset.billId}`;
+        
+        document.getElementById('history-table-body').addEventListener('click', async (e) => {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return;
+        
+            const action = button.dataset.action;
+            const billId = button.dataset.billId;
+        
+            if (action === 'view-invoice' || action === 'view-receipt') {
+                try {
+                    const result = await apiRequest('apiGet', `/bills/${billId}`);
+                    if (result.ok) {
+                        const billDetails = result.data;
+                        const type = action === 'view-invoice' ? 'invoice' : 'receipt';
+                        setupAndOpenDocumentModal(type, billDetails);
+                    } else {
+                        AppAlert.notify({ type: 'error', title: 'Error', message: 'Could not fetch invoice details.' });
+                    }
+                } catch (error) {
+                    AppAlert.notify({ type: 'error', title: 'API Error', message: `Failed to load details: ${error.message}` });
+                }
+            }
         });
 
         for (const key in modals) {
             const modal = modals[key];
             if (!modal.container) continue;
-
             const closeButtons = modal.container.querySelectorAll('.close-modal-btn, .btn.secondary');
-
-            closeButtons.forEach(btn => {
-                btn.addEventListener('click', () => toggleModal(key, false));
-            });
-
+            closeButtons.forEach(btn => btn.addEventListener('click', () => toggleModal(key, false)));
             modal.overlay.addEventListener('click', () => toggleModal(key, false));
         }
 

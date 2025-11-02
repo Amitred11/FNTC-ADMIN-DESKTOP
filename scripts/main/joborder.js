@@ -1,7 +1,7 @@
-// src/views/main/joborder.js (Updated)
+// src/views/main/joborder.js
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // --- STATE & ROLE MANAGEMENT (No Changes) ---
+    // --- STATE & ROLE MANAGEMENT  ---
     const ALLOWED_ROLES = ['admin', 'field_agent'];
     let currentUserRole = null;
 
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         filters: { search: '', type: 'All Types' }
     };
     
-    // --- DOM ELEMENT SELECTORS (No Changes) ---
+    // --- DOM ELEMENT SELECTORS ---
     const headerContainer = document.getElementById('header-container');
     const tableBody = document.querySelector('.jobs-table tbody');
     const searchInput = document.getElementById('job-search');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const createOrderBtn = document.getElementById('createOrderBtn');
     const archiveBtn = document.getElementById('archiveBtn');
 
-    // --- HELPER FUNCTIONS (No Changes) ---
+    // --- HELPER FUNCTIONS ( ---
     const formatJobId = (job) => {
         if (!job) return 'N/A';
         if (job.jobId) return job.jobId;
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // =================================================================
-    // RENDER FUNCTIONS (UI Updates)
+    // RENDER FUNCTIONS 
     // =================================================================
     const loadHeader = async () => {
         try {
@@ -125,17 +125,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelector('[data-key="completed"]').querySelector('.card-value').textContent = jobs.filter(j => j.status === 'Completed').length;
     };
     
-    // --- NEW: Renders job notes and evidence, adapted from fieldagent.js ---
     const renderNotes = (notes) => {
         const container = document.getElementById('detail-notes-container');
-        if (!container) return; // Fail gracefully if the element doesn't exist
+        if (!container) return; 
 
         if (!notes || notes.length === 0) {
             container.innerHTML = `<div class="placeholder">No notes or history available for this job.</div>`;
             return;
         }
 
-        // Display notes from most recent to oldest
         container.innerHTML = notes.slice().reverse().map(note => {
             const noteTextHtml = `<p class="note-text">${note.text || 'System Update'}</p>`;
             const noteMetaHtml = `<div class="note-meta">By ${note.author || 'System'} on ${new Date(note.timestamp).toLocaleString()}</div>`;
@@ -160,9 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).join('');
     };
 
-    // --- MODIFIED: Upgraded with detailed rendering from fieldagent.js ---
     const openViewDialog = (job) => {
-        // --- Job Info ---
        currentJobDetails = job;
         const customer = job.userId ? { name: job.userId.displayName, contact: job.userId.profile?.mobileNumber || 'N/A', address: `${job.userId.profile?.address || ''}, ${job.userId.profile?.city || ''}`.trim(), } : { name: job.customerDetails?.name || 'N/A', contact: job.customerDetails?.contactNumber || 'N/A', address: job.customerDetails?.address || 'N/A', };
         const status = job.status || '';
@@ -182,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         viewDetailDialog.showModal();
     };
 
-    // --- Other Dialog Functions (No Changes) ---
+    // --- Other Dialog Functions ---
     const populateAgentSelects = (selectElementId) => {
         const select = document.getElementById(selectElementId);
         if (!select) return;
@@ -232,7 +228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
     
-    // --- EVENT LISTENERS (Largely Unchanged) ---
+    // --- EVENT LISTENERS  ---
     const setupEventListeners = () => {
         searchInput.addEventListener('input', (e) => { state.filters.search = e.target.value; renderTable(); });
         typeFilter.addEventListener('change', (e) => { state.filters.type = e.target.value; renderTable(); });

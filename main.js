@@ -3,9 +3,10 @@ const path = require('path');
 const FormData = require('form-data');
 const { Readable } = require('stream');
 const fs = require('fs');
+if (require('electron-squirrel-startup')) app.quit();
 
 // --- Global Variables & Constants ---
-const API_BASE_URL = 'http://192.168.100.12:5000/api/admin';
+const API_BASE_URL = 'https://nodefibear.onrender.com/api/admin';
 const IDLE_TIMEOUT_MS = 8 * 60 * 60 * 1000; 
 let mainWindow;
 let store;
@@ -55,18 +56,19 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
-    icon: path.join(__dirname, 'assets', 'icon.ico'), 
+    icon: path.join(__dirname, 'assets/icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
+  mainWindow.loadFile('index.html');
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
   });
-  //mainWindow.webContents.openDevTools(); 
+  // mainWindow.webContents.openDevTools();
 }
 
 async function attemptSilentLogin() {
@@ -405,7 +407,6 @@ ipcMain.handle('api:post', (event, endpoint, body) => makeApiRequest(endpoint, {
             }
         }
 
-        // Prepare the body and headers for makeApiRequest
         const formHeaders = form.getHeaders();
         const requestBodyBuffer = form.getBuffer();
         
