@@ -60,8 +60,10 @@ body {
     transition: grid-template-columns 0.3s ease;
 }
 
-.layout.sidebar-collapsed {
-    grid-template-columns: 90px 1fr;
+@media (min-width: 769px) {
+    .layout.sidebar-collapsed {
+        grid-template-columns: 90px 1fr;
+    }
 }
 
 .header {
@@ -665,30 +667,150 @@ dialog:not([open]) {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
+.sidebar-mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+#sidebar-container.mobile-visible {
+    transform: translateX(0);
+}
+
+#sidebar-container.mobile-visible ~ .sidebar-mobile-overlay {
+    display: block;
+}
 /* ========================================================== */
 /* ||                  UTILITIES & RESPONSIVE              || */
 /* ========================================================== */
 .sr-only { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
 
 @media (max-width: 1200px) {
-    .joborders-section { padding: 24px; }
-    .dialog.wide { width: 95vw; }
+    .joborders-section { 
+        padding: 24px; 
+        gap: 24px;
+    }
+
+    .dialog.wide { 
+        width: 95vw; 
+    }
+
+    body { 
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .controls-row { 
+        flex-direction: column; 
+        align-items: stretch; 
+        gap: 12px;
+    }
+
+    .cards-row { 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    .details-grid-container { 
+        grid-template-columns: 1fr; 
+    }
+
+    .notes-section { 
+        max-height: 40vh; 
+        overflow-y: auto;
+    }
+
+    .search-filter { 
+        overflow-x: auto;
+        flex-wrap: wrap;
+        padding-bottom: 8px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .search-input, 
+    .filter-select {
+        flex-shrink: 0;
+        min-width: 180px;
+    }
+
+    .table-wrap {
+       overflow-x: auto;
+       overflow-y: visible;
+       width: 100%;
+       -webkit-overflow-scrolling: touch;
+    }
 }
 
-@media (max-width: 992px) {
-    .layout { grid-template-columns: 1fr; }
-    .layout.sidebar-collapsed { grid-template-columns: 1fr; }
-    #sidebar-container { display: none; } 
-    .controls-row { flex-direction: column; align-items: stretch; }
-    .cards-row { grid-template-columns: repeat(2, 1fr); }
-    .details-grid-container { grid-template-columns: 1fr; }
-    .notes-section { max-height: 40vh; }
-}
-
+/* --- Small Screens (Phones) --- */
 @media (max-width: 767px) {
-    body { overflow-y: auto; }
-    .main-section { height: auto; }
-    .joborders-section { padding: 16px; gap: 24px; }
-    .cards-row { grid-template-columns: 1fr; }
-    .form-grid { grid-template-columns: 1fr; }
+    body { 
+        overflow-y: auto; 
+    }
+
+    .controls-row { 
+        flex-direction: column; 
+        align-items: stretch; 
+        gap: 12px;
+    }
+
+    .search-filter { 
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .search-input, 
+    .filter-select {
+        flex-shrink: 0;
+        min-width: 160px;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #sidebar-container {
+        position: fixed;
+        top: 0; 
+        left: 0;
+        height: 100%; 
+        width: 260px; 
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        background-color: var(--sidebar-bg, #fff);
+    }
+
+    .main-section { 
+        height: auto; 
+        padding-bottom: 80px; /* avoid hidden content near footer */
+    }
+
+    .joborders-section { 
+        padding: 16px; 
+        gap: 20px;
+    }
+
+    .cards-row { 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    .form-grid { 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+    }
 }

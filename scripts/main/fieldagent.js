@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const imagePreviewContainer = document.getElementById('image-preview-container');
     const lightboxOverlay = document.getElementById('image-lightbox-overlay');
     const lightboxImage = document.getElementById('lightbox-image');
+    const sidebar = document.getElementById('sidebar-container');
+    const overlay = document.getElementById('sidebar-overlay');
 
     // Centralized modal management object
     const modals = {
@@ -242,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await AppAlert.confirm({ title: 'Decline Job?', message: 'This will return the job to the assignment queue. Are you sure?', type: 'danger', confirmText: 'Yes, Decline' });
                     result = await apiRequest('apiPut', `/job-orders/${currentJobId}/decline`, {});
                     if (result.ok) {
-                        AppAlert.notify({ type: 'success', title: 'Job Declined' });
+                        AppAlert.notify({ type: 'success', title: 'Job Declined', message: 'The job order has been successfully declined.' });
                         toggleModal('detailsView', false);
                         await fetchAllJobs();
                     }
@@ -392,6 +394,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const headerResponse = await fetch('../../components/header.html');
         if (headerResponse.ok) {
             headerContainer.innerHTML = await headerResponse.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-visible');
+                });
+
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-visible');
+                });
+            }
             if (window.initializeHeader) {
                 window.initializeHeader();
                 window.setHeader('Field Agent Dashboard', 'Manage your assigned job orders and track your progress.');

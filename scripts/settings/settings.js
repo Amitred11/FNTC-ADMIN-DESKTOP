@@ -1,5 +1,3 @@
-// scripts/settings.js
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // =================================================================
@@ -25,7 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadOverlay = document.getElementById('upload-overlay');
     const systemSettingsGroup = document.getElementById('system-settings-group');
 
-
+    // Sidebar Elements
+    const sidebar = document.getElementById('sidebar-container');
+    const overlay = document.getElementById('sidebar-overlay');
+    
     // =================================================================
     // RENDER FUNCTION - Updates the entire UI from state
     // =================================================================
@@ -79,9 +80,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // =================================================================
-    // EVENT LISTENERS
-    // =================================================================
+    const setupMobileMenu = () => {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+        if (mobileMenuButton && sidebar && overlay) {
+            mobileMenuButton.addEventListener('click', () => {
+                sidebar.classList.add('mobile-visible');
+                overlay.classList.add('visible');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('mobile-visible');
+                overlay.classList.remove('visible');
+            });
+        }
+    };
+
     editProfileBtn.addEventListener('click', (e) => {
         e.preventDefault();
         showView('edit-profile-view');
@@ -181,18 +195,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             window.electronAPI.logout();
         } catch (error) {
-            console.log('Logout cancelled by user.');
+            if (error.message !== "Confirmation cancelled by user.") {
+               console.log('Logout cancelled by user.');
+            }
         }
     };
     
     document.getElementById('logout-btn-main').addEventListener('click', handleLogout);
     document.getElementById('logout-btn-profile').addEventListener('click', handleLogout);
 
-
-    // =================================================================
-    // INITIALIZATION
-    // =================================================================
     const initializeApp = async () => {
+        setTimeout(setupMobileMenu, 100);
+
         try {
             const response = await window.electronAPI.apiGet('/me'); 
             if (response.ok) {

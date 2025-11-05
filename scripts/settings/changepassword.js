@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         confirmPasswordInput: document.getElementById('confirm-password'),
         passwordToggles: document.querySelectorAll('.toggle-password'),
         submitButton: document.querySelector('.change-password-form button[type="submit"]'),
-        headerContainer: document.getElementById('header-container')
+        headerContainer: document.getElementById('header-container'),
+        sidebar: document.getElementById('sidebar-container'),
+        overlay: document.getElementById('sidebar-overlay')
     };
 
     // --- 2. Validation: Ensure critical elements exist ---
@@ -110,6 +112,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 5. Initialization ---
     
     await loadComponent('../../components/header.html', dom.headerContainer);
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && dom.sidebar && dom.overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    dom.sidebar.classList.toggle('mobile-visible');
+                    dom.overlay.classList.toggle('visible'); // Assuming 'visible' class handles opacity
+                });
+
+                dom.overlay.addEventListener('click', () => {
+                    dom.sidebar.classList.remove('mobile-visible');
+                    dom.overlay.classList.remove('visible');
+                });
+            }
 
     if (window.initializeHeader) window.initializeHeader();
     if (window.setHeader) {

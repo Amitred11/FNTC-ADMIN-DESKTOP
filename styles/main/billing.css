@@ -38,9 +38,10 @@ body {
     height: 100vh;
     transition: grid-template-columns 0.3s ease;
 }
-
-.layout.sidebar-collapsed {
-    grid-template-columns: 90px 1fr;
+@media (min-width: 769px) {
+    .layout.sidebar-collapsed {
+        grid-template-columns: 90px 1fr;
+    }
 }
 .header {
    background-color: var(--bg-header);
@@ -153,7 +154,9 @@ body {
 .total-amount { display: flex; justify-content: space-between; align-items: baseline; margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--border-color); }
 .total-amount h4 { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
 .total-amount p { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
-
+.client-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #E5E7EB; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; object-fit: cover; flex-shrink: 0; }
+.client-meta { line-height: 1.4; }
+.client-name { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
 /* --- BILLING DETAILS MODAL (REDESIGN) --- */
 #billingDetailsModal .modal__content {
     overflow-y: hidden; 
@@ -306,6 +309,25 @@ body {
 .btn--danger-outline:hover:not(:disabled) { background-color: #FFF5F5; }
 .btn:disabled { background-color: #F3F4F6; border-color: #F3F4F6; color: #9CA3AF; cursor: not-allowed; }
 .btn:disabled:hover { box-shadow: none; }
+.sidebar-mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+#sidebar-container.mobile-visible {
+    transform: translateX(0);
+}
+
+#sidebar-container.mobile-visible ~ .sidebar-mobile-overlay {
+    display: block;
+}
+
 
 /* --- TABLET & SMALL DESKTOP --- */
 @media (min-width: 768px) {
@@ -374,6 +396,15 @@ body {
         grid-template-columns: 1fr;
     }
     #sidebar-container {
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 999;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        background-color: var(--bg-content);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        width: 260px;
     }
 }

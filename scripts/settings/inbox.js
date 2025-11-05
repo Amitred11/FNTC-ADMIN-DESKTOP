@@ -90,7 +90,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         listContainer: document.querySelector('.message-list'),
         viewPanel: document.querySelector('.message-view'),
         refreshButton: document.querySelector('.inbox-header .btn'),
-        headerContainer: document.getElementById('header-container')
+        headerContainer: document.getElementById('header-container'),
+        sidebar: document.getElementById('sidebar-container'),
+        overlay: document.getElementById('sidebar-overlay')
     };
     
     // --- 3. UTILITY FUNCTIONS ---
@@ -111,6 +113,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`Failed to fetch header: ${response.status}`);
             dom.headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && dom.sidebar && dom.overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    dom.sidebar.classList.toggle('mobile-visible');
+                    dom.overlay.classList.toggle('visible'); // Assuming 'visible' class handles opacity
+                });
+
+                dom.overlay.addEventListener('click', () => {
+                    dom.sidebar.classList.remove('mobile-visible');
+                    dom.overlay.classList.remove('visible');
+                });
+            }
             if (window.initializeHeader) {
                 window.initializeHeader();
             } else {
@@ -221,11 +236,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const handleDeleteMessage = async (messageId) => {
-        if (!messageId || !confirm('Are you sure you want to permanently delete this message?')) {
-            return;
-        }
+        if (!messageId) return;
 
         try {
+            await AppAlert.confirm({
+                type: 'danger',
+                title: 'Delete Message?',
+                message: 'Are you sure you want to permanently delete this message? This action cannot be undone.',
+                confirmText: 'Yes, Delete'
+            });
             const response = await api.deleteMessage(messageId);
             if (!response.ok) throw new Error(response.data.message);
 
@@ -235,14 +254,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             ui.renderMessageList();
 
             if (state.messages.length > 0) {
-                handleMessageSelection(state.messages[0]._id);
+                 handleMessageSelection(state.messages[0]._id);
             } else {
-                ui.renderMessageDetails(null);
+                ui.renderMessageDetails(null); 
             }
-
+            AppAlert.notify({ type: 'success', title: 'Message Deleted', message:'the message has been deleted successfully.' });
+            
         } catch (error) {
-            console.error('Failed to delete message:', error);
-            alert('Error: Could not delete the message.');
+            if (error.message !== 'Confirmation cancelled by user.') {
+                console.error('Failed to delete message:', error);
+                AppAlert.notify({ type: 'error', title: 'Delete Failed', message: 'Could not delete the message.' });
+            }
         }
     };
 

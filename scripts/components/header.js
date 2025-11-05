@@ -53,7 +53,6 @@ window.initializeHeader = async () => {
         return;
     }
     
-    // [FIXED] Aligned permissions to allow all roles to delete notifications.
     const permissions = {
         'view_notifications': ['admin', 'collector', 'field_agent'],
         'delete_notifications': ['admin', 'collector', 'field_agent'], 
@@ -86,8 +85,6 @@ window.initializeHeader = async () => {
         get: (path) => api._request('apiGet', path),
         post: (path, body) => api._request('apiPost', path, body),
         put: (path, body) => api._request('apiPut', path, body),
-        // [FIXED] Correctly format the body for DELETE requests by wrapping it in a 'data' object.
-        // This is necessary because many HTTP clients (like axios) require this structure for DELETE request bodies.
         delete: (path, body = {}) => api._request('apiDelete', path, { data: body }),
     };
 

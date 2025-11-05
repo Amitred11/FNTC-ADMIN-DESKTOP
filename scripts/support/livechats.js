@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // =================================================================
-    // API INTERFACE
-    // =================================================================
     const api = {
         getActiveChats: () => window.electronAPI.apiGet('/chats'),
         getChatById: (chatId) => window.electronAPI.apiGet(`/chats/${chatId}`),
@@ -10,9 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteMessage: (chatId, messageId) => window.electronAPI.apiDelete(`/chats/${chatId}/message/${messageId}`),
     };
 
-    // =================================================================
-    // STATE & DOM ELEMENTS
-    // =================================================================
     let state = {
         chats: [],
         activeChatId: null,
@@ -22,12 +16,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatListContainer = document.getElementById('chat-list-container');
     const chatWindow = document.getElementById('chat-window');
     const searchInput = document.getElementById('search-chat-input');
-    
+    const sidebar = document.getElementById('sidebar-container');
+    const overlay = document.getElementById('sidebar-overlay');
     const loadHeader = async () => {
         try {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`Failed to fetch header: ${response.status}`);
             headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-visible');
+                });
+
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-visible');
+                });
+            }
             if (window.initializeHeader) window.initializeHeader();
             else console.error("Header script not loaded or initializeHeader function not found.");
         } catch (error) {
@@ -36,9 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // =================================================================
-    // UI SETUP
-    // =================================================================
     const setupToggleButton = () => {
         const activeChatsList = document.getElementById('active-chats-list');
         const mainSection = document.querySelector('.main-section');
@@ -72,9 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showBtn.classList.toggle('visible', isCollapsed);
     };
 
-    // =================================================================
-    // REAL-TIME POLLING LOGIC
-    // =================================================================
     const stopChatPolling = () => {
         if (state.pollingIntervalId) {
             clearInterval(state.pollingIntervalId);
@@ -133,10 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 3000);
     };
-    
-    // =================================================================
-    // RENDER FUNCTIONS
-    // =================================================================
+
     const renderChatList = () => {
         const searchTerm = searchInput.value.toLowerCase();
         
@@ -246,10 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chatWindow.innerHTML = `<div class="chat-placeholder"><i class="ph-fill ph-chats-teardrop"></i><p>${message}</p></div>`;
         document.querySelectorAll('.chat-card.active').forEach(card => card.classList.remove('active'));
     };
-
-    // =================================================================
-    // EVENT HANDLERS & INITIALIZATION
-    // =================================================================
     
     searchInput.addEventListener('input', renderChatList);
 
@@ -341,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     systemNote.innerHTML = `<p><em>A message was deleted by the administrator.</em></p>`;
                     messageWrapper.parentNode.replaceChild(systemNote, messageWrapper);
                 }
-                 AppAlert.notify({ type: 'success', title: 'Message Deleted' });
+                 AppAlert.notify({ type: 'success', title: 'Message Deleted', message:'the message has been deleted successfully.' });
             } else {
                 AppAlert.notify({ type: 'error', title: 'Error', message: `Could not delete message: ${response.data.message}` });
             }

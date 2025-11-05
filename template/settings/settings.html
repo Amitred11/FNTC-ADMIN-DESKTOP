@@ -8,21 +8,19 @@
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
     <link rel="stylesheet" href="../../styles/components/sidebar.css">
     <link rel="stylesheet" href="../../styles/settings/settings.css">
+    <link rel="stylesheet" href="../../styles/components/header.css">
     <link rel="stylesheet" href="../../styles/components/alert-component-styles.css">
 </head>
 <body data-page="settings">
     <div class="layout" id="layout">
-        <!-- Sidebar placeholder. The sidebar.js will populate this. -->
         <div id="sidebar-container"></div>
+        <div class="sidebar-mobile-overlay" id="sidebar-overlay"></div>
 
-        <!-- Main content area where the settings page will be displayed -->
         <main class="main-section">
+            <button id="mobile-menu-button" class="mobile-menu-button"><i class="ph ph-list"></i></button>
             <div class="content-area">
                 <div class="settings-container">
-
-                    <!-- ========================================================== -->
-                    <!-- VIEW 1: MAIN SETTINGS PAGE                                 -->
-                    <!-- ========================================================== -->
+                    
                     <div id="settings-view">
                         <div class="profile-header-main">
                             <img id="settings-avatar-img" src="" alt="Admin Avatar" class="avatar-main" />
@@ -82,9 +80,7 @@
                         </div>
                     </div>
 
-                    <!-- ========================================================== -->
-                    <!-- VIEW 2: EDIT PROFILE PAGE                                  -->
-                    <!-- ========================================================== -->
+                    <!-- VIEW 2: EDIT PROFILE PAGE -->
                     <div id="edit-profile-view" class="hidden">
                         <a href="#" id="back-to-settings-btn" class="back-button">
                             <i class="ph ph-arrow-left"></i>
@@ -128,48 +124,39 @@
         </main>
     </div>
 
-    <!-- ============================================= -->
-    <!-- ||       APP ALERT COMPONENT HTML          || -->
-    <!-- ============================================= -->
+    <!-- APP ALERT COMPONENT HTML -->
     <div id="app-alert-container">
-        <!-- Overlay for the standard DIV-based Confirmation Modal -->
         <div id="app-alert-overlay" class="app-alert-overlay"></div>
-        <!-- Standard DIV-based Confirmation Modal Box -->
         <div id="app-alert-box" class="app-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="app-alert-title" aria-describedby="app-alert-message">
             <div class="app-alert-icon-wrapper">
                 <i id="app-alert-icon" class="ph-fill"></i>
             </div>
             <h2 id="app-alert-title" class="app-alert-title">Confirmation</h2>
-            <p id="app-alert-message" class="app-alert-message">This is the standard alert box.</p>
+            <p id="app-alert-message" class="app-alert-message"></p>
             <div class="app-alert-buttons">
                 <button id="app-alert-cancel-btn" class="app-alert-button cancel">Cancel</button>
                 <button id="app-alert-confirm-btn" class="app-alert-button confirm">Confirm</button>
             </div>
         </div>
-        <!-- DIALOG-based Modal (for appearing over other modals) -->
         <dialog id="app-alert-dialog-box" class="app-alert-dialog" aria-labelledby="app-alert-dialog-title" aria-describedby="app-alert-dialog-message">
-        <!-- WRAP DIALOG CONTENTS IN A FORM -->
-        <form method="dialog" style="display: contents;">
-            <div class="app-alert-icon-wrapper">
-                <i id="app-alert-dialog-icon" class="ph-fill"></i>
-            </div>
-            <h2 id="app-alert-dialog-title" class="app-alert-title">Confirmation on Dialog</h2>
-            <p id="app-alert-dialog-message" class="app-alert-message">This is the dialog-based alert box.</p>
-            <div class="app-alert-buttons">
-                <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel" value="cancel">Cancel</button>
-                <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm" value="default">Confirm</button>
-            </div>
-        </form>
-    </dialog>
-        <!-- Container for Toast Notifications -->
+            <form method="dialog" style="display: contents;">
+                <div class="app-alert-icon-wrapper">
+                    <i id="app-alert-dialog-icon" class="ph-fill"></i>
+                </div>
+                <h2 id="app-alert-dialog-title" class="app-alert-title"></h2>
+                <p id="app-alert-dialog-message" class="app-alert-message"></p>
+                <div class="app-alert-buttons">
+                    <button id="app-alert-dialog-cancel-btn" class="app-alert-button cancel" value="cancel">Cancel</button>
+                    <button id="app-alert-dialog-confirm-btn" class="app-alert-button confirm" value="default">Confirm</button>
+                </div>
+            </form>
+        </dialog>
         <div id="app-alert-toast-container" aria-live="assertive" aria-atomic="true"></div>
     </div>
 
-    <!-- Your script for the sidebar -->
     <script src="../../scripts/components/sidebar.js"></script>
-    <!-- App Alert script -->
+    <script src="../../scripts/components/header.js"></script>
     <script src="../../scripts/components/app-alert.js"></script>
-    <!-- Your script for the settings functionality -->
     <script src="../../scripts/settings/settings.js"></script>
 </body>
 </html>

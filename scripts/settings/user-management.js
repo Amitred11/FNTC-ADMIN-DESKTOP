@@ -80,6 +80,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const headerContainer = document.getElementById('header-container');
     let selectedUserId = null;
     let searchDebounceTimer;
+    const sidebar = document.getElementById('sidebar-container');
+    const overlay = document.getElementById('sidebar-overlay');
 
     const api = {
         get: (endpoint) => window.electronAPI.apiGet(endpoint),
@@ -373,6 +375,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error('Header component not found');
             headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-visible');
+                });
+
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-visible');
+                });
+            }
             if (window.initializeHeader) {
                 await window.initializeHeader();
                 if (window.setHeader) {

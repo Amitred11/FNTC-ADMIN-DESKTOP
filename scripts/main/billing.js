@@ -111,6 +111,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editBillModal = document.getElementById('editBillModal');
     const editBillForm = document.getElementById('editBillForm');
     const editBillModalTitle = document.getElementById('editBillModalTitle');
+    const sidebar = document.getElementById('sidebar-container');
+    const soverlay = document.getElementById('sidebar-overlay');
 
     // --- State Management ---
     let allBills = [];
@@ -124,6 +126,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`Failed to fetch header: ${response.status}`);
             headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && sidebar && soverlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-visible');
+                });
+
+                soverlay.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-visible');
+                });
+            }
             if (window.initializeHeader) window.initializeHeader();
             else console.error("Header script not loaded or initializeHeader function not found.");
         } catch (error) {
@@ -180,12 +193,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         billsToRender.forEach(bill => {
-            const user = bill.userId || { displayName: 'N/A', email: 'N/A' };
+            const user = bill.userId && typeof bill.userId === 'object'
+                ? bill.userId
+                : { displayName: 'N/A', email: 'N/A', photoUrl: null };
+
+            const initials = user.displayName
+                ? user.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                : 'NA';
+            const avatarHtml = user.photoUrl
+                ? `<img src="${user.photoUrl}" alt="${user.displayName}" class="client-avatar">`
+                : `<div class="client-avatar">${initials}</div>`;
             const tr = document.createElement('tr');
             tr.dataset.billId = bill._id;
             tr.innerHTML = `
                 <td>#${bill._id.slice(-6).toUpperCase()}</td>
-                <td><div class="subscriber-cell"><div class="subscriber-avatar">${user.displayName.charAt(0)}</div><div><p>${user.displayName}</p><p class="text-muted">${user.email}</p></div></div></td>
+                <td><div class="subscriber-cell"><div class="subscriber-avatar">${avatarHtml}</div><div><p>${user.displayName}</p><p class="text-muted">${user.email}</p></div></div></td>
                 <td>${bill.planName || 'Manual Bill'}</td>
                 <td>$${bill.amount.toFixed(2)}</td>
                 <td>${formatDate(bill.dueDate)}</td>
@@ -220,39 +242,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const filterAndRender = () => {
-    let filtered = [];
+        let filtered = [];
+        const excludedStatuses = ['partially paid', 'voided'];
 
-    switch (currentFilter) {
-        case 'needs_attention':
-            const attentionStatuses = ['due', 'overdue', 'pending verification'];
-            filtered = allBills.filter(bill => attentionStatuses.includes(bill.status.toLowerCase()));
-            break;
-            
-        case 'upcoming':
-            filtered = allBills.filter(bill => bill.status.toLowerCase() === 'upcoming');
-            break;
-            
-        case 'archive':
-            const archiveStatuses = ['paid', 'voided', 'partially paid'];
-            filtered = allBills.filter(bill => archiveStatuses.includes(bill.status.toLowerCase()));
-            break;
-            
-        case 'all':
-        default:
-            filtered = allBills;
-            break;
-    }
+        switch (currentFilter) {
+            case 'needs_attention':
+                const attentionStatuses = ['due', 'overdue', 'pending verification'];
+                filtered = allBills.filter(bill => attentionStatuses.includes(bill.status.toLowerCase()));
+                break;
+                
+            case 'upcoming':
+                filtered = allBills.filter(bill => bill.status.toLowerCase() === 'upcoming');
+                break;
+                
+            case 'archive':
+                // Only show 'paid' bills in the archive to simplify the view.
+                const archiveStatuses = ['paid'];
+                filtered = allBills.filter(bill => archiveStatuses.includes(bill.status.toLowerCase()));
+                break;
+                
+            case 'all':
+            default:
+                // In the 'all' view, show everything except the excluded statuses.
+                filtered = allBills.filter(bill => !excludedStatuses.includes(bill.status.toLowerCase()));
+                break;
+        }
 
-    const searchTerm = searchInput.value.toLowerCase();
-    if (searchTerm) {
-        filtered = filtered.filter(bill =>
-            (bill.userId?.displayName || '').toLowerCase().includes(searchTerm) ||
-            (bill.planName || '').toLowerCase().includes(searchTerm) ||
-            bill._id.toLowerCase().includes(searchTerm)
-        );
-    }
-    renderTable(filtered);
-};
+        const searchTerm = searchInput.value.toLowerCase();
+        if (searchTerm) {
+            filtered = filtered.filter(bill =>
+                (bill.userId?.displayName || '').toLowerCase().includes(searchTerm) ||
+                (bill.planName || '').toLowerCase().includes(searchTerm) ||
+                bill._id.toLowerCase().includes(searchTerm)
+            );
+        }
+        renderTable(filtered);
+    };
 
     // --- Billing Details Modal ---
     const openBillingDetails = async (billId) => {

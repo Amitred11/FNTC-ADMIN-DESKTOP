@@ -429,127 +429,76 @@ body {
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
+.sidebar-mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
 
+#sidebar-container.mobile-visible {
+    transform: translateX(0);
+}
+
+#sidebar-container.mobile-visible ~ .sidebar-mobile-overlay {
+    display: block;
+}
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
 }
-/* --- For Tablets and Smaller Desktops --- */
-@media (max-width: 992px) {
-    .layout {
-        /* Remove the sidebar column and let main content take up the full width */
-        grid-template-columns: 1fr;
-    }
 
-    .main-section {
-        /* Allow the main section itself to scroll */
-        overflow-y: auto;
-    }
-
-    .content-area {
-        /* Disable scrolling on the inner container to prevent double scrollbars */
-        overflow-y: visible;
-    }
-    #sidebar-container {
-        display: none;
-    }
-}
-
-/* --- For Mobile Devices --- */
 @media (max-width: 768px) {
-    .content-area {
-        padding: 32px 24px;
-    }
-
-    .user-name {
-        font-size: 24px;
-    }
-
-    .user-email {
-        font-size: 15px;
-    }
-
-    .avatar-main {
-        width: 70px;
-        height: 70px;
-    }
-
-    .settings-item {
-        padding: 16px;
-    }
-    
-    .settings-item-label {
-        margin-left: 16px;
-    }
-
-    .separator {
-        margin-left: 64px; /* Adjust based on new padding and icon size */
-    }
-    
-    .profile-header-card {
-        padding: 24px;
-    }
-    
-    .avatar-edit-container {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .display-name {
-        font-size: 22px;
-    }
-    
-    .card {
-        padding: 20px;
-    }
+    .layout { grid-template-columns: 1fr; }
     #sidebar-container {
-        display: none;
+        position: fixed; top: 0; left: 0; height: 100%; z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        width: 260px; 
     }
+    .content-area {
+        padding: 80px 24px 32px 24px;
+    }
+
+    .user-name { font-size: 24px; }
+    .user-email { font-size: 15px; }
+    .avatar-main { width: 70px; height: 70px; }
+    .profile-header-main { padding: 20px; }
+    .settings-item { padding: 16px; }
+    .settings-item-label { margin-left: 16px; }
+    .separator { margin-left: 64px; }
+    .profile-header-card { padding: 24px; }
+    .avatar-edit-container { width: 100px; height: 100px; }
+    .display-name { font-size: 22px; }
+    .card { padding: 20px; }
 }
 
-/* --- For Small Mobile Devices --- */
 @media (max-width: 480px) {
     .content-area {
-        padding: 24px 16px;
+        padding: 70px 16px 24px 16px;
     }
     
+    .mobile-menu-button {
+        top: 16px;
+        left: 16px;
+    }
+
     .profile-header-main {
-        /* Stack the avatar and text on very small screens */
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
     }
     
-    .profile-text-container {
-        margin-left: 0;
-    }
-
-    .user-name {
-        font-size: 22px;
-    }
-
-    .settings-item {
-        padding: 14px;
-    }
-    
-    .settings-item-icon {
-        font-size: 22px;
-    }
-    
-    .settings-item-label {
-        font-size: 15px;
-    }
-
-    .input-group input {
-        font-size: 15px;
-    }
-
-    .button-primary {
-        padding: 14px;
-        font-size: 15px;
-    }
-    #sidebar-container {
-        display: none;
-    }
+    .profile-text-container { margin-left: 0; }
+    .user-name { font-size: 22px; }
+    .settings-item { padding: 14px; }
+    .settings-item-icon { font-size: 22px; }
+    .settings-item-label { font-size: 15px; }
+    .button-primary { padding: 14px; font-size: 15px; }
 }

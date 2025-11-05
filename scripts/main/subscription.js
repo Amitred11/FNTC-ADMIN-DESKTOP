@@ -103,6 +103,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pendingStateView = document.getElementById('pending-state-view');
     const overviewContentView = document.getElementById('overview-content-view');
     const mainActionButtons = document.getElementById('main-action-buttons');
+    const sidebar = document.getElementById('sidebar-container');
+    const overlay = document.getElementById('sidebar-overlay');
     
     const modals = {
         planList: { overlay: document.getElementById('plan-modal-overlay'), container: document.getElementById('plan-management-modal') },
@@ -112,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         cancelPlan: { overlay: document.getElementById('cancel-plan-modal-overlay'), container: document.getElementById('cancel-plan-modal'), form: document.getElementById('cancel-plan-form') },
         suspendPlan: { overlay: document.getElementById('suspend-plan-modal-overlay'), container: document.getElementById('suspend-plan-modal'), form: document.getElementById('suspend-plan-form') },
         declineReason: { overlay: document.getElementById('decline-reason-modal-overlay'), container: document.getElementById('decline-reason-modal'), form: document.getElementById('decline-reason-form') },
-        // Added invoice and receipt modals
         invoiceDetail: { overlay: document.getElementById('invoiceDetailModal-overlay'), container: document.getElementById('invoiceDetailModal') },
         receiptDetail: { overlay: document.getElementById('receiptDetailModal-overlay'), container: document.getElementById('receiptDetailModal') }
     };
@@ -122,6 +123,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`Failed to fetch header: ${response.status}`);
             headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-visible');
+                });
+
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-visible');
+                });
+            }
             if (window.initializeHeader) { window.initializeHeader(); } 
             else { console.error("Header script not loaded or initializeHeader function not found."); }
         } catch (error) {
@@ -265,13 +277,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
     
                 return `<tr data-bill-id="${item._id}">
-                    <td>${new Date(item.dueDate).toLocaleDateString()}</td>
-                    <td>${item.planName || 'Manual Bill'}</td>
-                    <td>₱${item.amount.toLocaleString()}</td>
-                    <td class="red-text">₱${(['due', 'overdue'].includes(item.status.toLowerCase())) ? item.amount.toFixed(2) : '0.00'}</td>
-                    <td>₱${item.amount.toLocaleString()}</td>
-                    <td><span class="status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
-                    <td>${actionButton}</td>
+                   <td data-label="Date">${new Date(item.dueDate).toLocaleDateString()}</td>
+                   <td data-label="Details">${item.planName || 'Manual Bill'}</td>
+                   <td data-label="Price">₱${item.amount.toLocaleString()}</td>
+                   <td data-label="Amount Due" class="red-text">₱${(['due', 'overdue'].includes(item.status.toLowerCase())) ? item.amount.toFixed(2) : '0.00'}</td>
+                   <td data-label="Total">₱${item.amount.toLocaleString()}</td>
+                   <td data-label="Status"><span class="status-badge ${item.status.toLowerCase()}">${item.status}</span></td>
+                   <td data-label="Action">${actionButton}</td>
                 </tr>`
             }).join('');
     };
@@ -602,7 +614,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
             submitAndRefresh(planId ? 'apiPut' : 'apiPost', planId ? `/plans/${planId}` : '/plans', upsertData, 'planUpsert', 'Plan saved!');
         });
-        modals.updatePlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { newPlanId: new FormData(e.target).get('newPlanSelect') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/change-plan`, data, 'updatePlan', 'Plan change submitted!'); });
+        modals.updatePlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const newPlanIdValue = document.getElementById('newPlanSelect').value; if (!newPlanIdValue) { AppAlert.notify({ type: 'error', title: 'Selection Required', message: 'Please select a new plan before submitting.' }); return; } const data = { newPlanId: String(newPlanIdValue) }; submitAndRefresh('apiPost', `/subscriptions/${subId}/change-plan`, data, 'updatePlan', 'Plan change submitted!');});
         modals.cancelPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { reason: new FormData(e.target).get('reason') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/cancel`, data, 'cancelPlan', 'Subscription cancelled.'); });
         modals.suspendPlan.form.addEventListener('submit', e => { e.preventDefault(); const subId = detailsView.dataset.subscriptionId; const data = { reason: new FormData(e.target).get('reason') }; submitAndRefresh('apiPost', `/subscriptions/${subId}/suspend`, data, 'suspendPlan', 'Subscription suspended.'); });
 

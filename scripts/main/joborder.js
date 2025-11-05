@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const assignForm = document.getElementById('assignForm');
     const createOrderBtn = document.getElementById('createOrderBtn');
     const archiveBtn = document.getElementById('archiveBtn');
-
+    const sidebar = document.getElementById('sidebar-container');
+    const overlay = document.getElementById('sidebar-overlay');
     // --- HELPER FUNCTIONS ( ---
     const formatJobId = (job) => {
         if (!job) return 'N/A';
@@ -63,6 +64,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`Failed to fetch header: ${response.status}`);
             headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-visible');
+                });
+
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-visible');
+                });
+            }
             if (window.initializeHeader) { window.initializeHeader(); }
         } catch (error) {
             console.error('Failed to load header component:', error);
@@ -315,10 +327,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const jobId = assignDialog.dataset.jobId;
             const agentId = document.getElementById('manualTechAssign').value;
             if (!agentId) return AppAlert.notify({ type: 'warning', title: 'Selection Required', message: 'Please select a technician.' });
-            
+            const agent = state.availableAgents.find(a => a._id === agentId);
+            const agentName = agent ? agent.displayName : 'Unknown Technician';
             const response = await window.electronAPI.apiPut(`/job-orders/${jobId}/assign`, { agentId });
             if (response.ok) {
-                AppAlert.notify({ type: 'success', title: 'Technician Assigned' });
+                AppAlert.notify({ type: 'success', title: 'Technician Assigned', message: `Assigned to: ${agentName}` });
                 assignDialog.close();
                 await initializeApp();
             } else {

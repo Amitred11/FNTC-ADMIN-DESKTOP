@@ -9,13 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const noticeListEl = document.getElementById('subscriber-list');
     const barChartEl = document.getElementById('bar-chart-body');
     const donutChartEl = document.getElementById('donut-chart-figure');
-
+    const sidebar = document.getElementById('sidebar-container');
+    const overlay = document.getElementById('sidebar-overlay');
     // --- PART 2: Dashboard-Specific Functions ---
     const loadHeader = async (title, subtitle) => {
         try {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`Failed to fetch header: ${response.status}`);
             headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('mobile-visible');
+                });
+
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-visible');
+                });
+            }
 
             if (window.initializeHeader && window.setHeader) {
                 window.initializeHeader();

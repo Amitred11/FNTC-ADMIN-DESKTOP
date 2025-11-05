@@ -127,6 +127,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         evidenceModal: document.getElementById('evidence-modal'),
         evidenceModalImage: document.getElementById('evidence-modal-image'),
         evidenceModalClose: document.getElementById('evidence-modal-close'),
+        sidebar: document.getElementById('sidebar-container'),
+        overlay: document.getElementById('sidebar-overlay'),
     };
 
     const renderTickets = () => {
@@ -341,7 +343,7 @@ const handleReplySubmit = async () => {
             closeEditModal();
             const response = await supportTicketAPI.getTicketById(ticketId);
             renderTicketDetail(response.data);
-            AppAlert.notify({ type: 'success', title: 'Reply Updated' });
+            AppAlert.notify({ type: 'success', title: 'Reply Updated', message: 'the reply has been updated successfully.' });
         } catch(error) {
             AppAlert.notify({ type: 'error', title: 'Save Failed', message: error.message });
         }
@@ -371,6 +373,15 @@ const handleReplySubmit = async () => {
             const response = await fetch('../../components/header.html');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             dom.headerContainer.innerHTML = await response.text();
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            if (mobileMenuButton && dom.sidebar && dom.overlay) {
+                mobileMenuButton.addEventListener('click', () => {
+                    dom.sidebar.classList.toggle('mobile-visible');
+                });
+                dom.overlay.addEventListener('click', () => {
+                    dom.sidebar.classList.remove('mobile-visible');
+                });
+            }
             if (window.initializeHeader) {
                 window.initializeHeader();
                 if (window.setHeader) {

@@ -38,7 +38,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-main);
     color: var(--text-dark);
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .layout {
@@ -48,9 +48,12 @@ body {
     transition: grid-template-columns 0.3s ease;
 }
 
-.layout.sidebar-collapsed {
-    grid-template-columns: 90px 1fr;
+@media (min-width: 769px) {
+    .layout.sidebar-collapsed {
+        grid-template-columns: 90px 1fr;
+    }
 }
+
 
 .main-section {
     padding: 24px 48px;
@@ -293,20 +296,100 @@ body {
     font-size: 0.9rem;
 }
 
+.sidebar-mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+#sidebar-container.mobile-visible {
+    transform: translateX(0);
+}
+
+#sidebar-container.mobile-visible ~ .sidebar-mobile-overlay {
+    display: block;
+}
+
+
 /* --- RESPONSIVE STYLES --- */
 @media (max-width: 1200px) {
     .main-section { padding: 24px; }
-    .top-row { grid-template-columns: 1fr; }
+    .top-row { 
+        grid-template-columns: 1fr; 
+    }
 }
 
 @media (max-width: 992px) {
-    .bottom-row { grid-template-columns: 1fr; }
+    .bottom-row { 
+        grid-template-columns: 1fr; 
+    }
 }
 
 @media (max-width: 768px) {
-    body { overflow: auto; }
-    .layout { grid-template-columns: 1fr; height: auto; }
-    #sidebar-container { display: none; }
-    .main-section { padding: 16px; height: auto; }
-    .dashboard-body { grid-template-rows: auto; }
+    body { 
+        overflow-y: auto;
+    }
+
+    .layout { 
+        grid-template-columns: 1fr; 
+        height: auto;
+    }
+
+    #sidebar-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 999;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        background-color: var(--bg-content);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        width: 260px;
+    }
+    
+    .main-section { 
+        padding: 16px; 
+        height: auto; 
+        overflow-y: visible;
+    }
+    .dashboard-body { 
+        grid-template-rows: auto; 
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-container, .overdue-notice-card, .donut-card {
+        padding: 16px;
+    }
+
+    .card-content-split {
+        flex-direction: column;
+        align-items: flex-start; 
+        gap: 1rem;
+    }
+
+    .card-content-split .stat-item:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        width: 100%;
+        padding-left: 0;
+        padding-bottom: 1rem;
+    }
+    .card-content-split .stat-item {
+        padding: 0;
+    }
+
+    .card-content p, .stat-item p {
+        font-size: 1.3rem;
+    }
+
+    .chart-header, .card-header {
+        font-size: 0.9rem;
+    }
 }

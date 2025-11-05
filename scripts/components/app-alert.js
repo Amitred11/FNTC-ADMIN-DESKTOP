@@ -1,8 +1,3 @@
-/* =================================================================
-   APP ALERT & NOTIFICATION MODULE (SCOPE-CORRECTED - NON-UNIFIED)
-   - scripts/components/app-alert.js
-   ================================================================= */
-
 const AppAlert = (() => {
     // --- Phosphor Icon Mappings ---
     const ICONS = {
@@ -55,16 +50,13 @@ const AppAlert = (() => {
         });
     }
 
-    // --- Standard Confirmation Logic (DIV-based) ---
     const alertBox = document.getElementById('app-alert-box');
     const overlay = document.getElementById('app-alert-overlay');
 
-    // Hoist variables for Standard Confirmation
     let standardResolver = null;
     let showStandardConfirmation;
     let hideStandardConfirmation;
 
-    // Hoist variables for Prompt-enabled 'show'
     let activeResolver = null;
     let showPromptModal; 
     let hidePromptModal;
@@ -78,7 +70,7 @@ const AppAlert = (() => {
         inputWrapper: document.getElementById('app-alert-input-wrapper'),
         input: document.getElementById('app-alert-input'),
         errorMessage: document.getElementById('app-alert-error-message')
-    } : null; // Initialize to null if elements aren't found
+    } : null;
 
 
     if (alertElements) { 
