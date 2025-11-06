@@ -338,6 +338,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 AppAlert.notify({ type: 'error', title: 'Assignment Failed', message: response.data?.message });
             }
         });
+        const imageLightbox = document.getElementById('imageLightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.querySelector('.lightbox-close');
+
+        if (imageLightbox && lightboxImg && lightboxClose) {
+            const openLightbox = (src) => {
+                if (src) {
+                    lightboxImg.src = src;
+                    imageLightbox.showModal(); // Use showModal() to open
+                }
+            };
+            const closeLightbox = () => {
+                imageLightbox.close(); // Use close()
+                lightboxImg.src = ''; 
+            };
+            viewDetailDialog.addEventListener('click', (e) => {
+                if (e.target.classList.contains('note-evidence-thumbnail')) {
+                    openLightbox(e.target.dataset.lightboxSrc);
+                }
+            });
+            lightboxClose.addEventListener('click', closeLightbox);
+            // Close lightbox if backdrop is clicked
+            imageLightbox.addEventListener("click", e => {
+                if (e.target === imageLightbox) {
+                    closeLightbox();
+                }
+            });
+        }
     };
 
     // =================================================================

@@ -92,9 +92,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- PART 3: UI & Utility Functions ---
     const setupToggleButton = () => {
         const userListPanel = document.querySelector('.user-list-panel');
-        const headerLeft = document.querySelector('.header-left');
-        if (!userListPanel || !headerLeft) return;
+        const managementContainer = document.querySelector('.management-container');
+        if (!userListPanel || !managementContainer) return;
 
+        // Create and place the HIDE button inside the user list panel
         if (!document.getElementById('toggle-user-list-btn')) {
             const hideBtn = document.createElement('button');
             hideBtn.id = 'toggle-user-list-btn';
@@ -104,12 +105,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             hideBtn.addEventListener('click', toggleUserListVisibility);
         }
 
+        // Create and place the SHOW button before the management container
         if (!document.getElementById('show-user-list-btn')) {
             const showBtn = document.createElement('button');
             showBtn.id = 'show-user-list-btn';
             showBtn.title = 'Show User List';
             showBtn.innerHTML = `<i class="ph ph-list-dashes"></i>`;
-            headerLeft.prepend(showBtn);
+            managementContainer.parentNode.insertBefore(showBtn, managementContainer);
             showBtn.addEventListener('click', toggleUserListVisibility);
         }
     };
